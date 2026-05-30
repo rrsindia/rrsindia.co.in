@@ -60,8 +60,52 @@ function submitForm() {
   document.querySelector('.form-submit').style.display = 'none';
 }
 
-// ── FEEDBACK FORM ──
-let fbRating = 0, fbRecommend = '';
+// ── ENQUIRY FORM (RRFinEApp page) → EMAIL via Web3Forms ──
+async function submitEnquiry() {
+  const name = document.getElementById('enq-name').value.trim();
+  const contact = document.getElementById('enq-contact').value.trim();
+  if(!name || !contact) { alert('Please fill in your name and phone/WhatsApp number.'); return; }
+  const email = document.getElementById('enq-email').value.trim();
+  const biz = document.getElementById('enq-biz').value.trim();
+  const plan = document.getElementById('enq-plan').value || 'Not specified';
+  const msg = document.getElementById('enq-msg').value.trim();
+
+  const btn = document.querySelector('.enq-submit');
+  const originalText = btn.textContent;
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  const payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: `📩 RRFinEApp Enquiry — ${plan}`,
+    from_name: 'RRFinEApp Website',
+    "Name": name,
+    "Phone/WhatsApp": contact,
+    "Email": email || '—',
+    "Business": biz || '—',
+    "Interested In": plan,
+    "Message": msg || '—'
+  };
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success) {
+      document.getElementById('enq-success').style.display = 'block';
+      btn.style.display = 'none';
+    } else {
+      alert('Sorry, something went wrong sending your enquiry. Please try WhatsApp or call us.');
+      btn.textContent = originalText; btn.disabled = false;
+    }
+  } catch(err) {
+    alert('Network issue — please check your connection or use the WhatsApp option.');
+    btn.textContent = originalText; btn.disabled = false;
+  }
+}
 const starLabels = ['','😞 Poor','😐 Fair','🙂 Good','😊 Very Good','🤩 Excellent!'];
 function setRating(val) {
   fbRating = val;

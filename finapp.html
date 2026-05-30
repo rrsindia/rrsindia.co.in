@@ -32,7 +32,7 @@
       <p>Most businesses face a painful choice: Tally is familiar but desktop-only. D365 is powerful but complex and expensive. RRFinEApp bridges that gap — built specifically for Indian SMEs, CA firms, and finance teams.</p>
       <div style="display:flex;gap:14px;flex-wrap:wrap">
         <a href="https://fin.rrsindia.co.in" target="_blank" class="btn-primary">Open RRFinEApp ↗</a>
-        <a href="contact.html" class="btn-outline">Request a Demo</a>
+        <a href="#enquire" class="btn-outline">Request a Demo</a>
       </div>
     </div>
 
@@ -196,12 +196,42 @@
       </div>
     </div>
 
+    <!-- Enquiry Form -->
+    <div id="enquire" style="margin-top:60px">
+      <div class="section-tag" style="text-align:center">Get Started Today</div>
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;margin-bottom:8px;text-align:center">Request a <span style="color:var(--g4)">Demo or Pricing</span></h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:32px;text-align:center">Fill this quick form and we'll get back to you the same day — usually within hours.</p>
+      <div class="contact-form reveal" style="max-width:620px;margin:0 auto">
+        <div class="form-group"><label>Your Name</label><input type="text" id="enq-name" placeholder="Full name"></div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:200px"><label>Phone / WhatsApp</label><input type="text" id="enq-contact" placeholder="Mobile number"></div>
+          <div class="form-group" style="flex:1;min-width:200px"><label>Email <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="email" id="enq-email" placeholder="you@example.com"></div>
+        </div>
+        <div class="form-group"><label>Business / Firm Name <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="text" id="enq-biz" placeholder="e.g. Sharma Traders"></div>
+        <div class="form-group">
+          <label>I'm interested in</label>
+          <select id="enq-plan">
+            <option value="">Select...</option>
+            <option>Starter Plan (₹999/mo)</option>
+            <option>Professional Plan (₹1,999/mo)</option>
+            <option>Enterprise Plan (Custom)</option>
+            <option>Just a free demo first</option>
+            <option>Not sure — need guidance</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Message <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea rows="3" id="enq-msg" placeholder="Tell us about your business or any questions..."></textarea></div>
+        <button class="form-submit enq-submit" onclick="submitEnquiry()">✉️ Send Enquiry →</button>
+        <div class="form-success" id="enq-success" style="display:none">✅ Thank you! Your enquiry has been received. We'll get back to you very soon. 🙏</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-top:12px;text-align:center">Prefer instant chat? <a href="https://wa.me/919417128045?text=I'm%20interested%20in%20RRFinEApp" target="_blank" style="color:var(--g4)">WhatsApp us →</a></p>
+      </div>
+    </div>
+
     <!-- CTA -->
-    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-      <div><div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;margin-bottom:4px">Ready to try RRFinEApp?</div><div style="color:var(--muted);font-size:.85rem">Contact us for a demo or access credentials</div></div>
+    <div style="margin-top:48px;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div><div style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;margin-bottom:4px">Ready to try RRFinEApp?</div><div style="color:var(--muted);font-size:.85rem">Open the app, or send us an enquiry above</div></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
         <a href="https://fin.rrsindia.co.in" target="_blank" class="btn-primary">Open App ↗</a>
-        <a href="contact.html" class="btn-outline">Request Demo</a>
+        <a href="#enquire" class="btn-outline">Request Demo</a>
       </div>
     </div>
 
