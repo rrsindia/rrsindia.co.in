@@ -75,7 +75,10 @@ function setRecommend(val) {
     if(btn){ btn.style.borderColor = val===v?'var(--g4)':'var(--border)'; btn.style.color = val===v?'var(--g4)':'var(--muted)'; }
   });
 }
-function submitFeedback() {
+// Web3Forms access key — sends feedback to rrsindia122@gmail.com
+const WEB3FORMS_KEY = 'c06fa8d4-b67d-4cc3-9982-ad202da2d532';
+
+async function submitFeedback() {
   const msg = document.getElementById('fb-msg').value.trim();
   if(!fbRating) { alert('Please select a star rating.'); return; }
   if(!msg) { alert('Please write a short feedback message.'); return; }
@@ -84,10 +87,42 @@ function submitFeedback() {
   const cat  = document.getElementById('fb-category').value || 'General';
   const stars= '⭐'.repeat(fbRating);
   const rec  = fbRecommend==='yes'?'👍 Yes, would recommend!':fbRecommend==='no'?'🤔 Maybe / Not sure':'Not specified';
-  const waText = encodeURIComponent(
-    `🌟 *New Feedback — R.R. Sphere India*\n\n*Rating:* ${stars} (${fbRating}/5)\n*Category:* ${cat}\n*Name:* ${name}${biz?'\n*Business:* '+biz:''}\n*Would Recommend:* ${rec}\n\n*Feedback:*\n${msg}`
-  );
-  window.open(`https://wa.me/919417128045?text=${waText}`, '_blank');
-  document.getElementById('fb-success').style.display = 'block';
-  document.querySelector('.fb-submit').style.display = 'none';
+
+  const btn = document.querySelector('.fb-submit');
+  const originalText = btn.textContent;
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  const payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: `🌟 New Feedback (${fbRating}/5) — ${cat}`,
+    from_name: 'RR Sphere Website',
+    "Rating": `${stars} (${fbRating}/5)`,
+    "Category": cat,
+    "Name": name,
+    "Business": biz || '—',
+    "Would Recommend": rec,
+    "Feedback": msg
+  };
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success) {
+      document.getElementById('fb-success').style.display = 'block';
+      btn.style.display = 'none';
+    } else {
+      alert('Sorry, something went wrong sending your feedback. Please try the WhatsApp option below.');
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  } catch(err) {
+    alert('Network issue — please check your connection or use the WhatsApp option below.');
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
 }
