@@ -270,6 +270,7 @@ async function submitFeedback() {
       const btn = document.createElement('button');
       btn.className = 'ai-nav-btn';
       btn.type = 'button';
+      btn.title = 'Ask AI  (Alt + A)';
       btn.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 0c.5 4.6 2.4 6.5 7 7-4.6.5-6.5 2.4-7 7-.5-4.6-2.4-6.5-7-7 4.6-.5 6.5-2.4 7-7z" fill="#ffd429"/><path d="M19 13c.25 2.1 1.15 3 3.2 3.2-2.05.25-2.95 1.1-3.2 3.2-.25-2.1-1.15-3-3.2-3.2 2.05-.25 2.95-1.1 3.2-3.2z" fill="#ffe680"/></svg> AI';
       btn.addEventListener('click', openChat);
       if(logo && logo.parentNode === nav){ nav.insertBefore(btn, logo.nextSibling); }
@@ -278,6 +279,7 @@ async function submitFeedback() {
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
+      fab.title = 'Ask AI  (Alt + A)';
       fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 0c.5 4.6 2.4 6.5 7 7-4.6.5-6.5 2.4-7 7-.5-4.6-2.4-6.5-7-7 4.6-.5 6.5-2.4 7-7z" fill="#ffd429"/><path d="M19 13c.25 2.1 1.15 3 3.2 3.2-2.05.25-2.95 1.1-3.2 3.2-.25-2.1-1.15-3-3.2-3.2 2.05-.25 2.95-1.1 3.2-3.2z" fill="#ffe680"/></svg> Ask AI';
       document.body.appendChild(fab);
       // Restore saved position (persists where the user dragged it)
@@ -299,7 +301,7 @@ async function submitFeedback() {
       chat.innerHTML =
         '<div class="ai-chat-header">'+
           '<div class="ai-ava">✨</div>'+
-          '<div><h4>RR AI Assistant</h4><p>Online now</p></div>'+
+          '<div><h4>RR AI Assistant</h4><p>Online now · Alt+A</p></div>'+
           '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
         '</div>'+
         '<div class="ai-chat-body" id="aiBody"></div>'+
@@ -352,6 +354,17 @@ async function submitFeedback() {
     if(!text) return;
     userSay(text); i.value=''; respond(text);
   }
+
+  function chatIsOpen(){ const c=document.querySelector('.ai-chat'); return !!(c && c.classList.contains('open')); }
+  function toggleChat(){ if(!document.querySelector('.ai-chat')) buildAI(); if(chatIsOpen()) closeChat(); else openChat(); }
+
+  // Keyboard shortcut: Alt + A  →  open / close the AI assistant
+  document.addEventListener('keydown', function(e){
+    if(e.altKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyA' || (e.key && e.key.toLowerCase() === 'a'))){
+      e.preventDefault();
+      toggleChat();
+    }
+  });
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', buildAI);
   else buildAI();
