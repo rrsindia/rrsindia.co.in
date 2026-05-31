@@ -284,25 +284,6 @@ async function submitFeedback() {
         nav.appendChild(btn);
       }
     });
-    if(!document.querySelector('.ai-fab')){
-      const fab = document.createElement('button');
-      fab.className = 'ai-fab'; fab.type = 'button';
-      fab.title = 'Ask AI  (Alt + A)';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> Ask AI';
-      document.body.appendChild(fab);
-      // Restore saved position (persists where the user dragged it)
-      try{
-        const saved = JSON.parse(localStorage.getItem('rrAiFabPos') || 'null');
-        if(saved && saved.left && saved.top){
-          const w = fab.offsetWidth, h = fab.offsetHeight;
-          const l = Math.max(8, Math.min(window.innerWidth - w - 8, parseInt(saved.left) || 8));
-          const t = Math.max(8, Math.min(window.innerHeight - h - 8, parseInt(saved.top) || 8));
-          fab.style.left = l + 'px'; fab.style.top = t + 'px';
-          fab.style.right = 'auto'; fab.style.bottom = 'auto';
-        }
-      }catch(_){ }
-      makeFabDraggable(fab);
-    }
     if(!document.querySelector('.ai-chat')){
       const chat = document.createElement('div');
       chat.className = 'ai-chat';
@@ -328,7 +309,7 @@ async function submitFeedback() {
   let greeted = false;
   function openChat(){
     document.querySelector('.ai-chat').classList.add('open');
-    document.querySelector('.ai-fab').classList.add('hidden');
+    const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
       botSay("Hi there! 👋 I'm the RR AI Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
@@ -338,7 +319,7 @@ async function submitFeedback() {
   }
   function closeChat(){
     document.querySelector('.ai-chat').classList.remove('open');
-    document.querySelector('.ai-fab').classList.remove('hidden');
+    const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.remove('hidden');
   }
   function scrollBody(){ const b=document.getElementById('aiBody'); if(b) b.scrollTop=b.scrollHeight; }
   function botSay(html){ const b=document.getElementById('aiBody'); const d=document.createElement('div'); d.className='ai-msg bot'; d.innerHTML=html; b.appendChild(d); scrollBody(); }
