@@ -281,7 +281,7 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 /* Nav pill */
 .ai-nav-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1a8a47,#0f5c2e);border:1.5px solid rgba(134,239,172,0.85);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:1px;padding:6px 15px;border-radius:100px;cursor:pointer;transition:.25s;box-shadow:0 0 0 3px rgba(74,222,128,0.18),0 0 16px rgba(74,222,128,0.7);white-space:nowrap;margin-left:14px;animation:ai-glow 2.4s ease-in-out infinite}
 .ai-nav-btn:hover{transform:translateY(-1px);box-shadow:0 0 0 3px rgba(74,222,128,0.3),0 0 24px rgba(74,222,128,0.95)}
-.ai-nav-btn .spark{display:inline-block;font-size:.9rem;animation:ai-spark 2s infinite;filter:drop-shadow(0 0 3px rgba(250,204,21,0.8))}
+.ai-nav-btn .spark{display:inline-block;vertical-align:middle;animation:ai-spark 2s infinite;filter:drop-shadow(0 0 3px rgba(255,212,41,0.9))}
 @keyframes ai-glow{0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,0.18),0 0 14px rgba(74,222,128,0.6)}50%{box-shadow:0 0 0 4px rgba(74,222,128,0.28),0 0 24px rgba(74,222,128,0.95)}}
 @keyframes ai-spark{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
 
@@ -289,7 +289,7 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 .ai-fab{position:fixed;bottom:28px;left:28px;z-index:1000;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--g3),var(--g4));color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.5px;padding:12px 18px;border-radius:100px;border:none;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 4px 20px rgba(34,197,94,0.45);transition:transform .2s;animation:ai-pulse 2.6s infinite}
 .ai-fab:active{cursor:grabbing}
 .ai-fab:hover{transform:scale(1.06)}
-.ai-fab .spark{font-size:1.1rem;line-height:1}
+.ai-fab .spark{display:inline-block;vertical-align:middle;line-height:1;filter:drop-shadow(0 0 3px rgba(255,212,41,0.9))}
 .ai-fab.hidden{display:none}
 @keyframes ai-pulse{0%,100%{box-shadow:0 4px 20px rgba(34,197,94,0.45)}50%{box-shadow:0 4px 34px rgba(34,197,94,0.8)}}
 

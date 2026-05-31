@@ -270,7 +270,7 @@ async function submitFeedback() {
       const btn = document.createElement('button');
       btn.className = 'ai-nav-btn';
       btn.type = 'button';
-      btn.innerHTML = '<span class="spark">✨</span> AI';
+      btn.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 0c.5 4.6 2.4 6.5 7 7-4.6.5-6.5 2.4-7 7-.5-4.6-2.4-6.5-7-7 4.6-.5 6.5-2.4 7-7z" fill="#ffd429"/><path d="M19 13c.25 2.1 1.15 3 3.2 3.2-2.05.25-2.95 1.1-3.2 3.2-.25-2.1-1.15-3-3.2-3.2 2.05-.25 2.95-1.1 3.2-3.2z" fill="#ffe680"/></svg> AI';
       btn.addEventListener('click', openChat);
       if(logo && logo.parentNode === nav){ nav.insertBefore(btn, logo.nextSibling); }
       else { nav.appendChild(btn); }
@@ -278,7 +278,7 @@ async function submitFeedback() {
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
-      fab.innerHTML = '<span class="spark">✨</span> Ask AI';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 0c.5 4.6 2.4 6.5 7 7-4.6.5-6.5 2.4-7 7-.5-4.6-2.4-6.5-7-7 4.6-.5 6.5-2.4 7-7z" fill="#ffd429"/><path d="M19 13c.25 2.1 1.15 3 3.2 3.2-2.05.25-2.95 1.1-3.2 3.2-.25-2.1-1.15-3-3.2-3.2 2.05-.25 2.95-1.1 3.2-3.2z" fill="#ffe680"/></svg> Ask AI';
       document.body.appendChild(fab);
       // Restore saved position (persists where the user dragged it)
       try{
