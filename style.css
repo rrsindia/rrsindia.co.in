@@ -290,17 +290,15 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 .ai-fab{position:fixed;top:16px;left:300px;z-index:1001;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:3px;padding:3px 8px;background:linear-gradient(180deg,#34c065,#15914a);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.5px;line-height:1;border-radius:7px;border:1px solid rgba(160,245,190,0.6);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 0 14px 4px rgba(120,240,160,0.7),0 0 28px 8px rgba(120,240,160,0.3),inset 0 1px 1px rgba(255,255,255,0.5),0 2px 5px rgba(0,0,0,0.2);text-shadow:0 1px 2px rgba(0,0,0,0.3);transition:transform .2s;animation:ai-pulse 2.4s ease-in-out infinite;overflow:visible}
 .ai-fab::after{content:'';position:absolute;inset:0;border-radius:7px;overflow:hidden;pointer-events:none;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,0.5) 50%,transparent 60%);background-size:250% 100%;background-position:-60% 0;animation:ai-shine 3.4s ease-in-out infinite}
 .ai-fab > *{position:relative;z-index:2}
-.ai-fab .spark{display:inline-block;vertical-align:middle;line-height:1;transform-origin:center;animation:ai-dance 2s ease-in-out infinite}
+.ai-fab .spark{display:inline-block;vertical-align:middle;line-height:1;transform-origin:center;animation:ai-dance 1.8s ease-in-out infinite}
 .ai-fab:hover{transform:scale(1.06)}
 .ai-fab:active{cursor:grabbing}
 .ai-fab.hidden{display:none}
 @keyframes ai-shine{0%{background-position:-60% 0}45%{background-position:160% 0}100%{background-position:160% 0}}
 @keyframes ai-dance{
-  0%   {transform:translateY(0) rotate(0deg) scale(1)}
-  25%  {transform:translateY(-5px) rotate(-13deg) scale(1.22)}
-  50%  {transform:translateY(0) rotate(0deg) scale(1)}
-  75%  {transform:translateY(-5px) rotate(13deg) scale(1.22)}
-  100% {transform:translateY(0) rotate(0deg) scale(1)}
+  0%   {transform:rotate(-15deg)}
+  50%  {transform:rotate(15deg)}
+  100% {transform:rotate(-15deg)}
 }
 @keyframes ai-pulse{0%,100%{box-shadow:0 0 16px 4px rgba(120,240,160,0.6),0 0 30px 8px rgba(120,240,160,0.25),inset 0 1px 1px rgba(255,255,255,0.5),0 2px 6px rgba(0,0,0,0.2)}50%{box-shadow:0 0 26px 8px rgba(120,240,160,0.9),0 0 46px 14px rgba(120,240,160,0.45),inset 0 1px 1px rgba(255,255,255,0.5),0 2px 6px rgba(0,0,0,0.2)}}
 
@@ -310,7 +308,7 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 @keyframes ai-slidein{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
 .ai-chat-header{background:linear-gradient(135deg,var(--g2),var(--g3));padding:15px 18px;display:flex;align-items:center;gap:11px;flex-shrink:0}
 .ai-chat-header .ai-ava{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.16);display:flex;align-items:center;justify-content:center;font-size:1.15rem}
-.ai-chat-header .ai-ava svg{transform-origin:center;animation:ai-dance 2s ease-in-out infinite}
+.ai-chat-header .ai-ava svg{transform-origin:center;animation:ai-dance 1.8s ease-in-out infinite}
 .ai-chat-header h4{font-family:'Rajdhani',sans-serif;font-size:1.12rem;color:#fff;line-height:1.1}
 .ai-chat-header p{font-size:.7rem;color:rgba(255,255,255,0.82);display:flex;align-items:center;gap:5px}
 .ai-chat-header p::before{content:'';width:7px;height:7px;background:#4ade80;border-radius:50%;box-shadow:0 0 6px #4ade80}
