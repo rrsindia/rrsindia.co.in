@@ -264,26 +264,26 @@ async function submitFeedback() {
   }
 
   function buildAI(){
-    document.querySelectorAll('.nav-inner').forEach(nav=>{
-      if(nav.querySelector('.ai-nav-btn')) return;
-      const logo = nav.querySelector('.nav-logo');
-      const btn = document.createElement('button');
-      btn.className = 'ai-nav-btn';
-      btn.type = 'button';
-      btn.title = 'Ask AI  (Alt + A)';
-      btn.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
-      btn.addEventListener('click', openChat);
-      if(logo && logo.parentNode === nav){
-        // wrap the logo + AI button in one flex group so the button sits right beside the name
-        const grp = document.createElement('div');
-        grp.className = 'ai-logo-group';
-        nav.insertBefore(grp, logo);
-        grp.appendChild(logo);
-        grp.appendChild(btn);
-      } else {
-        nav.appendChild(btn);
-      }
-    });
+    // Floating, draggable AI button (gold-lightning look) — replaces the old top-bar pill
+    if(!document.querySelector('.ai-fab')){
+      const fab = document.createElement('button');
+      fab.className = 'ai-fab'; fab.type = 'button';
+      fab.title = 'Ask AI  (Alt + A)';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
+      document.body.appendChild(fab);
+      // Restore the spot the user last dragged it to (remembered per device)
+      try{
+        const saved = JSON.parse(localStorage.getItem('rrAiFabPos') || 'null');
+        if(saved && saved.left && saved.top){
+          const w = fab.offsetWidth, h = fab.offsetHeight;
+          const l = Math.max(8, Math.min(window.innerWidth - w - 8, parseInt(saved.left) || 8));
+          const t = Math.max(8, Math.min(window.innerHeight - h - 8, parseInt(saved.top) || 8));
+          fab.style.left = l + 'px'; fab.style.top = t + 'px';
+          fab.style.right = 'auto'; fab.style.bottom = 'auto';
+        }
+      }catch(_){ }
+      makeFabDraggable(fab);
+    }
     if(!document.querySelector('.ai-chat')){
       const chat = document.createElement('div');
       chat.className = 'ai-chat';
