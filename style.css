@@ -279,9 +279,10 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 
 /* ════════════ AI ASSISTANT ════════════ */
 /* Nav pill */
-.ai-nav-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(34,197,94,0.22),rgba(74,222,128,0.12));border:1px solid rgba(74,222,128,0.55);color:var(--g5);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.5px;padding:5px 13px;border-radius:100px;cursor:pointer;transition:.25s;box-shadow:0 0 12px rgba(34,197,94,0.35);white-space:nowrap;margin-left:14px}
-.ai-nav-btn:hover{box-shadow:0 0 20px rgba(34,197,94,0.65);transform:translateY(-1px)}
-.ai-nav-btn .spark{animation:ai-spark 2s infinite;display:inline-block}
+.ai-nav-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1a8a47,#0f5c2e);border:1.5px solid rgba(134,239,172,0.85);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:1px;padding:6px 15px;border-radius:100px;cursor:pointer;transition:.25s;box-shadow:0 0 0 3px rgba(74,222,128,0.18),0 0 16px rgba(74,222,128,0.7);white-space:nowrap;margin-left:14px;animation:ai-glow 2.4s ease-in-out infinite}
+.ai-nav-btn:hover{transform:translateY(-1px);box-shadow:0 0 0 3px rgba(74,222,128,0.3),0 0 24px rgba(74,222,128,0.95)}
+.ai-nav-btn .spark{display:inline-block;font-size:.9rem;animation:ai-spark 2s infinite;filter:drop-shadow(0 0 3px rgba(250,204,21,0.8))}
+@keyframes ai-glow{0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,0.18),0 0 14px rgba(74,222,128,0.6)}50%{box-shadow:0 0 0 4px rgba(74,222,128,0.28),0 0 24px rgba(74,222,128,0.95)}}
 @keyframes ai-spark{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
 
 /* Floating button (bottom-left, opposite the WhatsApp one) */
