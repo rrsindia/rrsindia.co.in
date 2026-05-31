@@ -271,16 +271,24 @@ async function submitFeedback() {
       btn.className = 'ai-nav-btn';
       btn.type = 'button';
       btn.title = 'Ask AI  (Alt + A)';
-      btn.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 0c.5 4.6 2.4 6.5 7 7-4.6.5-6.5 2.4-7 7-.5-4.6-2.4-6.5-7-7 4.6-.5 6.5-2.4 7-7z" fill="#ffd429"/><path d="M19 13c.25 2.1 1.15 3 3.2 3.2-2.05.25-2.95 1.1-3.2 3.2-.25-2.1-1.15-3-3.2-3.2 2.05-.25 2.95-1.1 3.2-3.2z" fill="#ffe680"/></svg> AI';
+      btn.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
       btn.addEventListener('click', openChat);
-      if(logo && logo.parentNode === nav){ nav.insertBefore(btn, logo.nextSibling); }
-      else { nav.appendChild(btn); }
+      if(logo && logo.parentNode === nav){
+        // wrap the logo + AI button in one flex group so the button sits right beside the name
+        const grp = document.createElement('div');
+        grp.className = 'ai-logo-group';
+        nav.insertBefore(grp, logo);
+        grp.appendChild(logo);
+        grp.appendChild(btn);
+      } else {
+        nav.appendChild(btn);
+      }
     });
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Ask AI  (Alt + A)';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 0c.5 4.6 2.4 6.5 7 7-4.6.5-6.5 2.4-7 7-.5-4.6-2.4-6.5-7-7 4.6-.5 6.5-2.4 7-7z" fill="#ffd429"/><path d="M19 13c.25 2.1 1.15 3 3.2 3.2-2.05.25-2.95 1.1-3.2 3.2-.25-2.1-1.15-3-3.2-3.2 2.05-.25 2.95-1.1 3.2-3.2z" fill="#ffe680"/></svg> Ask AI';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> Ask AI';
       document.body.appendChild(fab);
       // Restore saved position (persists where the user dragged it)
       try{
