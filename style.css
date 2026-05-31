@@ -327,3 +327,12 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
   .ai-chat{bottom:14px;left:14px;right:14px;width:auto;height:72vh}
   .ai-nav-btn{margin-left:10px;font-size:.78rem;padding:4px 11px}
 }
+
+/* ════════════ HERO BANNER (home) ════════════ */
+.hero-banner{width:100%;line-height:0;background:#030f07}
+.hero-banner img{width:100%;height:auto;display:block}
+.hero-banner-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:28px 5% 8px;background:var(--darker)}
+@media(max-width:600px){
+  .hero-banner-cta{padding:22px 5% 4px;gap:10px}
+  .hero-banner-cta .btn-primary,.hero-banner-cta .btn-outline{padding:11px 20px;font-size:.88rem}
+}
