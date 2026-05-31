@@ -219,6 +219,50 @@ async function submitFeedback() {
     return best ? best.a : FALLBACK;
   }
 
+  function makeFabDraggable(fab){
+    let startX = 0, startY = 0, origLeft = 0, origTop = 0;
+    let dragging = false, moved = false, justDragged = false;
+
+    function down(e){
+      dragging = true; moved = false; justDragged = false;
+      const r = fab.getBoundingClientRect();
+      origLeft = r.left; origTop = r.top;
+      startX = e.clientX; startY = e.clientY;
+      try{ fab.setPointerCapture(e.pointerId); }catch(_){ }
+      fab.style.transition = 'none';
+      fab.style.animation = 'none';
+    }
+    function move(e){
+      if(!dragging) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if(!moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) moved = true;
+      if(!moved) return;
+      const w = fab.offsetWidth, h = fab.offsetHeight;
+      let nx = origLeft + dx, ny = origTop + dy;
+      nx = Math.max(8, Math.min(window.innerWidth - w - 8, nx));
+      ny = Math.max(8, Math.min(window.innerHeight - h - 8, ny));
+      fab.style.left = nx + 'px'; fab.style.top = ny + 'px';
+      fab.style.right = 'auto'; fab.style.bottom = 'auto';
+    }
+    function up(){
+      if(!dragging) return;
+      dragging = false;
+      fab.style.transition = ''; fab.style.animation = '';
+      if(moved){
+        justDragged = true;
+        try{ localStorage.setItem('rrAiFabPos', JSON.stringify({left: fab.style.left, top: fab.style.top})); }catch(_){ }
+      }
+    }
+    fab.addEventListener('pointerdown', down);
+    fab.addEventListener('pointermove', move);
+    fab.addEventListener('pointerup', up);
+    fab.addEventListener('pointercancel', up);
+    fab.addEventListener('click', function(e){
+      if(justDragged){ justDragged = false; e.preventDefault(); return; }
+      openChat();
+    });
+  }
+
   function buildAI(){
     document.querySelectorAll('.nav-inner').forEach(nav=>{
       if(nav.querySelector('.ai-nav-btn')) return;
@@ -235,8 +279,19 @@ async function submitFeedback() {
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.innerHTML = '<span class="spark">✨</span> Ask AI';
-      fab.addEventListener('click', openChat);
       document.body.appendChild(fab);
+      // Restore saved position (persists where the user dragged it)
+      try{
+        const saved = JSON.parse(localStorage.getItem('rrAiFabPos') || 'null');
+        if(saved && saved.left && saved.top){
+          const w = fab.offsetWidth, h = fab.offsetHeight;
+          const l = Math.max(8, Math.min(window.innerWidth - w - 8, parseInt(saved.left) || 8));
+          const t = Math.max(8, Math.min(window.innerHeight - h - 8, parseInt(saved.top) || 8));
+          fab.style.left = l + 'px'; fab.style.top = t + 'px';
+          fab.style.right = 'auto'; fab.style.bottom = 'auto';
+        }
+      }catch(_){ }
+      makeFabDraggable(fab);
     }
     if(!document.querySelector('.ai-chat')){
       const chat = document.createElement('div');
