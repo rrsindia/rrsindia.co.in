@@ -250,7 +250,8 @@ async function submitFeedback() {
       fab.style.transition = ''; fab.style.animation = '';
       if(moved){
         justDragged = true;
-        try{ localStorage.setItem('rrAiFabPos', JSON.stringify({left: fab.style.left, top: fab.style.top})); }catch(_){ }
+        fab.dataset.dragged = '1';
+        try{ localStorage.setItem('rrAiPos', JSON.stringify({left: fab.style.left, top: fab.style.top})); }catch(_){ }
       }
     }
     fab.addEventListener('pointerdown', down);
@@ -263,45 +264,46 @@ async function submitFeedback() {
     });
   }
 
+  function anchorToLogo(fab){
+    const logo = document.querySelector('.nav-logo');
+    const w = fab.offsetWidth || 60, h = fab.offsetHeight || 36;
+    if(!logo){ fab.style.top='14px'; fab.style.left='300px'; fab.style.right='auto'; fab.style.bottom='auto'; return; }
+    const r = logo.getBoundingClientRect();
+    let top = r.top + (r.height - h)/2;
+    let left = r.right + 14;
+    top = Math.max(6, Math.min(window.innerHeight - h - 8, top));
+    left = Math.max(8, Math.min(window.innerWidth - w - 8, left));
+    fab.style.top = top+'px'; fab.style.left = left+'px';
+    fab.style.right='auto'; fab.style.bottom='auto';
+  }
+
   function buildAI(){
-    // Top-bar AI pill — sits right next to "R.R. Sphere India"
-    document.querySelectorAll('.nav-inner').forEach(nav=>{
-      if(nav.querySelector('.ai-nav-btn')) return;
-      const logo = nav.querySelector('.nav-logo');
-      const btn = document.createElement('button');
-      btn.className = 'ai-nav-btn';
-      btn.type = 'button';
-      btn.title = 'Ask AI  (Alt + A)';
-      btn.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
-      btn.addEventListener('click', openChat);
-      if(logo && logo.parentNode === nav){
-        const grp = document.createElement('div');
-        grp.className = 'ai-logo-group';
-        nav.insertBefore(grp, logo);
-        grp.appendChild(logo);
-        grp.appendChild(btn);
-      } else {
-        nav.appendChild(btn);
-      }
-    });
-    // Floating, draggable AI button (gold-lightning look)
+    // ONE floating, draggable AI button — auto-positions next to "R.R. Sphere India"
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Ask AI  (Alt + A)';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
       document.body.appendChild(fab);
-      // Restore the spot the user last dragged it to (remembered per device)
+
+      let positioned = false;
       try{
-        const saved = JSON.parse(localStorage.getItem('rrAiFabPos') || 'null');
-        if(saved && saved.left && saved.top){
-          const w = fab.offsetWidth, h = fab.offsetHeight;
-          const l = Math.max(8, Math.min(window.innerWidth - w - 8, parseInt(saved.left) || 8));
-          const t = Math.max(8, Math.min(window.innerHeight - h - 8, parseInt(saved.top) || 8));
-          fab.style.left = l + 'px'; fab.style.top = t + 'px';
-          fab.style.right = 'auto'; fab.style.bottom = 'auto';
+        const saved = JSON.parse(localStorage.getItem('rrAiPos') || 'null');
+        if(saved && saved.left!=null && saved.top!=null){
+          const w = fab.offsetWidth||60, h = fab.offsetHeight||36;
+          fab.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, parseInt(saved.left)||8)) + 'px';
+          fab.style.top  = Math.max(6, Math.min(window.innerHeight - h - 8, parseInt(saved.top)||8)) + 'px';
+          fab.style.right='auto'; fab.style.bottom='auto';
+          fab.dataset.dragged = '1';
+          positioned = true;
         }
       }catch(_){ }
+
+      if(!positioned){ anchorToLogo(fab); requestAnimationFrame(()=>anchorToLogo(fab)); }
+      // keep it beside the name on resize, until the user drags it
+      window.addEventListener('resize', function(){ if(!fab.dataset.dragged) anchorToLogo(fab); });
+      window.addEventListener('load', function(){ if(!fab.dataset.dragged) anchorToLogo(fab); });
+
       makeFabDraggable(fab);
     }
     if(!document.querySelector('.ai-chat')){
