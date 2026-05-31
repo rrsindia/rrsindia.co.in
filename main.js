@@ -197,11 +197,11 @@ async function submitFeedback() {
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
      a:"Reach us anytime! 📞<br>📱 WhatsApp/Call: <a href='https://wa.me/919417128045' target='_blank'>+91-94171-28045</a><br>📧 <a href='mailto:rrsindia122@gmail.com'>rrsindia122@gmail.com</a><br>📍 Amritsar, Punjab, India"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
-     a:"Hello! 👋 I'm the RR AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
+     a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
      a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
-     a:"I'm the RR AI Assistant 🤖 — here to help you learn about R.R. Sphere India, RRFinEApp and our coaching classes. Ask me anything!"},
+     a:"I'm the AI Assistant 🤖 — here to help you learn about R.R. Sphere India, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere India is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
@@ -295,8 +295,8 @@ async function submitFeedback() {
       chat.className = 'ai-chat';
       chat.innerHTML =
         '<div class="ai-chat-header">'+
-          '<div class="ai-ava">✨</div>'+
-          '<div><h4>RR AI Assistant</h4><p>Online now · Alt+A</p></div>'+
+          '<div class="ai-ava"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#f5b820" stroke="#5a3d00" stroke-width="1.3" stroke-linejoin="round"/></svg></div>'+
+          '<div><h4>AI Assistant</h4><p>Online now · Alt+A</p></div>'+
           '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
         '</div>'+
         '<div class="ai-chat-body" id="aiBody"></div>'+
@@ -318,7 +318,7 @@ async function submitFeedback() {
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
-      botSay("Hi there! 👋 I'm the RR AI Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
+      botSay("Hi there! 👋 I'm the AI Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
       renderQuick();
     }
     setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
