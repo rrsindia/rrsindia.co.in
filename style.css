@@ -287,12 +287,16 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 @keyframes ai-spark{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
 
 /* Floating button (bottom-left, opposite the WhatsApp one) */
-.ai-fab{position:fixed;top:13px;left:300px;z-index:1001;display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#2ba35a,#157a40);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:1px;padding:7px 15px;border-radius:100px;border:1.5px solid rgba(120,230,150,0.95);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 0 0 3px rgba(74,222,128,0.22),0 0 16px rgba(74,222,128,0.7);transition:transform .2s;animation:ai-pulse 2.6s infinite}
+.ai-fab{position:fixed;top:13px;left:300px;z-index:1001;display:flex;align-items:center;gap:6px;background:linear-gradient(180deg,#28b057,#16934a);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:1.5px;padding:6px 15px;border-radius:10px;border:1px solid rgba(150,240,180,0.6);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 0 14px 3px rgba(140,240,170,0.55),0 2px 6px rgba(0,0,0,0.15);text-shadow:0 1px 2px rgba(0,0,0,0.25);transition:transform .2s;animation:ai-pulse 2.6s infinite;position:fixed;overflow:hidden}
+.ai-fab::before{content:'';position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(115deg,transparent,rgba(255,255,255,0.55),transparent);transform:skewX(-20deg);animation:ai-shine 3s ease-in-out infinite;pointer-events:none}
+.ai-fab > *{position:relative;z-index:1}
+@keyframes ai-shine{0%{left:-60%}45%{left:130%}100%{left:130%}}
+.ai-fab:hover{transform:scale(1.05)}
 .ai-fab:active{cursor:grabbing}
 .ai-fab:hover{transform:scale(1.06)}
 .ai-fab .spark{display:inline-block;vertical-align:middle;line-height:1;filter:drop-shadow(0 0 3px rgba(255,212,41,0.9))}
 .ai-fab.hidden{display:none}
-@keyframes ai-pulse{0%,100%{box-shadow:0 4px 20px rgba(34,197,94,0.45)}50%{box-shadow:0 4px 34px rgba(34,197,94,0.8)}}
+@keyframes ai-pulse{0%,100%{box-shadow:0 0 12px 2px rgba(140,240,170,0.45),0 2px 6px rgba(0,0,0,0.15)}50%{box-shadow:0 0 20px 5px rgba(140,240,170,0.75),0 2px 6px rgba(0,0,0,0.15)}}
 
 /* Chat window */
 .ai-chat{position:fixed;bottom:28px;left:28px;z-index:1001;width:372px;max-width:calc(100vw - 32px);height:548px;max-height:calc(100vh - 60px);background:var(--darker);border:1px solid var(--border);border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,0.65);display:none;flex-direction:column;overflow:hidden}

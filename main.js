@@ -248,11 +248,7 @@ async function submitFeedback() {
       if(!dragging) return;
       dragging = false;
       fab.style.transition = ''; fab.style.animation = '';
-      if(moved){
-        justDragged = true;
-        fab.dataset.dragged = '1';
-        try{ localStorage.setItem('rrAiPos', JSON.stringify({left: fab.style.left, top: fab.style.top})); }catch(_){ }
-      }
+      if(moved){ justDragged = true; fab.dataset.dragged = '1'; }
     }
     fab.addEventListener('pointerdown', down);
     fab.addEventListener('pointermove', move);
@@ -283,24 +279,12 @@ async function submitFeedback() {
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Ask AI  (Alt + A)';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg> AI';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#ffd429" stroke="#b8860b" stroke-width="1.1" stroke-linejoin="round"/></svg><span>AI</span>';
       document.body.appendChild(fab);
 
-      let positioned = false;
-      try{
-        const saved = JSON.parse(localStorage.getItem('rrAiPos') || 'null');
-        if(saved && saved.left!=null && saved.top!=null){
-          const w = fab.offsetWidth||60, h = fab.offsetHeight||36;
-          fab.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, parseInt(saved.left)||8)) + 'px';
-          fab.style.top  = Math.max(6, Math.min(window.innerHeight - h - 8, parseInt(saved.top)||8)) + 'px';
-          fab.style.right='auto'; fab.style.bottom='auto';
-          fab.dataset.dragged = '1';
-          positioned = true;
-        }
-      }catch(_){ }
-
-      if(!positioned){ anchorToLogo(fab); requestAnimationFrame(()=>anchorToLogo(fab)); }
-      // keep it beside the name on resize, until the user drags it
+      // Always start next to "R.R. Sphere India" on every page load (no memory)
+      anchorToLogo(fab); requestAnimationFrame(()=>anchorToLogo(fab));
+      // keep it beside the name on resize, until the user drags it this session
       window.addEventListener('resize', function(){ if(!fab.dataset.dragged) anchorToLogo(fab); });
       window.addEventListener('load', function(){ if(!fab.dataset.dragged) anchorToLogo(fab); });
 
