@@ -170,3 +170,134 @@ async function submitFeedback() {
     btn.disabled = false;
   }
 }
+
+// ════════════ AI ASSISTANT WIDGET ════════════
+(function(){
+  const KB = [
+    {k:['price','pricing','cost','fee','charge','how much','rupee','plan','rate','expensive'],
+     a:"Our RRFinEApp pricing plans are launching shortly! 🏷️ In the meantime we're happy to share current pricing and a personalised quote.<br><br>👉 <a href='enquire.html'>Request a quote</a> or <a href='https://wa.me/919417128045?text=I%27d%20like%20RRFinEApp%20pricing' target='_blank'>WhatsApp us</a>"},
+    {k:['demo','trial','try','test','see it','show me','free demo'],
+     a:"You can get a free demo of RRFinEApp! 🎓 We'll walk you through it the same day.<br><br>👉 <a href='enquire.html'>Book a free demo</a> or open the app at <a href='https://fin.rrsindia.co.in' target='_blank'>fin.rrsindia.co.in</a>"},
+    {k:['what is','about rrfin','about the app','rrfineapp','tell me about','what does','rrfine'],
+     a:"RRFinEApp is a cloud-based accounting app for Indian businesses — like Tally but in the cloud, like D365 but simple. 📊 Full accounting, GST invoicing, final accounts, stock & multi-company.<br><br>Want to <a href='finapp.html'>see all features</a>?"},
+    {k:['gst','tax','gstr','invoice','invoicing','cgst','sgst','igst','return'],
+     a:"Yes! RRFinEApp is fully GST-compliant 🧾 — GST Sales & Purchase invoices with auto CGST/SGST/IGST, plus GSTR-1 & GSTR-3B ready reports you can export straight to the portal."},
+    {k:['tally','migrate','switch from','shift'],
+     a:"RRFinEApp feels right at home for Tally users! ⌨️ Keyboard-first (F2 New, F5 Refresh, Esc Back) and Dr/Cr entry — just like Tally, but cloud-based so you can work from anywhere."},
+    {k:['cloud','install','download','setup','anywhere','device','browser'],
+     a:"RRFinEApp is 100% cloud-based ☁️ — no installation. Log in from any browser on any device, and your data backs up to Google Drive daily."},
+    {k:['safe','secure','security','backup','data','audit','trust'],
+     a:"Your data is very safe 🔐 — daily automated Google Drive backups, immutable posted entries (no silent edits), full audit trails, and role-based access control."},
+    {k:['feature','what can','module','report','ledger','balance sheet','profit','loss','stock','inventory','trial balance','day book'],
+     a:"RRFinEApp includes 📒 full accounting (Ledger, Trial Balance, Day Book), 🧾 GST invoicing, 📊 Final Accounts (P&L, Balance Sheet, Ageing), 📦 Stock & Inventory and 🏢 multi-company support.<br><br>Full list on the <a href='finapp.html'>RRFinEApp page</a>."},
+    {k:['coaching','tuition','class','study','student','maths','math','school','child','kid','board'],
+     a:"R.R. Coaching Classes offers expert tuition from Nursery to Class 10 — all boards & subjects 📚 — including our signature 'Maths Made Easy' program!<br><br>👉 <a href='coaching.html'>Learn about coaching</a>"},
+    {k:['service','software','development','website','ai solution','what do you do','consulting','erp','data analytics'],
+     a:"We offer custom software development, AI-powered solutions, cloud & DevOps, data analytics, IT training and ERP integrations 💻<br><br>👉 <a href='services.html'>Explore our services</a>"},
+    {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
+     a:"Reach us anytime! 📞<br>📱 WhatsApp/Call: <a href='https://wa.me/919417128045' target='_blank'>+91-94171-28045</a><br>📧 <a href='mailto:rrsindia122@gmail.com'>rrsindia122@gmail.com</a><br>📍 Amritsar, Punjab, India"},
+    {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
+     a:"Hello! 👋 I'm the RR AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
+    {k:['thank','thanks','thx','great','nice','okay','cool','good'],
+     a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
+    {k:['who are you','your name','what are you','are you human','bot','robot'],
+     a:"I'm the RR AI Assistant 🤖 — here to help you learn about R.R. Sphere India, RRFinEApp and our coaching classes. Ask me anything!"},
+    {k:['company','rr sphere','who','experience','about you','about us','history'],
+     a:"R.R. Sphere India is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
+  ];
+  const FALLBACK = "I'm not totally sure about that one 🤔 — but our team would love to help!<br><br>👉 <a href='https://wa.me/919417128045' target='_blank'>WhatsApp us</a> or <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
+  const QUICK = ["💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
+
+  function findAnswer(text){
+    const t = ' ' + text.toLowerCase() + ' ';
+    let best = null, score = 0;
+    for(const item of KB){
+      let s = 0;
+      for(const kw of item.k){ if(t.includes(kw)) s += kw.length; }
+      if(s > score){ score = s; best = item; }
+    }
+    return best ? best.a : FALLBACK;
+  }
+
+  function buildAI(){
+    document.querySelectorAll('.nav-inner').forEach(nav=>{
+      if(nav.querySelector('.ai-nav-btn')) return;
+      const logo = nav.querySelector('.nav-logo');
+      const btn = document.createElement('button');
+      btn.className = 'ai-nav-btn';
+      btn.type = 'button';
+      btn.innerHTML = '<span class="spark">✨</span> AI';
+      btn.addEventListener('click', openChat);
+      if(logo && logo.parentNode === nav){ nav.insertBefore(btn, logo.nextSibling); }
+      else { nav.appendChild(btn); }
+    });
+    if(!document.querySelector('.ai-fab')){
+      const fab = document.createElement('button');
+      fab.className = 'ai-fab'; fab.type = 'button';
+      fab.innerHTML = '<span class="spark">✨</span> Ask AI';
+      fab.addEventListener('click', openChat);
+      document.body.appendChild(fab);
+    }
+    if(!document.querySelector('.ai-chat')){
+      const chat = document.createElement('div');
+      chat.className = 'ai-chat';
+      chat.innerHTML =
+        '<div class="ai-chat-header">'+
+          '<div class="ai-ava">✨</div>'+
+          '<div><h4>RR AI Assistant</h4><p>Online now</p></div>'+
+          '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
+        '</div>'+
+        '<div class="ai-chat-body" id="aiBody"></div>'+
+        '<div class="ai-quick" id="aiQuick"></div>'+
+        '<div class="ai-chat-input">'+
+          '<input type="text" id="aiInput" placeholder="Type your question...">'+
+          '<button class="ai-send" type="button" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>'+
+        '</div>';
+      document.body.appendChild(chat);
+      chat.querySelector('.ai-close').addEventListener('click', closeChat);
+      chat.querySelector('.ai-send').addEventListener('click', sendMsg);
+      chat.querySelector('#aiInput').addEventListener('keydown', function(e){ if(e.key==='Enter') sendMsg(); });
+    }
+  }
+
+  let greeted = false;
+  function openChat(){
+    document.querySelector('.ai-chat').classList.add('open');
+    document.querySelector('.ai-fab').classList.add('hidden');
+    if(!greeted){
+      greeted = true;
+      botSay("Hi there! 👋 I'm the RR AI Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
+      renderQuick();
+    }
+    setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
+  }
+  function closeChat(){
+    document.querySelector('.ai-chat').classList.remove('open');
+    document.querySelector('.ai-fab').classList.remove('hidden');
+  }
+  function scrollBody(){ const b=document.getElementById('aiBody'); if(b) b.scrollTop=b.scrollHeight; }
+  function botSay(html){ const b=document.getElementById('aiBody'); const d=document.createElement('div'); d.className='ai-msg bot'; d.innerHTML=html; b.appendChild(d); scrollBody(); }
+  function userSay(text){ const b=document.getElementById('aiBody'); const d=document.createElement('div'); d.className='ai-msg user'; d.textContent=text; b.appendChild(d); scrollBody(); }
+  function typing(on){
+    const b=document.getElementById('aiBody');
+    if(on){ const d=document.createElement('div'); d.className='ai-typing'; d.id='aiTyping'; d.innerHTML='<span></span><span></span><span></span>'; b.appendChild(d); scrollBody(); }
+    else { const t=document.getElementById('aiTyping'); if(t) t.remove(); }
+  }
+  function respond(text){ typing(true); setTimeout(function(){ typing(false); botSay(findAnswer(text)); }, 650); }
+  function renderQuick(){
+    const q=document.getElementById('aiQuick'); q.innerHTML='';
+    QUICK.forEach(function(label){
+      const b=document.createElement('button'); b.type='button'; b.textContent=label;
+      b.addEventListener('click', function(){ userSay(label); respond(label); });
+      q.appendChild(b);
+    });
+  }
+  function sendMsg(){
+    const i=document.getElementById('aiInput'); const text=i.value.trim();
+    if(!text) return;
+    userSay(text); i.value=''; respond(text);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', buildAI);
+  else buildAI();
+})();
