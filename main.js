@@ -279,7 +279,7 @@ async function submitFeedback() {
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Ask AI  (Alt + A)';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#f5b820" stroke="#5a3d00" stroke-width="1.3" stroke-linejoin="round"/></svg><span>AI</span>';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="#f5b820" stroke="#5a3d00" stroke-width="1.3" stroke-linejoin="round"/></svg><span>AI</span>';
       document.body.appendChild(fab);
 
       // Always start next to "R.R. Sphere India" on every page load (no memory)

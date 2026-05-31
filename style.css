@@ -287,22 +287,22 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 @keyframes ai-spark{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
 
 /* Floating button (bottom-left, opposite the WhatsApp one) */
-.ai-fab{position:fixed;top:15px;left:300px;z-index:1001;display:flex;align-items:center;gap:4px;background:linear-gradient(180deg,#34c065,#15914a);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:1px;padding:3px 10px;border-radius:9px;border:1px solid rgba(160,245,190,0.55);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 0 12px 2px rgba(140,240,170,0.55),inset 0 1px 1px rgba(255,255,255,0.45),0 2px 5px rgba(0,0,0,0.18);text-shadow:0 1px 2px rgba(0,0,0,0.3);transition:transform .2s;animation:ai-pulse 2.4s ease-in-out infinite;overflow:hidden}
-.ai-fab::before{content:'';position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(115deg,transparent,rgba(255,255,255,0.55),transparent);transform:skewX(-20deg);animation:ai-shine 3.4s ease-in-out infinite;pointer-events:none}
-.ai-fab > *{position:relative;z-index:1}
+.ai-fab{position:fixed;top:15px;left:300px;z-index:1001;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:46px;height:46px;background:linear-gradient(180deg,#34c065,#15914a);color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:1px;line-height:1;border-radius:10px;border:1px solid rgba(160,245,190,0.6);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 0 18px 5px rgba(120,240,160,0.75),0 0 36px 10px rgba(120,240,160,0.35),inset 0 1px 1px rgba(255,255,255,0.5),0 2px 6px rgba(0,0,0,0.2);text-shadow:0 1px 2px rgba(0,0,0,0.3);transition:transform .2s;animation:ai-pulse 2.4s ease-in-out infinite;overflow:visible}
+.ai-fab::after{content:'';position:absolute;inset:0;border-radius:10px;overflow:hidden;pointer-events:none;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,0.5) 50%,transparent 60%);background-size:250% 100%;background-position:-60% 0;animation:ai-shine 3.4s ease-in-out infinite}
+.ai-fab > *{position:relative;z-index:2}
 .ai-fab .spark{display:inline-block;vertical-align:middle;line-height:1;transform-origin:center;animation:ai-dance 2.2s ease-in-out infinite}
 .ai-fab:hover{transform:scale(1.06)}
 .ai-fab:active{cursor:grabbing}
 .ai-fab.hidden{display:none}
-@keyframes ai-shine{0%{left:-60%}45%{left:130%}100%{left:130%}}
+@keyframes ai-shine{0%{background-position:-60% 0}45%{background-position:160% 0}100%{background-position:160% 0}}
 @keyframes ai-dance{
   0%   {transform:translate(0,0) rotate(0deg) scale(1);filter:drop-shadow(0 0 1px rgba(255,210,60,0.45))}
-  25%  {transform:translate(-0.5px,-1.5px) rotate(-5deg) scale(1.03);filter:drop-shadow(0 0 2px rgba(255,210,60,0.6))}
-  50%  {transform:translate(0.5px,1px) rotate(4deg) scale(0.99);filter:drop-shadow(0 0 3px rgba(255,210,60,0.75))}
-  75%  {transform:translate(-0.5px,1.5px) rotate(-3deg) scale(1.02);filter:drop-shadow(0 0 2px rgba(255,210,60,0.6))}
+  25%  {transform:translate(-1px,-3px) rotate(-6deg) scale(1.12);filter:drop-shadow(0 0 4px rgba(255,210,60,0.85))}
+  50%  {transform:translate(1px,-1px) rotate(5deg) scale(0.94);filter:drop-shadow(0 0 2px rgba(255,210,60,0.6))}
+  75%  {transform:translate(-0.5px,-3.5px) rotate(-4deg) scale(1.1);filter:drop-shadow(0 0 5px rgba(255,210,60,0.95))}
   100% {transform:translate(0,0) rotate(0deg) scale(1);filter:drop-shadow(0 0 1px rgba(255,210,60,0.45))}
 }
-@keyframes ai-pulse{0%,100%{box-shadow:0 0 12px 2px rgba(140,240,170,0.45),inset 0 1px 1px rgba(255,255,255,0.45),0 2px 6px rgba(0,0,0,0.18)}50%{box-shadow:0 0 22px 6px rgba(140,240,170,0.8),inset 0 1px 1px rgba(255,255,255,0.45),0 2px 6px rgba(0,0,0,0.18)}}
+@keyframes ai-pulse{0%,100%{box-shadow:0 0 16px 4px rgba(120,240,160,0.6),0 0 30px 8px rgba(120,240,160,0.25),inset 0 1px 1px rgba(255,255,255,0.5),0 2px 6px rgba(0,0,0,0.2)}50%{box-shadow:0 0 26px 8px rgba(120,240,160,0.9),0 0 46px 14px rgba(120,240,160,0.45),inset 0 1px 1px rgba(255,255,255,0.5),0 2px 6px rgba(0,0,0,0.2)}}
 
 /* Chat window */
 .ai-chat{position:fixed;bottom:28px;left:28px;z-index:1001;width:372px;max-width:calc(100vw - 32px);height:548px;max-height:calc(100vh - 60px);background:var(--darker);border:1px solid var(--border);border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,0.65);display:none;flex-direction:column;overflow:hidden}
