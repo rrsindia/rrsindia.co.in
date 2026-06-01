@@ -195,7 +195,7 @@ async function submitFeedback() {
     {k:['service','software','development','website','ai solution','what do you do','consulting','erp','data analytics'],
      a:"We offer custom software development, AI-powered solutions, cloud & DevOps, data analytics, IT training and ERP integrations 💻<br><br>👉 <a href='services.html'>Explore our services</a>"},
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
-     a:"Reach us anytime! 📞<br>📱 WhatsApp/Call: <a href='https://wa.me/919417128045' target='_blank'>+91-94171-28045</a><br>📧 <a href='mailto:rrsindia122@gmail.com'>rrsindia122@gmail.com</a><br>📍 Amritsar, Punjab, India"},
+     a:"Reach us anytime! 📞<br>📱 WhatsApp/Call: <a href='https://wa.me/919417128045' target='_blank'>+91-94171-28045</a><br>📧 <a href='mailto:rrsindia122@gmail.com'>rrsindia122@gmail.com</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
      a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],

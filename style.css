@@ -347,3 +347,6 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
   .hero-banner-cta{padding:22px 5% 4px;gap:10px}
   .hero-banner-cta .btn-primary,.hero-banner-cta .btn-outline{padding:11px 20px;font-size:.88rem}
 }
+
+/* Highlight the word "India" in location mentions */
+.in-hl{color:var(--g4);font-weight:700}
