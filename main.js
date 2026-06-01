@@ -364,3 +364,67 @@ async function submitFeedback() {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', buildAI);
   else buildAI();
 })();
+
+// ════════════ Render every whole-word "India" as larger "INDIA" ════════════
+(function(){
+  var SKIP = {SCRIPT:1, STYLE:1, NOSCRIPT:1, TEXTAREA:1, INPUT:1};
+  var RE = /India(?![A-Za-z])/gi;   // whole word, any case — never matches "Indian"
+
+  function process(root){
+    if(!root) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        if(!node.nodeValue || node.nodeValue.toLowerCase().indexOf('india') === -1) return NodeFilter.FILTER_REJECT;
+        var p = node.parentNode;
+        while(p){
+          if(SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT;
+          if(p.classList && p.classList.contains('india-big')) return NodeFilter.FILTER_REJECT; // already done
+          if(p === document.body) break;
+          p = p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var targets = [], n;
+    while((n = walker.nextNode())) targets.push(n);
+    targets.forEach(function(node){
+      var text = node.nodeValue, frag = document.createDocumentFragment();
+      var last = 0, m, found = false;
+      RE.lastIndex = 0;
+      while((m = RE.exec(text))){
+        found = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        var span = document.createElement('span');
+        span.className = 'india-big';
+        span.textContent = 'INDIA';
+        frag.appendChild(span);
+        last = m.index + m[0].length;
+      }
+      if(found){
+        if(last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      }
+    });
+  }
+
+  function run(){
+    process(document.body);
+    // also re-process anything added later (e.g. AI chat messages), without infinite loops
+    if(window.MutationObserver){
+      var mo = new MutationObserver(function(muts){
+        for(var i=0;i<muts.length;i++){
+          var added = muts[i].addedNodes;
+          for(var j=0;j<added.length;j++){
+            var nd = added[j];
+            if(nd.nodeType === 1 && !(nd.classList && nd.classList.contains('india-big'))) process(nd);
+            else if(nd.nodeType === 3 && nd.parentNode) process(nd.parentNode);
+          }
+        }
+      });
+      mo.observe(document.body, {childList:true, subtree:true});
+    }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
