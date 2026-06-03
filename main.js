@@ -121,6 +121,7 @@ function setRecommend(val) {
 }
 // Web3Forms access key — sends feedback to rrsindia122@gmail.com
 const WEB3FORMS_KEY = 'c06fa8d4-b67d-4cc3-9982-ad202da2d532';
+const IMGBB_KEY = '96a92f3973c9b79d3b83aa5d19cee3d0';
 
 async function submitFeedback() {
   const msg = document.getElementById('fb-msg').value.trim();
@@ -209,29 +210,52 @@ async function submitTicket() {
   btn.textContent = 'Submitting…';
   btn.disabled = true;
 
-  const fd = new FormData();
-  fd.append('access_key', WEB3FORMS_KEY);
-  fd.append('subject', `🎫 RRFinEApp Issue [${ticketId}] — ${type} (${area})`);
-  fd.append('from_name', 'RRFinEApp Support Portal');
-  fd.append('Ticket ID', ticketId);
-  fd.append('Severity', severity);
-  fd.append('App Area', area);
-  fd.append('Issue Type', type);
-  fd.append('Reported By', name);
-  fd.append('Phone / WhatsApp', contact);
-  fd.append('Email', email || '—');
-  fd.append('Business', biz || '—');
-  fd.append('Description', desc);
-  fd.append('Steps to Reproduce', steps || '—');
-  fd.append('Device', device || '—');
-  fd.append('Browser', browser || '—');
-  if(shotFile) fd.append('Screenshot', shotFile, shotFile.name);
+  // 1) If a screenshot was attached, upload it to ImgBB first to get a shareable link
+  let screenshotUrl = '';
+  if(shotFile) {
+    try {
+      btn.textContent = 'Uploading screenshot…';
+      const imgData = new FormData();
+      imgData.append('image', shotFile);
+      const imgRes = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {
+        method: 'POST',
+        body: imgData
+      });
+      const imgJson = await imgRes.json();
+      if(imgJson && imgJson.success && imgJson.data && imgJson.data.url) {
+        screenshotUrl = imgJson.data.url;
+      }
+    } catch(e) {
+      screenshotUrl = ''; // if image upload fails, still send the report without it
+    }
+    btn.textContent = 'Submitting…';
+  }
+
+  // 2) Send the report to your email via Web3Forms (with the screenshot link if we have one)
+  const payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: `🎫 RRFinEApp Issue [${ticketId}] — ${type} (${area})`,
+    from_name: 'RRFinEApp Support Portal',
+    "Ticket ID": ticketId,
+    "Severity": severity,
+    "App Area": area,
+    "Issue Type": type,
+    "Reported By": name,
+    "Phone / WhatsApp": contact,
+    "Email": email || '—',
+    "Business": biz || '—',
+    "Description": desc,
+    "Steps to Reproduce": steps || '—',
+    "Device": device || '—',
+    "Browser": browser || '—',
+    "Screenshot": screenshotUrl ? screenshotUrl : (shotFile ? '(upload failed — ask user to resend)' : '(none attached)')
+  };
 
   try {
     const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: fd
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if(data.success) {
