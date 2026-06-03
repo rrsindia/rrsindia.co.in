@@ -171,6 +171,78 @@ async function submitFeedback() {
   }
 }
 
+// ════════════ RRFinEApp SUPPORT TICKET ════════════
+async function submitTicket() {
+  const name    = document.getElementById('tk-name').value.trim();
+  const contact = document.getElementById('tk-contact').value.trim();
+  const area    = document.getElementById('tk-area').value;
+  const type    = document.getElementById('tk-type').value;
+  const desc    = document.getElementById('tk-desc').value.trim();
+  const sevEl   = document.querySelector('input[name="severity"]:checked');
+
+  // required fields
+  if(!name)    { alert('Please enter your name.'); return; }
+  if(!contact) { alert('Please enter your phone / WhatsApp number.'); return; }
+  if(!area)    { alert('Please select which area of the app the issue is in.'); return; }
+  if(!type)    { alert('Please select the type of issue.'); return; }
+  if(!sevEl)   { alert('Please choose how serious the issue is.'); return; }
+  if(!desc)    { alert('Please describe the problem.'); return; }
+
+  const email   = document.getElementById('tk-email').value.trim();
+  const biz     = document.getElementById('tk-biz').value.trim();
+  const steps   = document.getElementById('tk-steps').value.trim();
+  const device  = document.getElementById('tk-device').value.trim();
+  const browser = document.getElementById('tk-browser').value.trim();
+  const severity = sevEl.value;
+  const ticketId = 'RRF-' + Date.now().toString().slice(-6);
+
+  const btn = document.querySelector('.tk-submit');
+  const originalText = btn.textContent;
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  const payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: `🎫 RRFinEApp Issue [${ticketId}] — ${type} (${area})`,
+    from_name: 'RRFinEApp Support Portal',
+    "Ticket ID": ticketId,
+    "Severity": severity,
+    "App Area": area,
+    "Issue Type": type,
+    "Reported By": name,
+    "Phone / WhatsApp": contact,
+    "Email": email || '—',
+    "Business": biz || '—',
+    "Description": desc,
+    "Steps to Reproduce": steps || '—',
+    "Device": device || '—',
+    "Browser": browser || '—'
+  };
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success) {
+      const s = document.getElementById('tk-success');
+      s.innerHTML = '✅ Your issue has been reported! Your reference number is <strong>' + ticketId + '</strong>. Our support team will look into it and get back to you soon. Thank you for helping us improve RRFinEApp. 🙏';
+      s.style.display = 'block';
+      btn.style.display = 'none';
+    } else {
+      alert('Sorry, something went wrong submitting your report. Please try the WhatsApp option below.');
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  } catch(err) {
+    alert('Network issue — please check your connection or use the WhatsApp option below.');
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
 // ════════════ AI ASSISTANT WIDGET ════════════
 (function(){
   const KB = [
@@ -190,6 +262,8 @@ async function submitFeedback() {
      a:"Your data is very safe 🔐 — daily automated Google Drive backups, immutable posted entries (no silent edits), full audit trails, and role-based access control."},
     {k:['feature','what can','module','report','ledger','balance sheet','profit','loss','stock','inventory','trial balance','day book'],
      a:"RRFinEApp includes 📒 full accounting (Ledger, Trial Balance, Day Book), 🧾 GST invoicing, 📊 Final Accounts (P&L, Balance Sheet, Ageing), 📦 Stock & Inventory and 🏢 multi-company support.<br><br>Full list on the <a href='finapp.html'>RRFinEApp page</a>."},
+    {k:['issue','problem','bug','error','not working','complaint','broken','crash','stuck','hang','wrong','fix','trouble','help me','support','report'],
+     a:"Sorry you're facing trouble! 🛠️ You can report the issue directly to our support team and we'll look into it fast.<br><br>👉 <a href='support.html'>Report an Issue</a> or <a href='https://wa.me/919417128045?text=I%27m%20facing%20an%20issue%20with%20RRFinEApp' target='_blank'>WhatsApp support</a>"},
     {k:['coaching','tuition','class','study','student','maths','math','school','child','kid','board'],
      a:"R.R. Coaching Classes offers expert tuition from Nursery to Class 10 — all boards & subjects 📚 — including our signature 'Maths Made Easy' program!<br><br>👉 <a href='coaching.html'>Learn about coaching</a>"},
     {k:['service','software','development','website','ai solution','what do you do','consulting','erp','data analytics'],
