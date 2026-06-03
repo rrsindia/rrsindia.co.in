@@ -196,34 +196,42 @@ async function submitTicket() {
   const severity = sevEl.value;
   const ticketId = 'RRF-' + Date.now().toString().slice(-6);
 
+  // screenshot (optional) — validate size
+  const shotEl = document.getElementById('tk-screenshot');
+  const shotFile = (shotEl && shotEl.files && shotEl.files.length) ? shotEl.files[0] : null;
+  if(shotFile && shotFile.size > 5 * 1024 * 1024) {
+    alert('Your screenshot is larger than 5MB. Please upload a smaller image, or send it to us on WhatsApp.');
+    return;
+  }
+
   const btn = document.querySelector('.tk-submit');
   const originalText = btn.textContent;
   btn.textContent = 'Submitting…';
   btn.disabled = true;
 
-  const payload = {
-    access_key: WEB3FORMS_KEY,
-    subject: `🎫 RRFinEApp Issue [${ticketId}] — ${type} (${area})`,
-    from_name: 'RRFinEApp Support Portal',
-    "Ticket ID": ticketId,
-    "Severity": severity,
-    "App Area": area,
-    "Issue Type": type,
-    "Reported By": name,
-    "Phone / WhatsApp": contact,
-    "Email": email || '—',
-    "Business": biz || '—',
-    "Description": desc,
-    "Steps to Reproduce": steps || '—',
-    "Device": device || '—',
-    "Browser": browser || '—'
-  };
+  const fd = new FormData();
+  fd.append('access_key', WEB3FORMS_KEY);
+  fd.append('subject', `🎫 RRFinEApp Issue [${ticketId}] — ${type} (${area})`);
+  fd.append('from_name', 'RRFinEApp Support Portal');
+  fd.append('Ticket ID', ticketId);
+  fd.append('Severity', severity);
+  fd.append('App Area', area);
+  fd.append('Issue Type', type);
+  fd.append('Reported By', name);
+  fd.append('Phone / WhatsApp', contact);
+  fd.append('Email', email || '—');
+  fd.append('Business', biz || '—');
+  fd.append('Description', desc);
+  fd.append('Steps to Reproduce', steps || '—');
+  fd.append('Device', device || '—');
+  fd.append('Browser', browser || '—');
+  if(shotFile) fd.append('Screenshot', shotFile, shotFile.name);
 
   try {
     const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Accept': 'application/json' },
+      body: fd
     });
     const data = await res.json();
     if(data.success) {
@@ -501,4 +509,31 @@ async function submitTicket() {
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
+})();
+
+// ════════════ Show selected screenshot filename on support form ════════════
+(function(){
+  function init(){
+    var inp = document.getElementById('tk-screenshot');
+    var lbl = document.getElementById('tk-shot-name');
+    if(!inp || !lbl) return;
+    inp.addEventListener('change', function(){
+      if(inp.files && inp.files.length){
+        var f = inp.files[0];
+        var mb = (f.size/1024/1024).toFixed(1);
+        lbl.textContent = '📎 ' + f.name + ' (' + mb + ' MB)';
+        lbl.style.display = 'block';
+        if(f.size > 5*1024*1024){
+          lbl.style.color = '#ef4444';
+          lbl.textContent += ' — too large (max 5MB)';
+        } else {
+          lbl.style.color = 'var(--g4)';
+        }
+      } else {
+        lbl.style.display = 'none';
+      }
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();

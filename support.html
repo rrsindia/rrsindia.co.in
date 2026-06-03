@@ -24,6 +24,9 @@
 .tk-other{max-width:640px;margin:34px auto 0;text-align:center;padding-top:24px;border-top:1px solid var(--border)}
 .tk-other p{color:var(--muted);font-size:.88rem;margin-bottom:12px}
 .tk-other .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.tk-file{width:100%;padding:10px 12px;border:1.5px dashed var(--border);border-radius:10px;background:var(--darker);color:var(--muted);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.tk-file::file-selector-button{background:var(--g3);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;margin-right:12px;transition:.2s}
+.tk-file::file-selector-button:hover{background:var(--g4)}
 </style>
 </head>
 <body>
@@ -103,6 +106,8 @@
       <div class="form-group"><label>Describe the problem *</label><textarea rows="4" id="tk-desc" placeholder="What happened? What did you expect to happen instead?"></textarea></div>
 
       <div class="form-group"><label>Steps to reproduce <span style="color:var(--muted);font-weight:400">(optional, but very helpful)</span></label><textarea rows="3" id="tk-steps" placeholder="e.g. 1) Opened Sales invoice  2) Clicked Save  3) Got an error"></textarea></div>
+
+      <div class="form-group"><label>Screenshot of the issue <span style="color:var(--muted);font-weight:400">(optional, max 5MB)</span></label><input type="file" id="tk-screenshot" class="tk-file" accept="image/*"><div id="tk-shot-name" style="color:var(--g4);font-size:.8rem;margin-top:6px;display:none"></div></div>
 
       <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
         <div class="form-group" style="flex:1;min-width:200px"><label>Device <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="text" id="tk-device" placeholder="e.g. Windows laptop, Android phone"></div>
