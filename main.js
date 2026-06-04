@@ -324,6 +324,9 @@ async function loadPlansFeatures(){
     OD.cats = d.categories||[]; OD.prices = d.prices||[]; OD.feats = d.premiumFeatures||[]; OD.userRates = d.userRates||{};
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+c.label.replace(/</g,'&lt;')+'</option>').join(''); }
+    // Broker dropdown — from the R.R.Sphere broker master.
+    const bk = document.getElementById('od-broker');
+    if(bk && Array.isArray(d.brokers)){ bk.innerHTML = '<option value="">— None —</option>' + d.brokers.map(b=>'<option value="'+b.name.replace(/"/g,'')+'">'+b.name.replace(/</g,'&lt;')+'</option>').join(''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
       '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odTotal()"><span>'+c.label.replace(/</g,'&lt;')+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')):'')+'</span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
@@ -383,9 +386,9 @@ async function submitOrder(){
   if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
   const premium = Array.from(document.querySelectorAll('#od-feat input:checked')).map(i=>i.value);
   const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
-  if(users.length < 2){ alert('Add at least 2 users (1 Admin + 1 Data Entry/Viewer/Auditor).'); return; }
+  if(users.length < 2){ alert('Add at least 2 users (1 Admin + 1 Data Entry).'); return; }
   if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
-  if(!users.some(u=>['dataentry','viewonly','auditor'].includes(u.role))){ alert('At least one Data Entry / Viewer / Auditor user is required.'); return; }
+  if(!users.some(u=>u.role==='dataentry')){ alert('At least one Data Entry user is required.'); return; }
 
   const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
   try {
