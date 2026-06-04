@@ -287,29 +287,30 @@ async function submitTicket() {
 // ── Order form: load plan categories + premium features, collect users, submit ─
 const ROLE_OPTS = [['admin','Admin'],['dataentry','Data Entry'],['viewonly','Viewer'],['auditor','Auditor']];
 function odUserRow(role){
-  return '<div class="od-user"><select>' +
+  return '<div class="od-user"><select onchange="odTotal()">' +
     ROLE_OPTS.map(r => '<option value="'+r[0]+'"'+(r[0]===role?' selected':'')+'>'+r[1]+'</option>').join('') +
-    '</select><input type="text" placeholder="User name (optional)"><button type="button" class="rm" onclick="this.parentNode.remove()">✕</button></div>';
+    '</select><input type="text" placeholder="User name (optional)"><button type="button" class="rm" onclick="this.parentNode.remove();odTotal()">✕</button></div>';
 }
 function odAddUser(role){ const box=document.getElementById('od-users'); if(box){ box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); odTotal(); } }
 
-let OD = { cats:[], prices:[], feats:[] };   // loaded plan/feature/price data
-function odPriceByCode(code){ const p = OD.prices.find(x=>x.code===code); return p?Number(p.rate)||0:0; }
-function odFeatPrice(code){
-  // try a price row whose code maps to the feature (ADDON_<...>), else 0
-  const f = OD.feats.find(x=>x.code===code);
-  const p = OD.prices.find(x => x.code && (x.code.toLowerCase().includes(code.toLowerCase()) || (f && x.name && f.name && x.name.toLowerCase()===f.name.toLowerCase())));
-  return p?Number(p.rate)||0:0;
+let OD = { cats:[], prices:[], feats:[], userRates:{} };   // loaded plan/feature/price data
+function odFeatPrice(code){ const f = OD.feats.find(x=>x.code===code); return f?Number(f.rate)||0:0; }
+function odUserRate(role){ return Number(OD.userRates[role])||0; }
+
+// Build the full order breakdown: plan + selected features + users (by type).
+function odBreakdown(){
+  const lines = []; let total = 0;
+  const cat = document.querySelector('input[name="od-cat"]:checked');
+  if(cat){ const c = OD.cats.find(x=>x.code===cat.value); if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r}); total+=r; } }
+  document.querySelectorAll('#od-feat input:checked').forEach(i=>{ const f=OD.feats.find(x=>x.code===i.value); const r=odFeatPrice(i.value); lines.push({label:'Feature: '+(f?f.name:i.value), qty:1, rate:r, amt:r}); total+=r; });
+  const roleCount = {}; document.querySelectorAll('#od-users .od-user select').forEach(s=>{ roleCount[s.value]=(roleCount[s.value]||0)+1; });
+  const roleLbl = {admin:'Admin',dataentry:'Data Entry',viewonly:'Viewer',auditor:'Auditor'};
+  Object.entries(roleCount).forEach(([role,n])=>{ const r=odUserRate(role); const amt=r*n; lines.push({label:'User × '+n+' ('+(roleLbl[role]||role)+')', qty:n, rate:r, amt:amt}); total+=amt; });
+  return { lines, total };
 }
-// Tentative total (excl. taxes): plan + selected premium features + extra users (beyond 2 included).
 function odTotal(){
   const el = document.getElementById('od-total'); if(!el) return;
-  let total = 0;
-  const cat = document.querySelector('input[name="od-cat"]:checked');
-  if(cat){ const c = OD.cats.find(x=>x.code===cat.value); if(c) total += Number(c.rate)||0; }
-  document.querySelectorAll('#od-feat input:checked').forEach(i=>{ total += odFeatPrice(i.value); });
-  const users = document.querySelectorAll('#od-users .od-user').length;
-  if(users>2) total += (users-2) * odPriceByCode('ADDON_EXTRA_USER');
+  const { total } = odBreakdown();
   el.innerHTML = 'Tentative total: ₹' + total.toLocaleString('en-IN') + ' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(excl. taxes)</span>';
 }
 
@@ -320,24 +321,57 @@ async function loadPlansFeatures(){
   try {
     const res = await fetch(RRFINEAPP_API + '/public/plans-features', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
     const d = await res.json().catch(()=>({}));
-    OD.cats = d.categories||[]; OD.prices = d.prices||[]; OD.feats = d.premiumFeatures||[];
-    // Country dropdown — same list as the app's tenant form.
+    OD.cats = d.categories||[]; OD.prices = d.prices||[]; OD.feats = d.premiumFeatures||[]; OD.userRates = d.userRates||{};
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+c.label.replace(/</g,'&lt;')+'</option>').join(''); }
-    // Categories (from the editable price master).
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
       '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odTotal()"><span>'+c.label.replace(/</g,'&lt;')+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')):'')+'</span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
-    // Premium features — ALL shown; available = selectable, others = disabled "coming soon".
-    feat.innerHTML = OD.feats.length ? OD.feats.map(f=>{
-      const ok = f.selectable !== false;
-      const pr = odFeatPrice(f.code); const prTxt = pr ? (' — ₹'+pr.toLocaleString('en-IN')) : '';
-      return '<label style="'+(ok?'':'opacity:.55;cursor:not-allowed')+'"><input type="checkbox" value="'+f.code+'" onchange="odTotal()"'+(ok?'':' disabled')+'>' +
-        '<span><span class="ft">'+(f.icon||'✨')+' '+f.name.replace(/</g,'&lt;')+prTxt+(ok?'':' <em style="color:#f59e0b">(coming soon)</em>')+'</span>' +
-        (f.description?'<span class="fd">'+f.description.replace(/</g,'&lt;')+'</span>':'')+'</span></label>';
-    }).join('') : '<p style="color:var(--muted)">No premium features available right now.</p>';
+    // Premium features — grouped by category; ALL selectable; coming-soon LABELLED (still selectable).
+    if(OD.feats.length){
+      const groups = {};
+      OD.feats.forEach(f=>{ const g=f.category||'General'; (groups[g]=groups[g]||[]).push(f); });
+      feat.innerHTML = Object.keys(groups).map(g=>
+        '<div style="grid-column:1/-1;color:var(--g4);font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:.95rem;margin:6px 0 2px">'+g.replace(/</g,'&lt;')+'</div>' +
+        groups[g].map(f=>{
+          const pr = odFeatPrice(f.code); const prTxt = pr ? (' — ₹'+pr.toLocaleString('en-IN')) : '';
+          const cs = f.coming_soon ? ' <em style="color:#f59e0b">(coming soon)</em>' : '';
+          return '<label><input type="checkbox" value="'+f.code+'" onchange="odTotal()">' +
+            '<span><span class="ft">'+(f.icon||'✨')+' '+f.name.replace(/</g,'&lt;')+prTxt+cs+'</span>' +
+            (f.description?'<span class="fd">'+f.description.replace(/</g,'&lt;')+'</span>':'')+'</span></label>';
+        }).join('')
+      ).join('');
+    } else { feat.innerHTML = '<p style="color:var(--muted)">No premium features available right now.</p>'; }
     odTotal();
   } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
+}
+
+// Print a DRAFT ORDER (before confirming) with the full price breakdown.
+function printDraftOrder(){
+  const v = id => (document.getElementById(id)?document.getElementById(id).value.trim():'');
+  const cat = document.querySelector('input[name="od-cat"]:checked');
+  if(!cat){ alert('Please choose a plan first.'); return; }
+  const { lines, total } = odBreakdown();
+  const esc = s => String(s||'').replace(/</g,'&lt;');
+  const rows = lines.map(l=>'<tr><td>'+esc(l.label)+'</td><td style="text-align:center">'+l.qty+'</td><td style="text-align:right">₹'+Number(l.rate).toLocaleString('en-IN')+'</td><td style="text-align:right">₹'+Number(l.amt).toLocaleString('en-IN')+'</td></tr>').join('');
+  const html = '<!DOCTYPE html><html><head><title>Draft Order — RRFinEApp</title><style>'+
+    'body{font-family:Arial,sans-serif;color:#111;max-width:720px;margin:24px auto;padding:0 16px}'+
+    'h1{font-size:20px;margin:0 0 2px}.sub{color:#666;font-size:12px;margin-bottom:16px}'+
+    '.box{border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px}'+
+    'table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid #eee;padding:7px 6px;text-align:left}'+
+    'th{background:#f4f4f4}.tot{font-weight:700;font-size:15px}.note{color:#666;font-size:11px;margin-top:10px}'+
+    '@media print{button{display:none}}</style></head><body>'+
+    '<h1>DRAFT ORDER — RRFinEApp</h1><div class="sub">R.R. Sphere India · This is a draft request, not a final invoice.</div>'+
+    '<div class="box"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?' · '+esc(v('od-company')):'')+'<br>'+
+      esc([v('od-add1'),v('od-add2'),v('od-city'),v('od-pin'),v('od-state')].filter(Boolean).join(', '))+'<br>'+
+      esc(v('od-email'))+(v('od-phone')?' · '+esc(v('od-phone')):'')+(v('od-gstin')?' · GSTIN '+esc(v('od-gstin')):'')+'</div>'+
+    '<table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>'+
+    '<tbody>'+rows+'<tr class="tot"><td colspan="3" style="text-align:right">Tentative Total (excl. taxes)</td><td style="text-align:right">₹'+total.toLocaleString('en-IN')+'</td></tr></tbody></table>'+
+    '<p class="note">⚠ Prices are tentative and may change. Taxes (GST) extra as applicable. Final pricing, any discount and the tax invoice are confirmed by R.R. Sphere India after you place the order.</p>'+
+    '<button onclick="window.print()" style="margin-top:14px;padding:8px 18px;background:#15914a;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨 Print</button>'+
+    '</body></html>';
+  const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the draft order.'); return; }
+  w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(), 350);
 }
 
 async function submitOrder(){
