@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order RRFinEApp — Plans &amp; Pricing | R.R. Sphere India</title>
+<meta name="description" content="Order RRFinEApp — choose your plan (Basic GL, Full Finance, CA Firm) and add-ons. We'll confirm pricing and send your invoice.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.od-list{display:flex;flex-direction:column;gap:10px;margin:8px 0 4px}
+.od-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)}
+.od-row .od-info{flex:1;min-width:0}
+.od-row h4{font-family:'Rajdhani',sans-serif;font-size:1rem;color:var(--white);margin:0}
+.od-row p{color:var(--muted);font-size:.78rem;margin:2px 0 0}
+.od-row .od-rate{color:var(--g4);font-weight:700;white-space:nowrap}
+.od-row input[type=number]{width:64px;padding:8px;border:1.5px solid var(--border);border-radius:8px;background:var(--darker);color:var(--white);text-align:center}
+.od-tag{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 6px;margin-left:6px}
+</style>
+</head>
+<body>
+<nav><div class="nav-inner"><a class="nav-logo" href="index.html"><div class="nav-logo-rr">RR</div><div class="nav-logo-text"><strong>R.R. Sphere India</strong><br>IT &amp; Learning</div></a><div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="finapp.html">RRFinEApp</a><a href="order.html" class="active">Order</a><a href="support.html">Support</a><a href="contact.html" class="cta">Contact Us</a></div><div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+
+<div class="page-wrapper">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="section-tag">RRFinEApp Order</div>
+      <h1>Order Your <span>Plan</span></h1>
+      <p>Pick your plan and any add-ons. Rates shown are indicative — our team confirms the final price (any applicable discount) and sends your invoice.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="contact-form reveal" style="max-width:680px;margin:0 auto">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;margin-bottom:6px">Choose Plans &amp; Add-ons</h2>
+      <div id="od-list" class="od-list"><p style="color:var(--muted)">Loading current pricing…</p></div>
+      <div id="od-total" style="text-align:right;color:var(--white);font-weight:700;margin:10px 0 24px;display:none"></div>
+
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;margin:8px 0 12px">Your Details</h2>
+      <div class="form-group"><label>Your Name *</label><input type="text" id="od-name" placeholder="Full name"></div>
+      <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px"><label>Email *</label><input type="email" id="od-email" placeholder="you@example.com"></div>
+        <div class="form-group" style="flex:1;min-width:200px"><label>Phone / WhatsApp</label><input type="text" id="od-phone" placeholder="Mobile number"></div>
+      </div>
+      <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px"><label>Business / Firm Name</label><input type="text" id="od-company" placeholder="e.g. Sharma Traders"></div>
+        <div class="form-group" style="flex:1;min-width:200px"><label>GSTIN <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="text" id="od-gstin" placeholder="For your invoice"></div>
+      </div>
+      <div class="form-group"><label>Notes <span style="color:var(--muted);font-weight:400">(optional)</span></label><textarea rows="3" id="od-notes" placeholder="Anything we should know?"></textarea></div>
+
+      <button class="form-submit od-submit" onclick="submitOrder()">🧾 Place Order →</button>
+      <div class="form-success" id="od-success" style="display:none"></div>
+    </div>
+    <div class="tk-note" style="max-width:680px;margin:18px auto 0;color:var(--muted);font-size:.8rem;text-align:center">Placing an order doesn't charge you — it sends a request. Our team confirms pricing and shares an invoice. Track everything on the <a href="support.html">Support</a> page.</div>
+  </div>
+</div>
+
+<footer><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p></div></footer>
+<script src="main.js"></script>
+</body></html>

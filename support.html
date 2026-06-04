@@ -129,10 +129,10 @@
     <!-- Track your ticket -->
     <div class="contact-form reveal" style="max-width:640px;margin:34px auto 0">
       <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;margin-bottom:6px">🔎 Track Your Ticket</h2>
-      <p style="color:var(--muted);font-size:.86rem;margin-bottom:18px">Enter your reference number and the email you used to see the latest status and replies.</p>
+      <p style="color:var(--muted);font-size:.86rem;margin-bottom:18px">Enter the <strong>email you used</strong> to see all your tickets and their status. Add a ticket number to open just one.</p>
       <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
-        <div class="form-group" style="flex:1;min-width:200px"><label>Ticket Number</label><input type="text" id="trk-no" placeholder="e.g. TKT-000123"></div>
-        <div class="form-group" style="flex:1;min-width:200px"><label>Email</label><input type="email" id="trk-email" placeholder="you@example.com"></div>
+        <div class="form-group" style="flex:1;min-width:200px"><label>Email *</label><input type="email" id="trk-email" placeholder="you@example.com"></div>
+        <div class="form-group" style="flex:1;min-width:200px"><label>Ticket Number <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="text" id="trk-no" placeholder="e.g. TKT-000123"></div>
       </div>
       <button class="form-submit" onclick="trackTicket()">Check Status →</button>
       <div id="trk-result" style="display:none;margin-top:20px"></div>

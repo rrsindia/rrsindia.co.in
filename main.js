@@ -284,42 +284,136 @@ async function submitTicket() {
   }
 }
 
-// ── Track a ticket by reference no + email (reads live from RRFinEApp) ───────
+// ── Order form: load live price list + submit an order to RRFinEApp ──────────
+let OD_PRICES = [];
+async function loadOrderPrices() {
+  const box = document.getElementById('od-list');
+  if(!box) return;
+  try {
+    const res = await fetch(RRFINEAPP_API + '/public/price-list', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept': 'application/json' } });
+    OD_PRICES = await res.json().catch(() => ([]));
+    if(!Array.isArray(OD_PRICES) || !OD_PRICES.length) { box.innerHTML = '<p style="color:var(--muted)">Pricing is being updated — please use the <a href="enquire.html">enquiry form</a>.</p>'; return; }
+    box.innerHTML = OD_PRICES.map(p =>
+      '<div class="od-row">' +
+        '<div class="od-info"><h4>' + p.name.replace(/</g,'&lt;') +
+          '<span class="od-tag">' + p.category + (p.billing_cycle ? ' · ' + p.billing_cycle : '') + '</span></h4>' +
+          (p.description ? '<p>' + p.description.replace(/</g,'&lt;') + '</p>' : '') + '</div>' +
+        '<div class="od-rate">₹' + Number(p.rate).toLocaleString('en-IN') + '</div>' +
+        '<input type="number" min="0" value="0" data-code="' + p.code + '" data-rate="' + p.rate + '" oninput="odRecalc()">' +
+      '</div>'
+    ).join('');
+    odRecalc();
+  } catch(e) { box.innerHTML = '<p style="color:#f87171">Could not load pricing — please try again or use the enquiry form.</p>'; }
+}
+function odRecalc() {
+  let total = 0;
+  document.querySelectorAll('#od-list input[type=number]').forEach(i => { total += (Number(i.value)||0) * Number(i.dataset.rate||0); });
+  const el = document.getElementById('od-total');
+  if(el) { el.style.display = total > 0 ? 'block' : 'none'; el.textContent = 'Indicative total: ₹' + total.toLocaleString('en-IN') + ' + GST'; }
+}
+async function submitOrder() {
+  const name  = document.getElementById('od-name').value.trim();
+  const email = document.getElementById('od-email').value.trim();
+  if(!name)  { alert('Please enter your name.'); return; }
+  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+  const items = [];
+  document.querySelectorAll('#od-list input[type=number]').forEach(i => { const q = Number(i.value)||0; if(q>0) items.push({ code: i.dataset.code, qty: q }); });
+  if(!items.length) { alert('Please choose at least one plan or add-on (set a quantity).'); return; }
+
+  const btn = document.querySelector('.od-submit');
+  const orig = btn.textContent; btn.textContent = 'Placing…'; btn.disabled = true;
+  try {
+    const res = await fetch(RRFINEAPP_API + '/public/submit-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
+      body: JSON.stringify({
+        customer_name: name, customer_email: email,
+        customer_phone: document.getElementById('od-phone').value.trim(),
+        customer_company: document.getElementById('od-company').value.trim(),
+        gstin: document.getElementById('od-gstin').value.trim(),
+        country: 'IN', notes: document.getElementById('od-notes').value.trim(),
+        items
+      })
+    });
+    const d = await res.json().catch(() => ({}));
+    if(res.ok && d.ok) {
+      const s = document.getElementById('od-success');
+      s.innerHTML = '✅ Order received! Your reference is <strong>' + d.order_no + '</strong>. We\'ll confirm pricing and send your invoice. Track it on the <a href="support.html">Support</a> page using your email.';
+      s.style.display = 'block'; btn.style.display = 'none';
+    } else {
+      alert('Could not place the order.' + (d.error ? '\n\nReason: ' + d.error : '') + '\n\nPlease try the WhatsApp option.');
+      btn.textContent = orig; btn.disabled = false;
+    }
+  } catch(e) { alert('Network issue — please try again.'); btn.textContent = orig; btn.disabled = false; }
+}
+if(document.getElementById('od-list')) loadOrderPrices();
+
+// ── Track tickets from RRFinEApp ─────────────────────────────────────────────
+// Email only  → list every ticket for that email + status.
+// Email + no  → open that one ticket with its full reply thread.
+const TRK_LABELS = { OPEN:'🟦 Open', IN_PROGRESS:'🟨 In Progress', WAITING:'🟪 Waiting', RESOLVED:'🟩 Resolved', CLOSED:'⬜ Closed' };
+const trkApi = (p) => fetch(RRFINEAPP_API + '/public/' + p, { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept': 'application/json' } });
+
 async function trackTicket() {
   const no    = document.getElementById('trk-no').value.trim();
   const email = document.getElementById('trk-email').value.trim();
   const box   = document.getElementById('trk-result');
-  if(!no || !email) { alert('Please enter both your ticket number and email.'); return; }
+  if(!email) { alert('Please enter the email you used to raise the ticket.'); return; }
   box.style.display = 'block';
   box.innerHTML = '<p style="color:var(--muted)">Checking…</p>';
   try {
-    const res = await fetch(RRFINEAPP_API + '/public/ticket-status?ticket_no=' +
-      encodeURIComponent(no) + '&email=' + encodeURIComponent(email), {
-      headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept': 'application/json' }
-    });
-    const d = await res.json().catch(() => ({}));
-    if(!res.ok) { box.innerHTML = '<p style="color:#f87171">' + (d.error || 'Ticket not found. Check the number and email.') + '</p>'; return; }
-    const labels = { OPEN:'🟦 Open', IN_PROGRESS:'🟨 In Progress', WAITING:'🟪 Waiting', RESOLVED:'🟩 Resolved', CLOSED:'⬜ Closed' };
-    const msgs = (d.messages || []).map(m => {
-      const support = m.sender_type === 'superadmin';
-      return '<div style="margin:8px 0;padding:8px 12px;border-radius:10px;font-size:.85rem;' +
-        (support ? 'background:rgba(34,197,94,0.12);border:1px solid var(--border)' : 'background:var(--darker);border:1px solid var(--border)') + '">' +
-        '<div style="font-size:.72rem;color:var(--muted);margin-bottom:3px">' + (support ? '🛟 Support' : '👤 You') +
-        ' · ' + new Date(m.created_at).toLocaleString() + '</div>' +
-        (m.body || '').replace(/</g,'&lt;') + '</div>';
-    }).join('');
+    if(no) { await trkRenderOne(no, email, box); return; }
+    // List all tickets for this email.
+    const res = await trkApi('my-tickets?email=' + encodeURIComponent(email));
+    const list = await res.json().catch(() => ([]));
+    if(!res.ok) { box.innerHTML = '<p style="color:#f87171">' + (list.error || 'Could not look that up.') + '</p>'; return; }
+    if(!list.length) { box.innerHTML = '<p style="color:var(--muted)">No tickets found for ' + email.replace(/</g,'&lt;') + '. Check the spelling, or raise one above.</p>'; return; }
     box.innerHTML =
-      '<div style="padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)">' +
-        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">' +
-          '<strong style="color:var(--white)">' + d.ticket_no + '</strong>' +
-          '<span style="color:var(--white)">' + (labels[d.status] || d.status) + '</span>' +
-        '</div>' +
-        '<div style="color:var(--muted);font-size:.85rem;margin-top:4px">' + (d.subject || '') + '</div>' +
-        (msgs ? '<div style="margin-top:12px">' + msgs + '</div>' : '') +
-      '</div>';
+      '<p style="color:var(--muted);font-size:.82rem;margin-bottom:10px">' + list.length + ' ticket(s) for ' + email.replace(/</g,'&lt;') + ' — click one to see replies.</p>' +
+      list.map(t =>
+        '<div onclick="trkOpen(\'' + t.ticket_no + '\',\'' + email.replace(/'/g,'') + '\')" style="cursor:pointer;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);margin-bottom:8px">' +
+          '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">' +
+            '<strong style="color:var(--white)">' + t.ticket_no + '</strong>' +
+            '<span style="color:var(--white)">' + (TRK_LABELS[t.status] || t.status) + '</span>' +
+          '</div>' +
+          '<div style="color:var(--muted);font-size:.85rem;margin-top:4px">' + (t.subject || '').replace(/</g,'&lt;') + '</div>' +
+          '<div style="color:var(--muted);font-size:.72rem;margin-top:4px">Updated ' + new Date(t.updated_at).toLocaleString() + '</div>' +
+        '</div>'
+      ).join('');
   } catch(e) {
     box.innerHTML = '<p style="color:#f87171">Network issue — please try again.</p>';
   }
+}
+
+// Open one ticket (called from a list row).
+async function trkOpen(no, email) {
+  document.getElementById('trk-no').value = no;
+  const box = document.getElementById('trk-result');
+  box.innerHTML = '<p style="color:var(--muted)">Loading…</p>';
+  try { await trkRenderOne(no, email, box); } catch(e) { box.innerHTML = '<p style="color:#f87171">Network issue — please try again.</p>'; }
+}
+
+async function trkRenderOne(no, email, box) {
+  const res = await trkApi('ticket-status?ticket_no=' + encodeURIComponent(no) + '&email=' + encodeURIComponent(email));
+  const d = await res.json().catch(() => ({}));
+  if(!res.ok) { box.innerHTML = '<p style="color:#f87171">' + (d.error || 'Ticket not found. Check the number and email.') + '</p>'; return; }
+  const msgs = (d.messages || []).map(m => {
+    const support = m.sender_type === 'superadmin';
+    return '<div style="margin:8px 0;padding:8px 12px;border-radius:10px;font-size:.85rem;' +
+      (support ? 'background:rgba(34,197,94,0.12);border:1px solid var(--border)' : 'background:var(--darker);border:1px solid var(--border)') + '">' +
+      '<div style="font-size:.72rem;color:var(--muted);margin-bottom:3px">' + (support ? '🛟 Support' : '👤 You') +
+      ' · ' + new Date(m.created_at).toLocaleString() + '</div>' +
+      (m.body || '').replace(/</g,'&lt;') + '</div>';
+  }).join('');
+  box.innerHTML =
+    '<div style="padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)">' +
+      '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">' +
+        '<strong style="color:var(--white)">' + d.ticket_no + '</strong>' +
+        '<span style="color:var(--white)">' + (TRK_LABELS[d.status] || d.status) + '</span>' +
+      '</div>' +
+      '<div style="color:var(--muted);font-size:.85rem;margin-top:4px">' + (d.subject || '').replace(/</g,'&lt;') + '</div>' +
+      (msgs ? '<div style="margin-top:12px">' + msgs + '</div>' : '<div style="color:var(--muted);font-size:.8rem;margin-top:10px">No replies yet.</div>') +
+    '</div>';
 }
 
 // ════════════ AI ASSISTANT WIDGET ════════════
