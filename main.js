@@ -291,25 +291,52 @@ function odUserRow(role){
     ROLE_OPTS.map(r => '<option value="'+r[0]+'"'+(r[0]===role?' selected':'')+'>'+r[1]+'</option>').join('') +
     '</select><input type="text" placeholder="User name (optional)"><button type="button" class="rm" onclick="this.parentNode.remove()">✕</button></div>';
 }
-function odAddUser(role){ const box=document.getElementById('od-users'); if(box) box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); }
+function odAddUser(role){ const box=document.getElementById('od-users'); if(box){ box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); odTotal(); } }
+
+let OD = { cats:[], prices:[], feats:[] };   // loaded plan/feature/price data
+function odPriceByCode(code){ const p = OD.prices.find(x=>x.code===code); return p?Number(p.rate)||0:0; }
+function odFeatPrice(code){
+  // try a price row whose code maps to the feature (ADDON_<...>), else 0
+  const f = OD.feats.find(x=>x.code===code);
+  const p = OD.prices.find(x => x.code && (x.code.toLowerCase().includes(code.toLowerCase()) || (f && x.name && f.name && x.name.toLowerCase()===f.name.toLowerCase())));
+  return p?Number(p.rate)||0:0;
+}
+// Tentative total (excl. taxes): plan + selected premium features + extra users (beyond 2 included).
+function odTotal(){
+  const el = document.getElementById('od-total'); if(!el) return;
+  let total = 0;
+  const cat = document.querySelector('input[name="od-cat"]:checked');
+  if(cat){ const c = OD.cats.find(x=>x.code===cat.value); if(c) total += Number(c.rate)||0; }
+  document.querySelectorAll('#od-feat input:checked').forEach(i=>{ total += odFeatPrice(i.value); });
+  const users = document.querySelectorAll('#od-users .od-user').length;
+  if(users>2) total += (users-2) * odPriceByCode('ADDON_EXTRA_USER');
+  el.innerHTML = 'Tentative total: ₹' + total.toLocaleString('en-IN') + ' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(excl. taxes)</span>';
+}
 
 async function loadPlansFeatures(){
   const cat = document.getElementById('od-cat'), feat = document.getElementById('od-feat');
   if(!cat) return;
-  // seed the 2 default user rows (1 admin + 1 data entry)
   const ub = document.getElementById('od-users'); if(ub && !ub.children.length){ ub.innerHTML = odUserRow('admin') + odUserRow('dataentry'); }
   try {
     const res = await fetch(RRFINEAPP_API + '/public/plans-features', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
     const d = await res.json().catch(()=>({}));
-    const cats = d.categories||[], prices = d.prices||[], feats = d.premiumFeatures||[];
-    const rateOf = (code)=>{ const p=prices.find(x=>x.code===code); return p?(' — ₹'+Number(p.rate).toLocaleString('en-IN')):''; };
-    const planCode = {basic_gl:'PLAN_BASIC_GL',full_finance:'PLAN_FULL_FIN',ca_firm:'PLAN_CA_FIRM'};
-    cat.innerHTML = cats.length ? cats.map((c,i)=>
-      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+'><span>'+c.label.replace(/</g,'&lt;')+rateOf(planCode[c.code])+'</span></label>'
+    OD.cats = d.categories||[]; OD.prices = d.prices||[]; OD.feats = d.premiumFeatures||[];
+    // Country dropdown — same list as the app's tenant form.
+    const cy = document.getElementById('od-country');
+    if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+c.label.replace(/</g,'&lt;')+'</option>').join(''); }
+    // Categories (from the editable price master).
+    cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
+      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odTotal()"><span>'+c.label.replace(/</g,'&lt;')+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')):'')+'</span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
-    feat.innerHTML = feats.length ? feats.map(f=>
-      '<label><input type="checkbox" value="'+f.code+'"><span><span class="ft">'+(f.icon||'✨')+' '+f.name.replace(/</g,'&lt;')+'</span>'+(f.description?'<span class="fd">'+f.description.replace(/</g,'&lt;')+'</span>':'')+'</span></label>'
-    ).join('') : '<p style="color:var(--muted)">No premium features available right now.</p>';
+    // Premium features — ALL shown; available = selectable, others = disabled "coming soon".
+    feat.innerHTML = OD.feats.length ? OD.feats.map(f=>{
+      const ok = f.selectable !== false;
+      const pr = odFeatPrice(f.code); const prTxt = pr ? (' — ₹'+pr.toLocaleString('en-IN')) : '';
+      return '<label style="'+(ok?'':'opacity:.55;cursor:not-allowed')+'"><input type="checkbox" value="'+f.code+'" onchange="odTotal()"'+(ok?'':' disabled')+'>' +
+        '<span><span class="ft">'+(f.icon||'✨')+' '+f.name.replace(/</g,'&lt;')+prTxt+(ok?'':' <em style="color:#f59e0b">(coming soon)</em>')+'</span>' +
+        (f.description?'<span class="fd">'+f.description.replace(/</g,'&lt;')+'</span>':'')+'</span></label>';
+    }).join('') : '<p style="color:var(--muted)">No premium features available right now.</p>';
+    odTotal();
   } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
 }
 
@@ -331,7 +358,8 @@ async function submitOrder(){
     const res = await fetch(RRFINEAPP_API + '/public/submit-order', {
       method:'POST', headers:{ 'Content-Type':'application/json','Accept':'application/json','x-api-key':RRFINEAPP_PUBLIC_KEY },
       body: JSON.stringify({
-        account_code: v('od-code'), customer_name: v('od-name'), customer_email: v('od-email'),
+        account_code: v('od-code'), customer_name: v('od-name'), customer_company: v('od-company'),
+        customer_email: v('od-email'),
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
         address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
         state_code: v('od-state').slice(0,2).toUpperCase(), broker: v('od-broker'),
