@@ -62,6 +62,12 @@
       <div class="form-group"><label>Business / Firm Name <span style="color:var(--muted);font-weight:400">(optional)</span></label><input type="text" id="tk-biz" placeholder="e.g. Sharma Traders"></div>
 
       <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px"><label>Tenant ID <span style="color:var(--muted);font-weight:400">(existing customers)</span></label><input type="text" id="tk-tenant" placeholder="From your app (optional)"></div>
+        <div class="form-group" style="flex:1;min-width:200px"><label>Company ID <span style="color:var(--muted);font-weight:400">(existing customers)</span></label><input type="text" id="tk-company" placeholder="From your app (optional)"></div>
+      </div>
+      <p style="color:var(--muted);font-size:.78rem;margin:-6px 0 16px">Already a customer? Add your Tenant &amp; Company ID so this ticket appears inside your RRFinEApp account too. New here? Leave blank.</p>
+
+      <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
         <div class="form-group" style="flex:1;min-width:200px">
           <label>What area of the app? *</label>
           <select id="tk-area">
@@ -118,7 +124,19 @@
       <div class="form-success" id="tk-success" style="display:none">✅ Your issue has been reported! Our support team will look into it and get back to you soon. Thank you for helping us improve RRFinEApp. 🙏</div>
     </div>
 
-    <div class="tk-note">🔒 Your report goes straight to our support team by email. Please don't include passwords or sensitive financial data in the description.</div>
+    <div class="tk-note">🔒 Your report is logged directly in our support system. Please don't include passwords or sensitive financial data in the description.</div>
+
+    <!-- Track your ticket -->
+    <div class="contact-form reveal" style="max-width:640px;margin:34px auto 0">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;margin-bottom:6px">🔎 Track Your Ticket</h2>
+      <p style="color:var(--muted);font-size:.86rem;margin-bottom:18px">Enter your reference number and the email you used to see the latest status and replies.</p>
+      <div class="form-row" style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:200px"><label>Ticket Number</label><input type="text" id="trk-no" placeholder="e.g. TKT-000123"></div>
+        <div class="form-group" style="flex:1;min-width:200px"><label>Email</label><input type="email" id="trk-email" placeholder="you@example.com"></div>
+      </div>
+      <button class="form-submit" onclick="trackTicket()">Check Status →</button>
+      <div id="trk-result" style="display:none;margin-top:20px"></div>
+    </div>
 
     <div class="tk-other">
       <p>Need urgent help or prefer to talk to someone directly?</p>

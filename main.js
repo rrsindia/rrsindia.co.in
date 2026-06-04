@@ -123,6 +123,13 @@ function setRecommend(val) {
 const WEB3FORMS_KEY = 'c06fa8d4-b67d-4cc3-9982-ad202da2d532';
 const IMGBB_KEY = '96a92f3973c9b79d3b83aa5d19cee3d0';
 
+// ── RRFinEApp own support API (no 3rd-party for tickets/screenshots) ─────────
+// Tickets submit straight into the RRFinEApp database (single source of truth)
+// and screenshots are hosted on our own server. PUBLIC key is a submit-only,
+// publishable token (same posture as the Web3Forms key above).
+const RRFINEAPP_API        = 'https://fin.rrsindia.co.in/api/v1';
+const RRFINEAPP_PUBLIC_KEY = '2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0';
+
 async function submitFeedback() {
   const msg = document.getElementById('fb-msg').value.trim();
   if(!fbRating) { alert('Please select a star rating.'); return; }
@@ -189,15 +196,16 @@ async function submitTicket() {
   if(!sevEl)   { alert('Please choose how serious the issue is.'); return; }
   if(!desc)    { alert('Please describe the problem.'); return; }
 
-  const email   = document.getElementById('tk-email').value.trim();
-  const biz     = document.getElementById('tk-biz').value.trim();
-  const steps   = document.getElementById('tk-steps').value.trim();
+  const email    = document.getElementById('tk-email').value.trim();
+  const biz      = document.getElementById('tk-biz').value.trim();
+  const tenantId = (document.getElementById('tk-tenant')  || {}).value ? document.getElementById('tk-tenant').value.trim()  : '';
+  const companyId= (document.getElementById('tk-company') || {}).value ? document.getElementById('tk-company').value.trim() : '';
+  const steps    = document.getElementById('tk-steps').value.trim();
   const device  = document.getElementById('tk-device').value.trim();
   const browser = document.getElementById('tk-browser').value.trim();
   const severity = sevEl.value;
-  const ticketId = 'RRF-' + Date.now().toString().slice(-6);
 
-  // screenshot (optional) — validate size
+  // screenshot (optional) — validate size client-side (server re-checks at 5MB)
   const shotEl = document.getElementById('tk-screenshot');
   const shotFile = (shotEl && shotEl.files && shotEl.files.length) ? shotEl.files[0] : null;
   if(shotFile && shotFile.size > 5 * 1024 * 1024) {
@@ -210,61 +218,62 @@ async function submitTicket() {
   btn.textContent = 'Submitting…';
   btn.disabled = true;
 
-  // 1) If a screenshot was attached, upload it to ImgBB first to get a shareable link
-  let screenshotUrl = '';
-  if(shotFile) {
-    try {
+  // Map the website fields onto the RRFinEApp ticket model.
+  const priority = /high/i.test(severity) ? 'Urgent' : /medium/i.test(severity) ? 'Medium' : 'Low';
+  const category = /bill|invoic|gst|tax/i.test(area + ' ' + type) ? 'Billing' : 'Technical';
+  const description =
+    desc +
+    (steps   ? `\n\nSteps to reproduce:\n${steps}` : '') +
+    `\n\nSeverity: ${severity}\nApp area: ${area}\nIssue type: ${type}` +
+    (device  ? `\nDevice: ${device}`   : '') +
+    (browser ? `\nBrowser: ${browser}` : '');
+
+  try {
+    // 1) Upload the screenshot to OUR server (no 3rd-party image host).
+    let screenshotUrl = '';
+    if(shotFile) {
       btn.textContent = 'Uploading screenshot…';
       const imgData = new FormData();
       imgData.append('image', shotFile);
-      const imgRes = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {
+      const imgRes = await fetch(RRFINEAPP_API + '/public/upload-screenshot', {
         method: 'POST',
+        headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY },   // do NOT set Content-Type for FormData
         body: imgData
       });
-      const imgJson = await imgRes.json();
-      if(imgJson && imgJson.success && imgJson.data && imgJson.data.url) {
-        screenshotUrl = imgJson.data.url;
-      }
-    } catch(e) {
-      screenshotUrl = ''; // if image upload fails, still send the report without it
+      const imgJson = await imgRes.json().catch(() => ({}));
+      if(imgRes.ok && imgJson.url) screenshotUrl = imgJson.url;
+      else if(!imgRes.ok) { alert(imgJson.error || 'Could not upload the screenshot. Please try a smaller image.'); btn.textContent = originalText; btn.disabled = false; return; }
     }
+
+    // 2) Create the ticket directly in the RRFinEApp database (our data).
     btn.textContent = 'Submitting…';
-  }
-
-  // 2) Send the report to your email via Web3Forms (with the screenshot link if we have one)
-  const payload = {
-    access_key: WEB3FORMS_KEY,
-    subject: `🎫 RRFinEApp Issue [${ticketId}] — ${type} (${area})`,
-    from_name: 'RRFinEApp Support Portal',
-    "Ticket ID": ticketId,
-    "Severity": severity,
-    "App Area": area,
-    "Issue Type": type,
-    "Reported By": name,
-    "Phone / WhatsApp": contact,
-    "Email": email || '—',
-    "Business": biz || '—',
-    "Description": desc,
-    "Steps to Reproduce": steps || '—',
-    "Device": device || '—',
-    "Browser": browser || '—',
-    "Screenshot": screenshotUrl ? screenshotUrl : (shotFile ? '(upload failed — ask user to resend)' : '(none attached)')
-  };
-
-  try {
-    const res = await fetch('https://api.web3forms.com/submit', {
+    const res = await fetch(RRFINEAPP_API + '/public/submit-ticket', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
+      body: JSON.stringify({
+        subject: `${type} — ${area}`,
+        description,
+        name,
+        email,
+        phone: contact,
+        company: biz,
+        country: 'IN',
+        category,
+        priority,
+        tenant_id: tenantId,
+        company_id: companyId,
+        screenshot_url: screenshotUrl
+      })
     });
-    const data = await res.json();
-    if(data.success) {
+    const data = await res.json().catch(() => ({}));
+    if(res.ok && data.ok) {
       const s = document.getElementById('tk-success');
-      s.innerHTML = '✅ Your issue has been reported! Your reference number is <strong>' + ticketId + '</strong>. Our support team will look into it and get back to you soon. Thank you for helping us improve RRFinEApp. 🙏';
+      s.innerHTML = '✅ Your issue has been logged! Your reference number is <strong>' + data.ticket_no +
+        '</strong>. Please keep it to track your ticket. Our support team will get back to you soon. 🙏';
       s.style.display = 'block';
       btn.style.display = 'none';
     } else {
-      alert('Sorry, something went wrong submitting your report. Please try the WhatsApp option below.');
+      alert('Sorry, something went wrong submitting your report.' + (data.error ? '\n\nReason: ' + data.error : '') + '\n\nPlease try the WhatsApp option below.');
       btn.textContent = originalText;
       btn.disabled = false;
     }
@@ -272,6 +281,44 @@ async function submitTicket() {
     alert('Network issue — please check your connection or use the WhatsApp option below.');
     btn.textContent = originalText;
     btn.disabled = false;
+  }
+}
+
+// ── Track a ticket by reference no + email (reads live from RRFinEApp) ───────
+async function trackTicket() {
+  const no    = document.getElementById('trk-no').value.trim();
+  const email = document.getElementById('trk-email').value.trim();
+  const box   = document.getElementById('trk-result');
+  if(!no || !email) { alert('Please enter both your ticket number and email.'); return; }
+  box.style.display = 'block';
+  box.innerHTML = '<p style="color:var(--muted)">Checking…</p>';
+  try {
+    const res = await fetch(RRFINEAPP_API + '/public/ticket-status?ticket_no=' +
+      encodeURIComponent(no) + '&email=' + encodeURIComponent(email), {
+      headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept': 'application/json' }
+    });
+    const d = await res.json().catch(() => ({}));
+    if(!res.ok) { box.innerHTML = '<p style="color:#f87171">' + (d.error || 'Ticket not found. Check the number and email.') + '</p>'; return; }
+    const labels = { OPEN:'🟦 Open', IN_PROGRESS:'🟨 In Progress', WAITING:'🟪 Waiting', RESOLVED:'🟩 Resolved', CLOSED:'⬜ Closed' };
+    const msgs = (d.messages || []).map(m => {
+      const support = m.sender_type === 'superadmin';
+      return '<div style="margin:8px 0;padding:8px 12px;border-radius:10px;font-size:.85rem;' +
+        (support ? 'background:rgba(34,197,94,0.12);border:1px solid var(--border)' : 'background:var(--darker);border:1px solid var(--border)') + '">' +
+        '<div style="font-size:.72rem;color:var(--muted);margin-bottom:3px">' + (support ? '🛟 Support' : '👤 You') +
+        ' · ' + new Date(m.created_at).toLocaleString() + '</div>' +
+        (m.body || '').replace(/</g,'&lt;') + '</div>';
+    }).join('');
+    box.innerHTML =
+      '<div style="padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg)">' +
+        '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">' +
+          '<strong style="color:var(--white)">' + d.ticket_no + '</strong>' +
+          '<span style="color:var(--white)">' + (labels[d.status] || d.status) + '</span>' +
+        '</div>' +
+        '<div style="color:var(--muted);font-size:.85rem;margin-top:4px">' + (d.subject || '') + '</div>' +
+        (msgs ? '<div style="margin-top:12px">' + msgs + '</div>' : '') +
+      '</div>';
+  } catch(e) {
+    box.innerHTML = '<p style="color:#f87171">Network issue — please try again.</p>';
   }
 }
 
