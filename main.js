@@ -508,11 +508,10 @@ async function trkRenderOne(no, email, box) {
   }
 
   function anchorToLogo(fab){
-    // Park the AI launcher in the BOTTOM-LEFT corner — a fixed floating button that
-    // never overlaps the top navigation (which now has more items). Mirrors the
-    // WhatsApp button (bottom-right). Still fully draggable.
-    fab.style.top = 'auto'; fab.style.right = 'auto';
-    fab.style.bottom = '20px'; fab.style.left = '20px';
+    // Default position: TOP-LEFT corner, just before the logo — clear of the top
+    // navigation. Still fully draggable.
+    fab.style.bottom = 'auto'; fab.style.right = 'auto';
+    fab.style.top = '13px'; fab.style.left = '6px';
   }
 
   function buildAI(){
