@@ -284,69 +284,69 @@ async function submitTicket() {
   }
 }
 
-// ── Order form: load live price list + submit an order to RRFinEApp ──────────
-let OD_PRICES = [];
-async function loadOrderPrices() {
-  const box = document.getElementById('od-list');
-  if(!box) return;
-  try {
-    const res = await fetch(RRFINEAPP_API + '/public/price-list', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept': 'application/json' } });
-    OD_PRICES = await res.json().catch(() => ([]));
-    if(!Array.isArray(OD_PRICES) || !OD_PRICES.length) { box.innerHTML = '<p style="color:var(--muted)">Pricing is being updated — please use the <a href="enquire.html">enquiry form</a>.</p>'; return; }
-    box.innerHTML = OD_PRICES.map(p =>
-      '<div class="od-row">' +
-        '<div class="od-info"><h4>' + p.name.replace(/</g,'&lt;') +
-          '<span class="od-tag">' + p.category + (p.billing_cycle ? ' · ' + p.billing_cycle : '') + '</span></h4>' +
-          (p.description ? '<p>' + p.description.replace(/</g,'&lt;') + '</p>' : '') + '</div>' +
-        '<div class="od-rate">₹' + Number(p.rate).toLocaleString('en-IN') + '</div>' +
-        '<input type="number" min="0" value="0" data-code="' + p.code + '" data-rate="' + p.rate + '" oninput="odRecalc()">' +
-      '</div>'
-    ).join('');
-    odRecalc();
-  } catch(e) { box.innerHTML = '<p style="color:#f87171">Could not load pricing — please try again or use the enquiry form.</p>'; }
+// ── Order form: load plan categories + premium features, collect users, submit ─
+const ROLE_OPTS = [['admin','Admin'],['dataentry','Data Entry'],['viewonly','Viewer'],['auditor','Auditor']];
+function odUserRow(role){
+  return '<div class="od-user"><select>' +
+    ROLE_OPTS.map(r => '<option value="'+r[0]+'"'+(r[0]===role?' selected':'')+'>'+r[1]+'</option>').join('') +
+    '</select><input type="text" placeholder="User name (optional)"><button type="button" class="rm" onclick="this.parentNode.remove()">✕</button></div>';
 }
-function odRecalc() {
-  let total = 0;
-  document.querySelectorAll('#od-list input[type=number]').forEach(i => { total += (Number(i.value)||0) * Number(i.dataset.rate||0); });
-  const el = document.getElementById('od-total');
-  if(el) { el.style.display = total > 0 ? 'block' : 'none'; el.textContent = 'Indicative total: ₹' + total.toLocaleString('en-IN') + ' + GST'; }
-}
-async function submitOrder() {
-  const name  = document.getElementById('od-name').value.trim();
-  const email = document.getElementById('od-email').value.trim();
-  if(!name)  { alert('Please enter your name.'); return; }
-  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email.'); return; }
-  const items = [];
-  document.querySelectorAll('#od-list input[type=number]').forEach(i => { const q = Number(i.value)||0; if(q>0) items.push({ code: i.dataset.code, qty: q }); });
-  if(!items.length) { alert('Please choose at least one plan or add-on (set a quantity).'); return; }
+function odAddUser(role){ const box=document.getElementById('od-users'); if(box) box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); }
 
-  const btn = document.querySelector('.od-submit');
-  const orig = btn.textContent; btn.textContent = 'Placing…'; btn.disabled = true;
+async function loadPlansFeatures(){
+  const cat = document.getElementById('od-cat'), feat = document.getElementById('od-feat');
+  if(!cat) return;
+  // seed the 2 default user rows (1 admin + 1 data entry)
+  const ub = document.getElementById('od-users'); if(ub && !ub.children.length){ ub.innerHTML = odUserRow('admin') + odUserRow('dataentry'); }
+  try {
+    const res = await fetch(RRFINEAPP_API + '/public/plans-features', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
+    const d = await res.json().catch(()=>({}));
+    const cats = d.categories||[], prices = d.prices||[], feats = d.premiumFeatures||[];
+    const rateOf = (code)=>{ const p=prices.find(x=>x.code===code); return p?(' — ₹'+Number(p.rate).toLocaleString('en-IN')):''; };
+    const planCode = {basic_gl:'PLAN_BASIC_GL',full_finance:'PLAN_FULL_FIN',ca_firm:'PLAN_CA_FIRM'};
+    cat.innerHTML = cats.length ? cats.map((c,i)=>
+      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+'><span>'+c.label.replace(/</g,'&lt;')+rateOf(planCode[c.code])+'</span></label>'
+    ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
+    feat.innerHTML = feats.length ? feats.map(f=>
+      '<label><input type="checkbox" value="'+f.code+'"><span><span class="ft">'+(f.icon||'✨')+' '+f.name.replace(/</g,'&lt;')+'</span>'+(f.description?'<span class="fd">'+f.description.replace(/</g,'&lt;')+'</span>':'')+'</span></label>'
+    ).join('') : '<p style="color:var(--muted)">No premium features available right now.</p>';
+  } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
+}
+
+async function submitOrder(){
+  const v = id => (document.getElementById(id)?document.getElementById(id).value.trim():'');
+  const req = [['od-code','Account/Tenant Code'],['od-name','Account/Tenant Name'],['od-email','Email'],['od-add1','Address Line 1'],['od-city','City'],['od-pin','PIN'],['od-state','State']];
+  for(const [id,lbl] of req){ if(!v(id)){ alert('Please fill: '+lbl); document.getElementById(id)?.focus(); return; } }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('od-email'))){ alert('Please enter a valid email.'); return; }
+  const catEl = document.querySelector('input[name="od-cat"]:checked');
+  if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
+  const premium = Array.from(document.querySelectorAll('#od-feat input:checked')).map(i=>i.value);
+  const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
+  if(users.length < 2){ alert('Add at least 2 users (1 Admin + 1 Data Entry/Viewer/Auditor).'); return; }
+  if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
+  if(!users.some(u=>['dataentry','viewonly','auditor'].includes(u.role))){ alert('At least one Data Entry / Viewer / Auditor user is required.'); return; }
+
+  const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
   try {
     const res = await fetch(RRFINEAPP_API + '/public/submit-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
+      method:'POST', headers:{ 'Content-Type':'application/json','Accept':'application/json','x-api-key':RRFINEAPP_PUBLIC_KEY },
       body: JSON.stringify({
-        customer_name: name, customer_email: email,
-        customer_phone: document.getElementById('od-phone').value.trim(),
-        customer_company: document.getElementById('od-company').value.trim(),
-        gstin: document.getElementById('od-gstin').value.trim(),
-        country: 'IN', notes: document.getElementById('od-notes').value.trim(),
-        items
+        account_code: v('od-code'), customer_name: v('od-name'), customer_email: v('od-email'),
+        customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
+        address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
+        state_code: v('od-state').slice(0,2).toUpperCase(), broker: v('od-broker'),
+        tenant_category: catEl.value, premium_features: premium, users, notes: v('od-notes')
       })
     });
-    const d = await res.json().catch(() => ({}));
-    if(res.ok && d.ok) {
+    const d = await res.json().catch(()=>({}));
+    if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>' + d.order_no + '</strong>. We\'ll confirm pricing and send your invoice. Track it on the <a href="support.html">Support</a> page using your email.';
-      s.style.display = 'block'; btn.style.display = 'none';
-    } else {
-      alert('Could not place the order.' + (d.error ? '\n\nReason: ' + d.error : '') + '\n\nPlease try the WhatsApp option.');
-      btn.textContent = orig; btn.disabled = false;
-    }
-  } catch(e) { alert('Network issue — please try again.'); btn.textContent = orig; btn.disabled = false; }
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. We\'ll confirm pricing and send your invoice. Track it on the <a href="support.html">Support</a> page using your email.';
+      s.style.display='block'; btn.style.display='none';
+    } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')+'\n\nPlease try the WhatsApp option.'); btn.textContent=orig; btn.disabled=false; }
+  } catch(e){ alert('Network issue — please try again.'); btn.textContent=orig; btn.disabled=false; }
 }
-if(document.getElementById('od-list')) loadOrderPrices();
+if(document.getElementById('od-cat')) loadPlansFeatures();
 
 // ── Track tickets from RRFinEApp ─────────────────────────────────────────────
 // Email only  → list every ticket for that email + status.
