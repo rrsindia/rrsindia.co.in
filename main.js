@@ -508,10 +508,18 @@ async function trkRenderOne(no, email, box) {
   }
 
   function anchorToLogo(fab){
-    // Default position: TOP-LEFT corner, just before the logo — clear of the top
-    // navigation. Still fully draggable.
-    fab.style.bottom = 'auto'; fab.style.right = 'auto';
-    fab.style.top = '13px'; fab.style.left = '6px';
+    // Default position: just to the RIGHT of the "R.R. Sphere India" logo (its old
+    // spot). The nav font is now smaller so the menu no longer reaches it. Draggable.
+    const logo = document.querySelector('.nav-logo');
+    const w = fab.offsetWidth || 60, h = fab.offsetHeight || 36;
+    if(!logo){ fab.style.top='13px'; fab.style.left='300px'; fab.style.right='auto'; fab.style.bottom='auto'; return; }
+    const r = logo.getBoundingClientRect();
+    let top = r.top + (r.height - h)/2;
+    let left = r.right + 12;
+    top = Math.max(6, Math.min(window.innerHeight - h - 8, top));
+    left = Math.max(8, Math.min(window.innerWidth - w - 8, left));
+    fab.style.top = top+'px'; fab.style.left = left+'px';
+    fab.style.right='auto'; fab.style.bottom='auto';
   }
 
   function buildAI(){
