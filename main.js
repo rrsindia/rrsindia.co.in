@@ -508,16 +508,11 @@ async function trkRenderOne(no, email, box) {
   }
 
   function anchorToLogo(fab){
-    const logo = document.querySelector('.nav-logo');
-    const w = fab.offsetWidth || 60, h = fab.offsetHeight || 36;
-    if(!logo){ fab.style.top='14px'; fab.style.left='300px'; fab.style.right='auto'; fab.style.bottom='auto'; return; }
-    const r = logo.getBoundingClientRect();
-    let top = r.top + (r.height - h)/2;
-    let left = r.right + 14;
-    top = Math.max(6, Math.min(window.innerHeight - h - 8, top));
-    left = Math.max(8, Math.min(window.innerWidth - w - 8, left));
-    fab.style.top = top+'px'; fab.style.left = left+'px';
-    fab.style.right='auto'; fab.style.bottom='auto';
+    // Park the AI launcher in the BOTTOM-LEFT corner — a fixed floating button that
+    // never overlaps the top navigation (which now has more items). Mirrors the
+    // WhatsApp button (bottom-right). Still fully draggable.
+    fab.style.top = 'auto'; fab.style.right = 'auto';
+    fab.style.bottom = '20px'; fab.style.left = '20px';
   }
 
   function buildAI(){
