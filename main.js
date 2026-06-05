@@ -60,7 +60,7 @@ function submitForm() {
   document.querySelector('.form-submit').style.display = 'none';
 }
 
-// ── ENQUIRY FORM (RRFinEApp page) → EMAIL via Web3Forms ──
+// ── ENQUIRY FORM (RRFinEApp page) → our own API (web_submissions) ──
 async function submitEnquiry() {
   const name = document.getElementById('enq-name').value.trim();
   const contact = document.getElementById('enq-contact').value.trim();
@@ -75,30 +75,19 @@ async function submitEnquiry() {
   btn.textContent = 'Sending…';
   btn.disabled = true;
 
-  const payload = {
-    access_key: WEB3FORMS_KEY,
-    subject: `📩 RRFinEApp Enquiry — ${plan}`,
-    from_name: 'RRFinEApp Website',
-    "Name": name,
-    "Phone/WhatsApp": contact,
-    "Email": email || '—',
-    "Business": biz || '—',
-    "Interested In": plan,
-    "Message": msg || '—'
-  };
-
   try {
-    const res = await fetch('https://api.web3forms.com/submit', {
+    const res = await fetch(RRFINEAPP_API + '/public/enquiry', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
+      body: JSON.stringify({ name, phone: contact, email, business: biz, plan_interest: plan, message: msg })
     });
     const data = await res.json();
-    if(data.success) {
-      document.getElementById('enq-success').style.display = 'block';
+    if(res.ok && data.ok) {
+      const s = document.getElementById('enq-success');
+      if (s) { s.style.display = 'block'; s.textContent = `✅ Thank you! Your enquiry reference is ${data.ref_no}. Our team will get back to you shortly.`; }
       btn.style.display = 'none';
     } else {
-      alert('Sorry, something went wrong sending your enquiry. Please try WhatsApp or call us.');
+      alert(data.error || 'Sorry, something went wrong sending your enquiry. Please try WhatsApp or call us.');
       btn.textContent = originalText; btn.disabled = false;
     }
   } catch(err) {
@@ -145,30 +134,19 @@ async function submitFeedback() {
   btn.textContent = 'Sending…';
   btn.disabled = true;
 
-  const payload = {
-    access_key: WEB3FORMS_KEY,
-    subject: `🌟 New Feedback (${fbRating}/5) — ${cat}`,
-    from_name: 'RR Sphere Website',
-    "Rating": `${stars} (${fbRating}/5)`,
-    "Category": cat,
-    "Name": name,
-    "Business": biz || '—',
-    "Would Recommend": rec,
-    "Feedback": msg
-  };
-
   try {
-    const res = await fetch('https://api.web3forms.com/submit', {
+    const res = await fetch(RRFINEAPP_API + '/public/feedback', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
+      body: JSON.stringify({ name, business: biz, category: cat, rating: fbRating, recommend: fbRecommend || null, message: msg })
     });
     const data = await res.json();
-    if(data.success) {
-      document.getElementById('fb-success').style.display = 'block';
+    if(res.ok && data.ok) {
+      const s = document.getElementById('fb-success');
+      if (s) { s.style.display = 'block'; s.textContent = `🌟 Thank you for your feedback! Reference ${data.ref_no}.`; }
       btn.style.display = 'none';
     } else {
-      alert('Sorry, something went wrong sending your feedback. Please try the WhatsApp option below.');
+      alert(data.error || 'Sorry, something went wrong sending your feedback. Please try the WhatsApp option below.');
       btn.textContent = originalText;
       btn.disabled = false;
     }
@@ -349,29 +327,67 @@ async function loadPlansFeatures(){
   } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
 }
 
-// Print a DRAFT ORDER (before confirming) with the full price breakdown.
+// Print a DRAFT ORDER (before confirming) — Amazon-style order summary.
 function printDraftOrder(){
   const v = id => (document.getElementById(id)?document.getElementById(id).value.trim():'');
   const cat = document.querySelector('input[name="od-cat"]:checked');
   if(!cat){ alert('Please choose a plan first.'); return; }
   const { lines, total } = odBreakdown();
   const esc = s => String(s||'').replace(/</g,'&lt;');
-  const rows = lines.map(l=>'<tr><td>'+esc(l.label)+'</td><td style="text-align:center">'+l.qty+'</td><td style="text-align:right">₹'+Number(l.rate).toLocaleString('en-IN')+'</td><td style="text-align:right">₹'+Number(l.amt).toLocaleString('en-IN')+'</td></tr>').join('');
-  const html = '<!DOCTYPE html><html><head><title>Draft Order — RRFinEApp</title><style>'+
-    'body{font-family:Arial,sans-serif;color:#111;max-width:720px;margin:24px auto;padding:0 16px}'+
-    'h1{font-size:20px;margin:0 0 2px}.sub{color:#666;font-size:12px;margin-bottom:16px}'+
-    '.box{border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px}'+
-    'table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid #eee;padding:7px 6px;text-align:left}'+
-    'th{background:#f4f4f4}.tot{font-weight:700;font-size:15px}.note{color:#666;font-size:11px;margin-top:10px}'+
-    '@media print{button{display:none}}</style></head><body>'+
-    '<h1>DRAFT ORDER — RRFinEApp</h1><div class="sub">R.R. Sphere India · This is a draft request, not a final invoice.</div>'+
-    '<div class="box"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?' · '+esc(v('od-company')):'')+'<br>'+
-      esc([v('od-add1'),v('od-add2'),v('od-city'),v('od-pin'),v('od-state')].filter(Boolean).join(', '))+'<br>'+
-      esc(v('od-email'))+(v('od-phone')?' · '+esc(v('od-phone')):'')+(v('od-gstin')?' · GSTIN '+esc(v('od-gstin')):'')+'</div>'+
-    '<table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>'+
-    '<tbody>'+rows+'<tr class="tot"><td colspan="3" style="text-align:right">Tentative Total (excl. taxes)</td><td style="text-align:right">₹'+total.toLocaleString('en-IN')+'</td></tr></tbody></table>'+
-    '<p class="note">⚠ Prices are tentative and may change. Taxes (GST) extra as applicable. Final pricing, any discount and the tax invoice are confirmed by R.R. Sphere India after you place the order.</p>'+
-    '<button onclick="window.print()" style="margin-top:14px;padding:8px 18px;background:#15914a;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨 Print</button>'+
+  const inr = n => '₹'+Number(n||0).toLocaleString('en-IN');
+  const today = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  const addr = [v('od-add1'),v('od-add2'),[v('od-city'),v('od-pin')].filter(Boolean).join(' '),v('od-state')].filter(Boolean);
+  const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
+  const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
+  const pr = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
+  const custom = v('od-custom');
+  const itemRows = lines.map(l=>
+    '<tr><td style="padding:12px 8px;border-bottom:1px solid #eee">'+esc(l.label)+
+      '<div style="color:#565959;font-size:12px;margin-top:2px">Qty: '+l.qty+' &nbsp;·&nbsp; Unit ₹'+Number(l.rate).toLocaleString('en-IN')+'</div></td>'+
+    '<td style="padding:12px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;font-weight:600">'+inr(l.amt)+'</td></tr>').join('');
+  const customBox = custom ?
+    '<div class="card"><div class="card-h">🛠 Custom / additional requirement</div><div style="padding:12px 14px;font-size:13px">'+
+      esc(custom)+'<div style="color:#565959;font-size:12px;margin-top:8px">⏱ Timeline: <b>'+esc(TL[tl]||'—')+'</b>'+(v('od-timeline-notes')?' ('+esc(v('od-timeline-notes'))+')':'')+
+      ' &nbsp;·&nbsp; Priority: <b>'+(pr==='now'?'Need it now':pr==='next_update'?'Future update is fine':'—')+'</b></div></div></div>' : '';
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Order Summary — RRFinEApp</title><style>'+
+    '*{box-sizing:border-box}body{font-family:"Amazon Ember",Arial,Helvetica,sans-serif;color:#0F1111;background:#fff;max-width:760px;margin:0 auto;padding:0 14px 28px}'+
+    '.top{background:#232F3E;color:#fff;border-radius:0 0 6px 6px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}'+
+    '.brand{font-size:20px;font-weight:700}.brand span{color:#FF9900}.brand small{display:block;font-size:11px;color:#cfd6dd;font-weight:400}'+
+    '.docttl{font-size:13px;color:#FF9900;font-weight:700;text-align:right}'+
+    '.hdr{background:#F0F2F2;border:1px solid #D5D9D9;border-radius:8px;margin:16px 0;padding:12px 16px;display:flex;gap:28px;flex-wrap:wrap}'+
+    '.hdr div .k{font-size:11px;color:#565959;text-transform:uppercase;letter-spacing:.3px}.hdr div .val{font-size:14px;font-weight:600;margin-top:2px}'+
+    '.card{border:1px solid #D5D9D9;border-radius:8px;margin-bottom:14px;overflow:hidden}'+
+    '.card-h{background:#F7F8F8;border-bottom:1px solid #D5D9D9;padding:9px 14px;font-size:13px;font-weight:700}'+
+    '.two{display:flex;gap:14px;flex-wrap:wrap}.two .card{flex:1;min-width:240px}'+
+    '.addr{padding:12px 14px;font-size:13px;line-height:1.55}'+
+    'table{width:100%;border-collapse:collapse}'+
+    '.totals{margin-top:6px;width:280px;margin-left:auto;font-size:13px}.totals td{padding:5px 8px}.totals .gt td{border-top:2px solid #0F1111;font-size:16px;font-weight:700;padding-top:8px}'+
+    '.note{color:#565959;font-size:11px;margin-top:14px;line-height:1.5}'+
+    '.btns{margin-top:16px;text-align:center}.pbtn{padding:9px 26px;background:#FFD814;border:1px solid #FCD200;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}'+
+    '@media print{.btns{display:none}.top{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
+    '<div class="top"><div class="brand">R.R. Sphere <span>India</span><small>RRFinEApp · www.rrsindia.co.in</small></div>'+
+      '<div class="docttl">DRAFT ORDER<br><span style="color:#cfd6dd;font-weight:400;font-size:11px">not a final invoice</span></div></div>'+
+    '<div class="hdr">'+
+      '<div><div class="k">Order placed</div><div class="val">'+today+'</div></div>'+
+      '<div><div class="k">Plan</div><div class="val">'+esc(cat.parentElement.innerText.split('—')[0].trim()||cat.value)+'</div></div>'+
+      '<div><div class="k">Tentative total</div><div class="val" style="color:#B12704">'+inr(total)+'</div></div>'+
+    '</div>'+
+    '<div class="two">'+
+      '<div class="card"><div class="card-h">Account / Tenant</div><div class="addr"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+
+        (v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'</div></div>'+
+      '<div class="card"><div class="card-h">Contact</div><div class="addr">'+esc(v('od-email'))+
+        (v('od-phone')?'<br>📞 '+esc(v('od-phone')):'')+(v('od-gstin')?'<br>GSTIN: '+esc(v('od-gstin')):'')+
+        (v('od-broker')?'<br>Broker: '+esc(v('od-broker')):'')+'</div></div>'+
+    '</div>'+
+    '<div class="card"><div class="card-h">Order details</div><table><tbody>'+itemRows+'</tbody></table>'+
+      '<table class="totals"><tbody>'+
+        '<tr><td>Items subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
+        '<tr><td>Taxes (GST)</td><td style="text-align:right;color:#565959">As applicable</td></tr>'+
+        '<tr class="gt"><td>Order Total</td><td style="text-align:right;color:#B12704">'+inr(total)+'*</td></tr>'+
+      '</tbody></table></div>'+
+    customBox+
+    '<p class="note">*Tentative — prices may change. Taxes (GST) extra as applicable. Final pricing, any discount and the GST tax invoice are confirmed by R.R. Sphere India after you place the order. This draft is for your reference only.</p>'+
+    '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
   const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the draft order.'); return; }
   w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(), 350);
@@ -400,7 +416,11 @@ async function submitOrder(){
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
         address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
         state_code: v('od-state').slice(0,2).toUpperCase(), broker: v('od-broker'),
-        tenant_category: catEl.value, premium_features: premium, users, notes: v('od-notes')
+        tenant_category: catEl.value, premium_features: premium, users, notes: v('od-notes'),
+        custom_requirement: v('od-custom'),
+        dev_timeline: (document.querySelector('input[name="od-timeline"]:checked')||{}).value || '',
+        dev_timeline_notes: v('od-timeline-notes'),
+        dev_priority: (document.querySelector('input[name="od-priority"]:checked')||{}).value || ''
       })
     });
     const d = await res.json().catch(()=>({}));
