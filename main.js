@@ -530,11 +530,11 @@ async function trkRenderOne(no, email, box) {
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
      a:"Reach us anytime! 📞<br>📱 WhatsApp/Call: <a href='https://wa.me/919417128045' target='_blank'>+91-94171-28045</a><br>📧 <a href='mailto:rrsindia122@gmail.com'>rrsindia122@gmail.com</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
-     a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
+     a:"Hello! 👋 I'm the Light Power Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
      a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
-     a:"I'm the AI Assistant 🤖 — here to help you learn about R.R. Sphere India, RRFinEApp and our coaching classes. Ask me anything!"},
+     a:"I'm the Light Power Assistant — here to help you learn about R.R. Sphere India, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere India is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
@@ -614,7 +614,7 @@ async function trkRenderOne(no, email, box) {
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Ask AI  (Alt + A)';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><defs><linearGradient id="boltg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI</span>';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><defs><linearGradient id="boltg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Light Power</span>';
       document.body.appendChild(fab);
 
       // Always start next to "R.R. Sphere India" on every page load (no memory)
@@ -631,7 +631,7 @@ async function trkRenderOne(no, email, box) {
       chat.innerHTML =
         '<div class="ai-chat-header">'+
           '<div class="ai-ava"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><defs><linearGradient id="boltg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg2)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg></div>'+
-          '<div><h4>AI Assistant</h4><p>Online now · Alt+A</p></div>'+
+          '<div><h4>Light Power Assistant</h4><p>Online now · Alt+A</p></div>'+
           '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
         '</div>'+
         '<div class="ai-chat-body" id="aiBody"></div>'+
@@ -653,7 +653,7 @@ async function trkRenderOne(no, email, box) {
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
-      botSay("Hi there! 👋 I'm the AI Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
+      botSay("Hi there! 👋 I'm the Light Power Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
       renderQuick();
     }
     setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
