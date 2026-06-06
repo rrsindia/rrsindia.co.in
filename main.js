@@ -295,7 +295,7 @@ function odTotal(){
 async function loadPlansFeatures(){
   const cat = document.getElementById('od-cat'), feat = document.getElementById('od-feat');
   if(!cat) return;
-  const ub = document.getElementById('od-users'); if(ub && !ub.children.length){ ub.innerHTML = odUserRow('admin') + odUserRow('dataentry'); }
+  const ub = document.getElementById('od-users'); if(ub && !ub.children.length){ ub.innerHTML = odUserRow('admin') + odUserRow('dataentry') + odUserRow('viewonly'); }
   try {
     const res = await fetch(RRFINEAPP_API + '/public/plans-features', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
     const d = await res.json().catch(()=>({}));
@@ -402,9 +402,10 @@ async function submitOrder(){
   if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
   const premium = Array.from(document.querySelectorAll('#od-feat input:checked')).map(i=>i.value);
   const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
-  if(users.length < 2){ alert('Add at least 2 users (1 Admin + 1 Data Entry).'); return; }
+  if(users.length < 3){ alert('Add at least 3 users (1 Admin + 1 Data Entry + 1 Viewer).'); return; }
   if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
-  if(!users.some(u=>u.role==='dataentry')){ alert('At least one Data Entry user is required.'); return; }
+  &
+  if(!users.some(u=>u.role==='viewonly')){ alert('At least one Viewer (view-only) user is required.'); return; }
 
   const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
   try {
