@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 <style>
 .od-sec{font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--white);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .od-grid{display:flex;gap:14px;flex-wrap:wrap}
@@ -27,7 +27,7 @@
 </style>
 </head>
 <body>
-<nav><div class="nav-inner"><a class="nav-logo" href="index.html"><div class="nav-logo-rr">RR</div><div class="nav-logo-text"><strong>R.R. Sphere India</strong><br>IT &amp; Learning</div></a><div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="finapp.html">RRFinEApp</a><a href="order.html" class="active">Order</a><a href="meaning.html">Meaning</a><a href="coaching.html">Coaching</a><a href="feedback.html">Feedback</a><a href="enquire.html">Enquire</a><a href="support.html">Support</a><a href="contact.html" class="cta">Contact Us</a></div><div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+<nav><div class="nav-inner"><a class="nav-logo" href="index.html"><img src="favicon.svg" alt="R.R. Sphere India" style="width:38px;height:38px;border-radius:8px;display:block"><div class="nav-logo-text"><strong>R.R. Sphere India</strong><br>IT &amp; Learning</div></a><div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="finapp.html">RRFinEApp</a><a href="order.html" class="active">Order</a><a href="meaning.html">Meaning</a><a href="coaching.html">Coaching</a><a href="feedback.html">Feedback</a><a href="enquire.html">Enquire</a><a href="support.html">Support</a><a href="contact.html" class="cta">Contact Us</a></div><div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
 
 <div class="page-wrapper">
   <div class="page-hero">
@@ -45,6 +45,7 @@
       <div class="od-grid">
         <div class="form-group"><label>Account / Tenant Code <span class="req">*</span></label><input type="text" id="od-code" placeholder="e.g. RRS1001"></div>
         <div class="form-group"><label>Account / Tenant Name <span class="req">*</span></label><input type="text" id="od-name" placeholder="Can be your business name — or different"></div>
+        <div class="form-group" style="max-width:170px"><label>Number of Companies <span class="req">*</span></label><input type="number" id="od-companies" min="1" value="1" placeholder="1"></div>
       </div>
       <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional — only if different from the tenant name)</span></label><input type="text" id="od-company" placeholder="e.g. Sharma Traders"></div>
       <div class="od-grid">
@@ -116,5 +117,5 @@
 </div>
 
 <footer><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p></div></footer>
-<script src="main.js?v=11"></script>
+<script src="main.js?v=12"></script>
 </body></html>
