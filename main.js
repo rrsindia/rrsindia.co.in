@@ -404,7 +404,7 @@ async function submitOrder(){
   const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
   if(users.length < 3){ alert('Add at least 3 users (1 Admin + 1 Data Entry + 1 Viewer).'); return; }
   if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
-  &
+  if(!users.some(u=>u.role==='dataentry')){ alert('At least one Data Entry user is required.'); return; }
   if(!users.some(u=>u.role==='viewonly')){ alert('At least one Viewer (view-only) user is required.'); return; }
 
   const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
