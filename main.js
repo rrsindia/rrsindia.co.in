@@ -429,7 +429,7 @@ async function submitOrder(){
     const d = await res.json().catch(()=>({}));
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. We\'ll confirm pricing and send your invoice. Track it on the <a href="portal.html">Customer Login</a> page using your account.';
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your order will be processed within 48 hours. We\'ll confirm pricing and send your invoice. Track your order on the <a href="portal.html">Customer Login</a> page.';
       s.style.display='block'; btn.style.display='none';
       odResetForm();
     } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }

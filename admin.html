@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login — R.R. Sphere India</title>
+<title>Admin Login â€” R.R. Sphere India</title>
 <meta name="robots" content="noindex">
-<meta name="description" content="R.R. Sphere India admin portal — sign in with your RRSPHERE company credentials to view draft invoices from orders and all customer tickets.">
+<meta name="description" content="R.R. Sphere India admin portal â€” sign in with your RRSPHERE company credentials to view draft invoices from orders and all customer tickets.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
 <style>
 .ad-tile{flex:1;min-width:150px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
 .ad-tile .n{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--g4)}
@@ -42,17 +42,17 @@
     <div id="ad-dash" style="display:none;max-width:980px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
         <div style="color:var(--white)">Signed in as <b id="ad-who"></b></div>
-        <div style="display:flex;gap:8px"><a class="btn-outline" href="https://fin.rrsindia.co.in/login" target="_blank" style="font-size:.82rem;padding:7px 14px">Open full app ↗</a><button class="btn-outline" onclick="adLogout()" style="font-size:.82rem;padding:7px 14px">Sign out</button></div>
+        <div style="display:flex;gap:8px"><a class="btn-outline" href="https://fin.rrsindia.co.in/login" target="_blank" style="font-size:.82rem;padding:7px 14px">Open full app â†—</a><button class="btn-outline" onclick="adLogout()" style="font-size:.82rem;padding:7px 14px">Sign out</button></div>
       </div>
       <div id="ad-summary" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px">
-        <div class="ad-tile"><div class="n" id="ad-n-inv">—</div><div class="l">Draft invoices (from orders)</div></div>
-        <div class="ad-tile"><div class="n" id="ad-n-open">—</div><div class="l">Open tickets (all customers)</div></div>
-        <div class="ad-tile"><div class="n" id="ad-n-tk">—</div><div class="l">Total tickets (all customers)</div></div>
+        <div class="ad-tile"><div class="n" id="ad-n-inv">â€”</div><div class="l">Draft invoices (from orders)</div></div>
+        <div class="ad-tile"><div class="n" id="ad-n-open">â€”</div><div class="l">Open tickets (all customers)</div></div>
+        <div class="ad-tile"><div class="n" id="ad-n-tk">â€”</div><div class="l">Total tickets (all customers)</div></div>
       </div>
       <div class="od-sec">Draft Sale Invoices <span style="color:var(--muted);font-size:.8rem">(from approved orders)</span></div>
-      <div id="ad-invoices"><p style="color:var(--muted)">Loading…</p></div>
-      <div class="od-sec" style="margin-top:26px">All Customer Tickets <span style="color:var(--muted);font-size:.8rem">· read-only (status only)</span></div>
-      <div id="ad-tickets"><p style="color:var(--muted)">Loading…</p></div>
+      <div id="ad-invoices"><p style="color:var(--muted)">Loadingâ€¦</p></div>
+      <div class="od-sec" style="margin-top:26px">All Customer Tickets <span style="color:var(--muted);font-size:.8rem">Â· read-only (status only)</span></div>
+      <div id="ad-tickets"><p style="color:var(--muted)">Loadingâ€¦</p></div>
     </div>
   </div>
 </div>
@@ -65,7 +65,7 @@ let adCompany = sessionStorage.getItem('ad_company') || '';
 let adTemp    = '';
 function adErr(m){ const e=document.getElementById('ad-err'); e.textContent=m; e.style.display='block'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function money(v){ const n=parseFloat(v||0); return '₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function money(v){ const n=parseFloat(v||0); return 'â‚¹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function H(){ return { 'Authorization':'Bearer '+adToken, 'X-Tenant-Id':adTenant, 'Accept':'application/json' }; }
 
 async function adLogin(){
@@ -73,7 +73,7 @@ async function adLogin(){
   const pw=document.getElementById('ad-pw').value;
   const code=document.getElementById('ad-2fa').value.trim();
   if(!id||!pw){ adErr('Enter your email and password.'); return; }
-  const btn=document.getElementById('ad-btn'); btn.disabled=true; const o=btn.textContent; btn.textContent='Signing in…';
+  const btn=document.getElementById('ad-btn'); btn.disabled=true; const o=btn.textContent; btn.textContent='Signing inâ€¦';
   try{
     const url  = adTemp ? AD_API+'/auth/2fa/verify-login' : AD_API+'/auth/login';
     const body = adTemp ? { temp_token:adTemp, code } : { login:id, password:pw };
@@ -86,7 +86,7 @@ async function adLogin(){
     sessionStorage.setItem('ad_token',adToken); sessionStorage.setItem('ad_tenant',adTenant);
     document.getElementById('ad-who').textContent=d.user?(d.user.name||d.user.email):id;
     adLoad();
-  }catch(e){ adErr('Network issue — please try again.'); btn.disabled=false; btn.textContent=o; }
+  }catch(e){ adErr('Network issue â€” please try again.'); btn.disabled=false; btn.textContent=o; }
 }
 function adLogout(){ ['ad_token','ad_tenant','ad_company'].forEach(k=>sessionStorage.removeItem(k)); adToken=''; location.reload(); }
 
@@ -122,7 +122,7 @@ async function adTickets(){
   try{
     const r=await fetch(AD_API+'/support-tickets/all-customers',{ headers:H() });
     if(r.status===401){ adLogout(); return; }
-    if(r.status===403){ box.innerHTML='<p style="color:#f87171">This view is only for the RRSPHERE parent-tenant admin.</p>'; document.getElementById('ad-n-tk').textContent='—'; document.getElementById('ad-n-open').textContent='—'; return; }
+    if(r.status===403){ box.innerHTML='<p style="color:#f87171">This view is only for the RRSPHERE parent-tenant admin.</p>'; document.getElementById('ad-n-tk').textContent='â€”'; document.getElementById('ad-n-open').textContent='â€”'; return; }
     const d=await r.json().catch(()=>({})); const tk=d.tickets||[];
     const open=tk.filter(t=>t.status==='OPEN'||t.status==='IN_PROGRESS').length;
     document.getElementById('ad-n-tk').textContent=tk.length;
@@ -136,7 +136,7 @@ function adTkRow(t){
   const st=esc(t.status||'OPEN');
   const col=(st==='RESOLVED'||st==='CLOSED')?'#16a34a':st==='OPEN'?'#d97706':'#2563eb';
   const when=t.last_reply_at||t.created_at; const date=when?new Date(when).toLocaleDateString('en-IN'):'';
-  return '<tr><td>'+esc(t.ticket_no)+'</td><td>'+esc(t.subject)+'</td><td>'+esc(t.tenant_name||t.company_name||t.contact_email||'—')+'</td><td>'+esc(t.priority||'')+'</td><td><span class="ad-badge" style="background:'+col+'">'+st+'</span></td><td>'+esc(date)+'</td></tr>';
+  return '<tr><td>'+esc(t.ticket_no)+'</td><td>'+esc(t.subject)+'</td><td>'+esc(t.tenant_name||t.company_name||t.contact_email||'â€”')+'</td><td>'+esc(t.priority||'')+'</td><td><span class="ad-badge" style="background:'+col+'">'+st+'</span></td><td>'+esc(date)+'</td></tr>';
 }
 function toggleMenu(){ const n=document.getElementById('navLinks'); if(n) n.classList.toggle('open'); }
 if(adToken){ adLoad(); }
