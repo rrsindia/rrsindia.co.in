@@ -414,6 +414,7 @@ async function submitOrder(){
       body: JSON.stringify({
         account_code: v('od-code'), customer_name: v('od-name'), customer_company: v('od-company'),
         num_companies: parseInt(v('od-companies'),10)||1,
+        billing_period: v('od-billing'),
         customer_email: v('od-email'),
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
         address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
@@ -428,10 +429,19 @@ async function submitOrder(){
     const d = await res.json().catch(()=>({}));
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. We\'ll confirm pricing and send your invoice. Track it on the <a href="support.html">Support</a> page using your email.';
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. We\'ll confirm pricing and send your invoice. Track it on the <a href="portal.html">Customer Login</a> page using your account.';
       s.style.display='block'; btn.style.display='none';
-    } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')+'\n\nPlease try the WhatsApp option.'); btn.textContent=orig; btn.disabled=false; }
+      odResetForm();
+    } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }
   } catch(e){ alert('Network issue — please try again.'); btn.textContent=orig; btn.disabled=false; }
+}
+function odResetForm(){
+  ['od-code','od-name','od-company','od-email','od-phone','od-gstin','od-add1','od-add2','od-city','od-pin','od-state','od-notes','od-custom','od-timeline-notes'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  const comp=document.getElementById('od-companies'); if(comp) comp.value='1';
+  const bp=document.getElementById('od-billing'); if(bp) bp.selectedIndex=0;
+  const ub=document.getElementById('od-users'); if(ub) ub.innerHTML = odUserRow('admin')+odUserRow('dataentry')+odUserRow('viewonly');
+  document.querySelectorAll('#od-feat input:checked, #od-cat input:checked').forEach(c=>{ c.checked=false; });
+  if(typeof odTotal==='function') odTotal();
 }
 if(document.getElementById('od-cat')) loadPlansFeatures();
 
