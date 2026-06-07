@@ -2,57 +2,179 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login — R.R. Sphere India</title>
+<title>Admin Portal — R.R. Sphere India</title>
 <meta name="robots" content="noindex">
-<meta name="description" content="R.R. Sphere India admin portal — sign in with your RRSPHERE company credentials to view draft invoices from orders and all customer tickets.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=17">
 <style>
-.ad-tile{flex:1;min-width:150px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
-.ad-tile .n{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--g4)}
-.ad-tile .l{color:var(--muted);font-size:.8rem}
-.ad-tbl{width:100%;border-collapse:collapse;font-size:.84rem}
-.ad-tbl th{text-align:left;color:var(--muted);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--border);font-size:.76rem}
-.ad-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--white)}
+.ad-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid rgba(255,255,255,.12);padding-bottom:0;flex-wrap:wrap}
+.ad-tab{padding:9px 16px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
+.ad-tab.active{color:var(--g4);border-bottom-color:var(--g4)}
+.ad-tab:hover:not(.active){color:var(--white)}
+.ad-tiles{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.ad-tile{flex:1;min-width:130px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:default}
+.ad-tile .n{font-family:'Rajdhani',sans-serif;font-size:1.9rem;font-weight:700;color:var(--g4)}
+.ad-tile .l{color:var(--muted);font-size:.78rem;margin-top:2px}
+.ad-tbl{width:100%;border-collapse:collapse;font-size:.83rem}
+.ad-tbl th{text-align:left;color:var(--muted);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--border);font-size:.75rem;white-space:nowrap}
+.ad-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--white);vertical-align:top}
+.ad-tbl tr:hover td{background:rgba(255,255,255,.03)}
 .ad-badge{font-size:.7rem;font-weight:700;color:#fff;padding:2px 8px;border-radius:9px;white-space:nowrap}
+.ad-sel{background:var(--card-bg);border:1px solid var(--border);color:var(--white);padding:4px 8px;border-radius:6px;font-size:.78rem;cursor:pointer}
+.ad-btn-sm{font-size:.76rem;padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.07);color:var(--white);cursor:pointer;white-space:nowrap;transition:.18s}
+.ad-btn-sm:hover{background:var(--g4);color:#000;border-color:var(--g4)}
+.ad-btn-sm.green{border-color:#16a34a;background:rgba(22,163,74,.15);color:#4ade80}
+.ad-btn-sm.green:hover{background:#16a34a;color:#fff;border-color:#16a34a}
+.ad-filter{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.ad-filter label{color:var(--muted);font-size:.8rem}
+.ad-reply-area{display:none;padding:10px 12px;background:rgba(255,255,255,.03);border-top:1px solid var(--border);border-radius:0 0 8px 8px}
+.ad-reply-area textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--white);padding:8px 10px;font-size:.82rem;font-family:inherit;resize:vertical;min-height:65px}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:40px!important}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.05rem;padding:2px;line-height:1;transition:.2s}
+.pw-eye:hover{color:var(--white)}
+.ad-toast{position:fixed;bottom:22px;right:22px;padding:11px 20px;border-radius:8px;font-size:.85rem;font-weight:600;display:none;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.ad-access-denied{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:24px;text-align:center;color:#f87171}
 </style>
 </head>
 <body>
-<nav><div class="nav-inner"><a class="nav-logo" href="index.html"><img src="favicon.svg" alt="R.R. Sphere India" style="width:38px;height:38px;border-radius:8px;display:block"><div class="nav-logo-text"><strong>R.R. Sphere India</strong><br>IT &amp; Learning</div></a><div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="finapp.html">RRFinEApp</a><a href="order.html">Order</a><a href="portal.html">Customer Login</a><a href="contact.html" class="cta">Contact Us</a></div><div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+<nav><div class="nav-inner"><a class="nav-logo" href="index.html"><img src="favicon.svg" alt="R.R. Sphere India" style="width:38px;height:38px;border-radius:8px;display:block"><div class="nav-logo-text"><strong>R.R. Sphere India</strong><br>IT &amp; Learning</div></a><div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="finapp.html">RRFinEApp</a><a href="order.html">Order</a><a href="coaching.html">Coaching</a><a href="feedback.html">Feedback</a><a href="enquire.html">Enquire</a><a href="portal.html">Customer Login</a><a href="admin.html">Admin</a><a href="contact.html" class="cta">Contact Us</a></div><div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+
+<div class="ad-toast" id="ad-toast"></div>
 
 <div class="page-wrapper">
   <div class="page-hero"><div class="page-hero-inner">
-    <div class="section-tag">ADMIN LOGIN</div>
+    <div class="section-tag">ADMIN PORTAL</div>
     <h1>R.R.Sphere <span>Admin</span></h1>
-    <p>Sign in with your <b>RRSPHERE company</b> (parent tenant) credentials to view draft invoices created from approved orders and all customer support tickets.</p>
+    <p>Manage orders, support tickets, enquiries and invoices. Sign in with your admin credentials.</p>
   </div></div>
 
   <div class="section">
+    <!-- Login form -->
     <div id="ad-login" class="contact-form" style="max-width:420px;margin:0 auto">
       <div class="od-sec">Admin Sign in</div>
-      <div class="form-group"><label>Email or Mobile</label><input id="ad-id" type="text" placeholder="admin@yourcompany.com" autocomplete="username"></div>
-      <div class="form-group"><label>Password</label><input id="ad-pw" type="password" autocomplete="current-password"></div>
-      <div class="form-group" id="ad-2fa-wrap" style="display:none"><label>Authenticator Code</label><input id="ad-2fa" type="text" inputmode="numeric" placeholder="6-digit code"></div>
+      <div class="form-group">
+        <label>Email or Mobile</label>
+        <input id="ad-id" type="text" placeholder="admin@rrsindia.co.in" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input id="ad-pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adLogin()">
+          <button class="pw-eye" type="button" onclick="adTogglePw()" title="Show / hide password">&#128065;</button>
+        </div>
+      </div>
+      <div class="form-group" id="ad-2fa-wrap" style="display:none">
+        <label>Authenticator Code</label>
+        <input id="ad-2fa" type="text" inputmode="numeric" placeholder="6-digit code" onkeydown="if(event.key==='Enter')adLogin()">
+      </div>
       <button class="btn-primary" style="width:100%" onclick="adLogin()" id="ad-btn">Sign in</button>
       <p id="ad-err" style="color:#f87171;font-size:.85rem;margin-top:10px;display:none"></p>
     </div>
 
-    <div id="ad-dash" style="display:none;max-width:980px;margin:0 auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-        <div style="color:var(--white)">Signed in as <b id="ad-who"></b></div>
-        <div style="display:flex;gap:8px"><a class="btn-outline" href="https://fin.rrsindia.co.in/login" target="_blank" style="font-size:.82rem;padding:7px 14px">Open full app ↗</a><button class="btn-outline" onclick="adLogout()" style="font-size:.82rem;padding:7px 14px">Sign out</button></div>
+    <!-- Dashboard -->
+    <div id="ad-dash" style="display:none;max-width:1120px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div style="color:var(--white)">
+          Signed in as <b id="ad-who"></b>
+          <span id="ad-role-badge" style="font-size:.7rem;padding:2px 9px;border-radius:8px;margin-left:8px;font-weight:700"></span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a class="btn-outline" href="https://fin.rrsindia.co.in/login" target="_blank" style="font-size:.82rem;padding:7px 14px">Open full app &#8599;</a>
+          <button class="btn-outline" onclick="adLogout()" style="font-size:.82rem;padding:7px 14px">Sign out</button>
+        </div>
       </div>
-      <div id="ad-summary" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px">
-        <div class="ad-tile"><div class="n" id="ad-n-inv">—</div><div class="l">Draft invoices (from orders)</div></div>
-        <div class="ad-tile"><div class="n" id="ad-n-open">—</div><div class="l">Open tickets (all customers)</div></div>
-        <div class="ad-tile"><div class="n" id="ad-n-tk">—</div><div class="l">Total tickets (all customers)</div></div>
+
+      <!-- Summary tiles -->
+      <div class="ad-tiles">
+        <div class="ad-tile" onclick="adTab('orders')" style="cursor:pointer" title="View orders">
+          <div class="n" id="ad-n-orders">—</div><div class="l">Total orders</div>
+        </div>
+        <div class="ad-tile" onclick="adTab('orders')" style="cursor:pointer" title="View pending orders">
+          <div class="n" id="ad-n-pending">—</div><div class="l">Pending orders</div>
+        </div>
+        <div class="ad-tile" onclick="adTab('tickets')" style="cursor:pointer" title="View open tickets">
+          <div class="n" id="ad-n-open">—</div><div class="l">Open tickets</div>
+        </div>
+        <div class="ad-tile" onclick="adTab('tickets')" style="cursor:pointer" title="View all tickets">
+          <div class="n" id="ad-n-tk">—</div><div class="l">Total tickets</div>
+        </div>
+        <div class="ad-tile" onclick="adTab('enquiries')" style="cursor:pointer" title="View enquiries & feedback">
+          <div class="n" id="ad-n-sub">—</div><div class="l">Enquiries &amp; Feedback</div>
+        </div>
+        <div class="ad-tile" onclick="adTab('invoices')" style="cursor:pointer" title="View draft invoices">
+          <div class="n" id="ad-n-inv">—</div><div class="l">Draft invoices</div>
+        </div>
       </div>
-      <div class="od-sec">Draft Sale Invoices <span style="color:var(--muted);font-size:.8rem">(from approved orders)</span></div>
-      <div id="ad-invoices"><p style="color:var(--muted)">Loading…</p></div>
-      <div class="od-sec" style="margin-top:26px">All Customer Tickets <span style="color:var(--muted);font-size:.8rem">· read-only (status only)</span></div>
-      <div id="ad-tickets"><p style="color:var(--muted)">Loading…</p></div>
+
+      <!-- Tabs -->
+      <div class="ad-tabs">
+        <button class="ad-tab active" onclick="adTab('orders')">Orders</button>
+        <button class="ad-tab" onclick="adTab('tickets')">Tickets</button>
+        <button class="ad-tab" onclick="adTab('enquiries')">Enquiries &amp; Feedback</button>
+        <button class="ad-tab" onclick="adTab('invoices')">Draft Invoices</button>
+      </div>
+
+      <!-- Orders tab -->
+      <div id="ad-tab-orders">
+        <div class="ad-filter">
+          <label>Status:</label>
+          <select class="ad-sel" id="ad-ord-filter" onchange="adRenderOrders()">
+            <option value="">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="VERIFIED">Verified</option>
+            <option value="INVOICED">Invoiced</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+          <button class="ad-btn-sm" onclick="adLoadOrders()">&#8635; Refresh</button>
+        </div>
+        <div id="ad-orders-list"><p style="color:var(--muted)">Loading orders…</p></div>
+      </div>
+
+      <!-- Tickets tab -->
+      <div id="ad-tab-tickets" style="display:none">
+        <div class="ad-filter">
+          <label>Status:</label>
+          <select class="ad-sel" id="ad-tk-filter" onchange="adRenderTickets()">
+            <option value="">All</option>
+            <option value="OPEN">Open</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="RESOLVED">Resolved</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+          <button class="ad-btn-sm" onclick="adLoadTickets()">&#8635; Refresh</button>
+        </div>
+        <div id="ad-tickets-list"><p style="color:var(--muted)">Loading tickets…</p></div>
+      </div>
+
+      <!-- Enquiries & Feedback tab -->
+      <div id="ad-tab-enquiries" style="display:none">
+        <div class="ad-filter">
+          <label>Type:</label>
+          <select class="ad-sel" id="ad-sub-kind" onchange="adRenderSubs()">
+            <option value="">All</option>
+            <option value="enquiry">Enquiry</option>
+            <option value="feedback">Feedback</option>
+          </select>
+          <label>Status:</label>
+          <select class="ad-sel" id="ad-sub-status" onchange="adRenderSubs()">
+            <option value="">All</option>
+            <option value="NEW">New</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+          <button class="ad-btn-sm" onclick="adLoadSubs()">&#8635; Refresh</button>
+        </div>
+        <div id="ad-subs-list"><p style="color:var(--muted)">Loading…</p></div>
+      </div>
+
+      <!-- Draft Invoices tab -->
+      <div id="ad-tab-invoices" style="display:none">
+        <div id="ad-invoices-list"><p style="color:var(--muted)">Loading draft invoices…</p></div>
+      </div>
     </div>
   </div>
 </div>
@@ -62,84 +184,338 @@ const AD_API = 'https://fin.rrsindia.co.in/api/v1';
 let adToken   = sessionStorage.getItem('ad_token')   || '';
 let adTenant  = sessionStorage.getItem('ad_tenant')  || '';
 let adCompany = sessionStorage.getItem('ad_company') || '';
+let adIsSA    = sessionStorage.getItem('ad_sa') === '1';
 let adTemp    = '';
-function adErr(m){ const e=document.getElementById('ad-err'); e.textContent=m; e.style.display='block'; }
+let adAllOrders = [], adAllTickets = [], adAllSubs = [];
+
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function money(v){ const n=parseFloat(v||0); return '₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function H(){ return { 'Authorization':'Bearer '+adToken, 'X-Tenant-Id':adTenant, 'Accept':'application/json' }; }
+function money(v){ return '₹'+parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDT(d){ return d?new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'' ; }
+function SH(){ return {'Authorization':'Bearer '+adToken,'Accept':'application/json','Content-Type':'application/json'}; }
+function TH(extra){ return Object.assign({'Authorization':'Bearer '+adToken,'X-Tenant-Id':adTenant,'Accept':'application/json'},extra||{}); }
+function adShowErr(m){ const e=document.getElementById('ad-err'); e.textContent=m; e.style.display='block'; }
+function toast(m,ok){
+  const t=document.getElementById('ad-toast');
+  t.textContent=m; t.style.background=ok?'#16a34a':'#dc2626'; t.style.color='#fff';
+  t.style.display='block'; setTimeout(()=>{t.style.display='none';},3200);
+}
+
+function adTogglePw(){
+  const pw=document.getElementById('ad-pw');
+  pw.type = pw.type==='password'?'text':'password';
+  document.querySelector('.pw-eye').style.opacity = pw.type==='text'?'1':'0.5';
+}
 
 async function adLogin(){
   const id=document.getElementById('ad-id').value.trim();
   const pw=document.getElementById('ad-pw').value;
   const code=document.getElementById('ad-2fa').value.trim();
-  if(!id||!pw){ adErr('Enter your email and password.'); return; }
-  const btn=document.getElementById('ad-btn'); btn.disabled=true; const o=btn.textContent; btn.textContent='Signing in…';
+  if(!id||!pw){ adShowErr('Enter your email and password.'); return; }
+  const btn=document.getElementById('ad-btn'); btn.disabled=true; const orig=btn.textContent; btn.textContent='Signing in…';
   try{
     const url  = adTemp ? AD_API+'/auth/2fa/verify-login' : AD_API+'/auth/login';
-    const body = adTemp ? { temp_token:adTemp, code } : { login:id, password:pw };
-    const r=await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(body) });
+    const body = adTemp ? {temp_token:adTemp,code} : {login:id,password:pw};
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));
-    if(d.twofa_required){ adTemp=d.temp_token; document.getElementById('ad-2fa-wrap').style.display='block'; adErr('Enter the 6-digit code from your authenticator app.'); btn.disabled=false; btn.textContent=o; return; }
-    if(!r.ok||!d.token){ adErr(d.error||'Sign-in failed. Check your credentials.'); btn.disabled=false; btn.textContent=o; return; }
+    if(d.twofa_required){
+      adTemp=d.temp_token;
+      document.getElementById('ad-2fa-wrap').style.display='block';
+      adShowErr('Enter the 6-digit code from your authenticator app.');
+      btn.disabled=false; btn.textContent=orig; return;
+    }
+    if(!r.ok||!d.token){ adShowErr(d.error||'Sign-in failed. Check your credentials.'); btn.disabled=false; btn.textContent=orig; return; }
     adToken=d.token; adTemp='';
-    adTenant=(d.companies&&d.companies[0])?d.companies[0].id:'';
-    sessionStorage.setItem('ad_token',adToken); sessionStorage.setItem('ad_tenant',adTenant);
+    adIsSA=!!(d.user&&d.user.is_superadmin);
+    adTenant=(d.companies&&d.companies[0])?String(d.companies[0].id):'';
+    adCompany=(d.companies&&d.companies[0])?String(d.companies[0].company_id||d.companies[0].id):'';
+    sessionStorage.setItem('ad_token',adToken);
+    sessionStorage.setItem('ad_tenant',adTenant);
+    sessionStorage.setItem('ad_sa',adIsSA?'1':'0');
     document.getElementById('ad-who').textContent=d.user?(d.user.name||d.user.email):id;
-    adLoad();
-  }catch(e){ adErr('Network issue — please try again.'); btn.disabled=false; btn.textContent=o; }
+    const badge=document.getElementById('ad-role-badge');
+    badge.textContent=adIsSA?'SuperAdmin':'Admin';
+    badge.style.background=adIsSA?'#16a34a':'#2563eb';
+    badge.style.color='#fff';
+    adLoadDash(d);
+  }catch(e){ adShowErr('Network issue — please try again.'); btn.disabled=false; btn.textContent=orig; }
 }
-function adLogout(){ ['ad_token','ad_tenant','ad_company'].forEach(k=>sessionStorage.removeItem(k)); adToken=''; location.reload(); }
 
-async function adLoad(){
+function adLogout(){
+  sessionStorage.clear(); adToken=''; adTenant=''; adCompany=''; location.reload();
+}
+
+async function adLoadDash(loginData){
   document.getElementById('ad-login').style.display='none';
   document.getElementById('ad-dash').style.display='block';
-  try{
-    const cr=await fetch(AD_API+'/companies',{ headers:H() });
-    if(cr.status===401){ adLogout(); return; }
-    const cs=await cr.json().catch(()=>[]);
-    adCompany=(Array.isArray(cs)&&cs[0])?cs[0].id:'';
-    sessionStorage.setItem('ad_company',adCompany);
-  }catch(e){ /* */ }
-  adInvoices(); adTickets();
+  // Resolve company ID for tenant-scoped invoice calls
+  if(!adCompany){
+    try{
+      const cr=await fetch(AD_API+'/companies',{headers:TH()});
+      const cs=await cr.json().catch(()=>[]);
+      if(Array.isArray(cs)&&cs[0]){ adCompany=String(cs[0].id); sessionStorage.setItem('ad_company',adCompany); }
+    }catch(e){}
+  }
+  adLoadOrders();
+  adLoadTickets();
+  adLoadSubs();
+  adLoadInvoices();
 }
 
-async function adInvoices(){
-  const box=document.getElementById('ad-invoices');
+/* ── Tab switching ─────────────────────────────────────────────────────────── */
+function adTab(tab){
+  ['orders','tickets','enquiries','invoices'].forEach(t=>{
+    const el=document.getElementById('ad-tab-'+t);
+    if(el) el.style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('.ad-tab').forEach(b=>{
+    const map={orders:'orders',tickets:'tickets',enquiries:'enquiries',invoices:'invoices'};
+    const lbl=b.textContent.toLowerCase();
+    b.classList.toggle('active',
+      (tab==='orders'&&lbl.includes('order'))||
+      (tab==='tickets'&&lbl.includes('ticket'))||
+      (tab==='enquiries'&&(lbl.includes('enqui')||lbl.includes('feedback')))||
+      (tab==='invoices'&&lbl.includes('invoice'))
+    );
+  });
+}
+
+const ORD_COL={PENDING:'#d97706',APPROVED:'#2563eb',VERIFIED:'#7c3aed',INVOICED:'#16a34a',REJECTED:'#dc2626'};
+const TK_COL ={OPEN:'#d97706',IN_PROGRESS:'#2563eb',RESOLVED:'#16a34a',CLOSED:'#6b7280'};
+const SUB_COL={NEW:'#dc2626',IN_PROGRESS:'#d97706',CLOSED:'#16a34a'};
+
+/* ── Orders ────────────────────────────────────────────────────────────────── */
+async function adLoadOrders(){
+  const box=document.getElementById('ad-orders-list');
+  box.innerHTML='<p style="color:var(--muted)">Loading orders…</p>';
+  if(!adIsSA){
+    box.innerHTML='<div class="ad-access-denied"><b>SuperAdmin credentials required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your SuperAdmin account to manage orders.</span></div>';
+    document.getElementById('ad-n-orders').textContent='—';
+    document.getElementById('ad-n-pending').textContent='—';
+    return;
+  }
   try{
-    const r=await fetch(AD_API+'/invoices?doc_type=SALE&status=DRAFT',{ headers:Object.assign(H(),{ 'X-Company-Id':adCompany }) });
-    if(r.status===401){ adLogout(); return; }
+    const r=await fetch(AD_API+'/superadmin/orders?limit=300',{headers:SH()});
+    if(r.status===401){adLogout();return;}
+    const d=await r.json().catch(()=>({}));
+    adAllOrders=Array.isArray(d)?d:(d.orders||[]);
+    document.getElementById('ad-n-orders').textContent=adAllOrders.length;
+    document.getElementById('ad-n-pending').textContent=adAllOrders.filter(o=>o.status==='PENDING').length;
+    adRenderOrders();
+  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load orders.</p>'; }
+}
+
+function adRenderOrders(){
+  const statusF=document.getElementById('ad-ord-filter').value;
+  const list=statusF?adAllOrders.filter(o=>o.status===statusF):adAllOrders;
+  const box=document.getElementById('ad-orders-list');
+  if(!list.length){box.innerHTML='<p style="color:var(--muted)">No orders found.</p>';return;}
+  box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
+    +'<th>Order</th><th>Date</th><th>Customer</th><th>Category</th><th>Co.s</th><th>Billing</th><th>Status</th><th style="min-width:190px">Update Status</th>'
+    +'</tr></thead><tbody>'+list.map(adOrdRow).join('')+'</tbody></table></div>';
+}
+
+function adOrdRow(o){
+  const col=ORD_COL[o.status]||'#6b7280';
+  const opts=['PENDING','APPROVED','VERIFIED','INVOICED','REJECTED']
+    .map(s=>'<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>').join('');
+  return '<tr id="adord-'+o.id+'">'
+    +'<td><b style="color:var(--g4);font-size:.82rem">'+esc(o.order_no||'')+'</b>'
+      +(o.notes?'<div style="color:var(--muted);font-size:.72rem;margin-top:3px;font-style:italic">'+esc(String(o.notes).slice(0,60))+'</div>':'')+'</td>'
+    +'<td style="font-size:.78rem">'+esc(fmtDT(o.created_at))+'</td>'
+    +'<td><div>'+esc(o.customer_name||'')+'</div><div style="color:var(--muted);font-size:.73rem">'+esc(o.customer_email||o.customer_mobile||'')+'</div></td>'
+    +'<td style="font-size:.8rem">'+esc(o.tenant_category||'')+'</td>'
+    +'<td style="font-size:.8rem;text-align:center">'+esc(o.num_companies||'')+'</td>'
+    +'<td style="font-size:.78rem">'+esc(o.billing_period||'')+'</td>'
+    +'<td><span class="ad-badge" style="background:'+col+'">'+esc(o.status||'')+'</span></td>'
+    +'<td><div style="display:flex;gap:5px;align-items:center">'
+      +'<select class="ad-sel" id="adord-sel-'+o.id+'">'+opts+'</select>'
+      +'<button class="ad-btn-sm" onclick="adSaveOrder('+o.id+')">Save</button>'
+    +'</div></td>'
+    +'</tr>';
+}
+
+async function adSaveOrder(id){
+  const sel=document.getElementById('adord-sel-'+id); if(!sel)return;
+  const r=await fetch(AD_API+'/superadmin/orders/'+id,{method:'PUT',headers:SH(),body:JSON.stringify({status:sel.value})}).catch(()=>null);
+  if(r&&r.ok){ toast('Order status updated to '+sel.value,true); adLoadOrders(); }
+  else{ const d=r?await r.json().catch(()=>({})):({}); toast(d.error||'Update failed',false); }
+}
+
+/* ── Tickets ───────────────────────────────────────────────────────────────── */
+async function adLoadTickets(){
+  const box=document.getElementById('ad-tickets-list');
+  box.innerHTML='<p style="color:var(--muted)">Loading tickets…</p>';
+  // Use parent-tenant view for list (RRSPHERE-scoped, works for both admin + superadmin)
+  try{
+    const r=await fetch(AD_API+'/support-tickets/all-customers',{headers:TH()});
+    if(r.status===401){adLogout();return;}
+    if(r.status===403){
+      box.innerHTML='<div class="ad-access-denied"><b>RRSPHERE parent tenant access required.</b></div>';
+      document.getElementById('ad-n-tk').textContent='—'; document.getElementById('ad-n-open').textContent='—'; return;
+    }
+    const d=await r.json().catch(()=>({}));
+    adAllTickets=d.tickets||[];
+    const open=adAllTickets.filter(t=>t.status==='OPEN'||t.status==='IN_PROGRESS').length;
+    document.getElementById('ad-n-tk').textContent=adAllTickets.length;
+    document.getElementById('ad-n-open').textContent=open;
+    adRenderTickets();
+  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load tickets.</p>'; }
+}
+
+function adRenderTickets(){
+  const sf=document.getElementById('ad-tk-filter').value;
+  const list=sf?adAllTickets.filter(t=>t.status===sf):adAllTickets;
+  const box=document.getElementById('ad-tickets-list');
+  if(!list.length){box.innerHTML='<p style="color:var(--muted)">No tickets.</p>';return;}
+  box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
+    +'<th>Ticket</th><th>Subject / Description</th><th>Customer</th><th>Priority</th><th>Status</th><th>Updated</th>'
+    +(adIsSA?'<th style="min-width:180px">Manage</th>':'')
+    +'</tr></thead><tbody>'+list.map(adTkRow).join('')+'</tbody></table></div>';
+}
+
+function adTkRow(t){
+  const col=TK_COL[t.status]||'#6b7280';
+  const when=t.last_reply_at||t.updated_at||t.created_at;
+  const saActions=adIsSA?'<td><div style="display:flex;gap:5px;flex-direction:column">'
+    +'<div style="display:flex;gap:5px;flex-wrap:wrap">'
+      +'<select class="ad-sel" id="adtk-st-'+t.id+'">'
+        +['OPEN','IN_PROGRESS','RESOLVED','CLOSED'].map(s=>'<option value="'+s+'"'+(s===t.status?' selected':'')+'>'+s.replace('_',' ')+'</option>').join('')
+      +'</select>'
+      +'<button class="ad-btn-sm" onclick="adSaveTk('+t.id+')">Save</button>'
+    +'</div>'
+    +'<button class="ad-btn-sm" onclick="adToggleReply('+t.id+')">&#8617; Reply</button>'
+    +'<div id="adtk-reply-'+t.id+'" class="ad-reply-area">'
+      +'<textarea id="adtk-msg-'+t.id+'" placeholder="Type your reply to the customer…"></textarea>'
+      +'<button class="ad-btn-sm green" style="margin-top:6px" onclick="adSendReply('+t.id+')">Send Reply</button>'
+    +'</div>'
+  +'</div></td>':'';
+  return '<tr>'
+    +'<td style="white-space:nowrap"><b style="color:var(--g4);font-size:.8rem">'+esc(t.ticket_no||'')+'</b></td>'
+    +'<td style="max-width:240px"><div style="font-weight:600">'+esc(t.subject||'')+'</div>'
+      +(t.description?'<div style="color:var(--muted);font-size:.74rem;margin-top:3px">'+esc(String(t.description).slice(0,100))+(String(t.description).length>100?'…':'')+'</div>':'')
+    +'</td>'
+    +'<td><div>'+esc(t.tenant_name||t.company_name||'')+'</div><div style="color:var(--muted);font-size:.73rem">'+esc(t.contact_email||'')+'</div></td>'
+    +'<td style="font-size:.78rem">'+esc(t.priority||'')+'</td>'
+    +'<td><span class="ad-badge" style="background:'+col+'">'+esc(t.status||'')+'</span></td>'
+    +'<td style="font-size:.75rem;white-space:nowrap">'+esc(fmtDT(when))+'</td>'
+    +saActions
+    +'</tr>';
+}
+
+function adToggleReply(id){
+  const el=document.getElementById('adtk-reply-'+id);
+  if(el) el.style.display=el.style.display==='block'?'none':'block';
+}
+
+async function adSaveTk(id){
+  const sel=document.getElementById('adtk-st-'+id); if(!sel)return;
+  const r=await fetch(AD_API+'/superadmin/support-tickets/'+id,{method:'PUT',headers:SH(),body:JSON.stringify({status:sel.value})}).catch(()=>null);
+  if(r&&r.ok){ toast('Ticket status updated',true); adLoadTickets(); }
+  else{ const d=r?await r.json().catch(()=>({})):({}); toast(d.error||'Update failed',false); }
+}
+
+async function adSendReply(id){
+  const msg=document.getElementById('adtk-msg-'+id);
+  if(!msg||!msg.value.trim()){ toast('Enter a reply message',false); return; }
+  const r=await fetch(AD_API+'/superadmin/support-tickets/'+id+'/reply',{method:'POST',headers:SH(),body:JSON.stringify({message:msg.value.trim()})}).catch(()=>null);
+  if(r&&r.ok){ toast('Reply sent',true); msg.value=''; adToggleReply(id); adLoadTickets(); }
+  else{ const d=r?await r.json().catch(()=>({})):({}); toast(d.error||'Reply failed',false); }
+}
+
+/* ── Enquiries & Feedback ──────────────────────────────────────────────────── */
+async function adLoadSubs(){
+  const box=document.getElementById('ad-subs-list');
+  box.innerHTML='<p style="color:var(--muted)">Loading…</p>';
+  if(!adIsSA){
+    box.innerHTML='<div class="ad-access-denied"><b>SuperAdmin credentials required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your SuperAdmin account to manage enquiries and feedback.</span></div>';
+    document.getElementById('ad-n-sub').textContent='—'; return;
+  }
+  try{
+    const r=await fetch(AD_API+'/superadmin/web-submissions?limit=300',{headers:SH()});
+    if(r.status===401){adLogout();return;}
+    const d=await r.json().catch(()=>({}));
+    adAllSubs=Array.isArray(d)?d:(d.submissions||[]);
+    document.getElementById('ad-n-sub').textContent=adAllSubs.length;
+    adRenderSubs();
+  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load submissions.</p>'; }
+}
+
+function adRenderSubs(){
+  const kf=document.getElementById('ad-sub-kind').value;
+  const sf=document.getElementById('ad-sub-status').value;
+  const list=adAllSubs.filter(s=>(kf?s.kind===kf:true)&&(sf?s.status===sf:true));
+  const box=document.getElementById('ad-subs-list');
+  if(!list.length){box.innerHTML='<p style="color:var(--muted)">No submissions found.</p>';return;}
+  box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
+    +'<th>Ref</th><th>Type</th><th>Name</th><th>Contact</th><th>Subject / Message</th><th>Status</th><th>Date</th><th style="min-width:140px">Update</th>'
+    +'</tr></thead><tbody>'+list.map(adSubRow).join('')+'</tbody></table></div>';
+}
+
+function adSubRow(s){
+  const col=SUB_COL[s.status]||'#6b7280';
+  const kindLabel=s.kind==='feedback'?'Feedback':'Enquiry';
+  const kindCol=s.kind==='feedback'?'#7c3aed':'#2563eb';
+  const stars=s.rating?'&#9733;'.repeat(s.rating)+'&#9734;'.repeat(5-s.rating):'';
+  const opts=['NEW','IN_PROGRESS','CLOSED'].map(x=>'<option value="'+x+'"'+(x===s.status?' selected':'')+'>'+x.replace('_',' ')+'</option>').join('');
+  return '<tr>'
+    +'<td style="font-size:.72rem;color:var(--muted)">'+esc(s.ref_no||'')+'</td>'
+    +'<td><span class="ad-badge" style="background:'+kindCol+'">'+esc(kindLabel)+'</span></td>'
+    +'<td>'+esc(s.name||'')+'</td>'
+    +'<td style="font-size:.76rem"><div>'+esc(s.email||'')+'</div><div style="color:var(--muted)">'+esc(s.mobile||'')+'</div></td>'
+    +'<td style="max-width:220px"><div style="font-size:.82rem">'+esc(String(s.message||'').slice(0,120))+(String(s.message||'').length>120?'…':'')+'</div>'
+      +(stars?'<div style="color:#f59e0b;font-size:.8rem;margin-top:3px">'+stars+'</div>':'')+'</td>'
+    +'<td><span class="ad-badge" style="background:'+col+'">'+esc(s.status||'NEW')+'</span></td>'
+    +'<td style="font-size:.75rem;white-space:nowrap">'+esc(fmtDT(s.created_at))+'</td>'
+    +'<td><select class="ad-sel" id="adsub-sel-'+s.id+'">'+opts+'</select>'
+      +'<button class="ad-btn-sm" style="margin-top:5px;display:block" onclick="adSaveSub('+s.id+')">Save</button></td>'
+    +'</tr>';
+}
+
+async function adSaveSub(id){
+  const sel=document.getElementById('adsub-sel-'+id); if(!sel)return;
+  const r=await fetch(AD_API+'/superadmin/web-submissions/'+id,{method:'PUT',headers:SH(),body:JSON.stringify({status:sel.value})}).catch(()=>null);
+  if(r&&r.ok){ toast('Status updated',true); adLoadSubs(); }
+  else{ const d=r?await r.json().catch(()=>({})):({}); toast(d.error||'Update failed',false); }
+}
+
+/* ── Draft Invoices ────────────────────────────────────────────────────────── */
+async function adLoadInvoices(){
+  const box=document.getElementById('ad-invoices-list');
+  box.innerHTML='<p style="color:var(--muted)">Loading draft invoices…</p>';
+  if(!adTenant){ box.innerHTML='<p style="color:var(--muted)">No company found for invoice lookup.</p>'; document.getElementById('ad-n-inv').textContent='0'; return; }
+  try{
+    const headers=TH({'X-Company-Id':adCompany});
+    const r=await fetch(AD_API+'/invoices?doc_type=SALE&status=DRAFT',{headers});
+    if(r.status===401){adLogout();return;}
     const d=await r.json().catch(()=>[]); const inv=Array.isArray(d)?d:(d.invoices||[]);
     document.getElementById('ad-n-inv').textContent=inv.length;
-    if(!inv.length){ box.innerHTML='<p style="color:var(--muted)">No draft invoices yet.</p>'; return; }
-    box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th style="text-align:right">Amount</th></tr></thead><tbody>'
-      + inv.map(i=>'<tr><td>'+esc(i.invoice_number||i.doc_no||'')+'</td><td>'+esc((i.invoice_date||'').toString().slice(0,10))+'</td><td>'+esc(i.party_name||i.customer_name||'')+'</td><td style="text-align:right">'+money(i.total_amount)+'</td></tr>').join('')
-      + '</tbody></table></div>';
+    if(!inv.length){box.innerHTML='<p style="color:var(--muted)">No draft invoices.</p>';return;}
+    box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
+      +'<th>Invoice No.</th><th>Date</th><th>Customer</th><th style="text-align:right">Amount</th>'
+      +'</tr></thead><tbody>'
+      +inv.map(i=>'<tr>'
+        +'<td><b style="color:var(--g4)">'+esc(i.invoice_number||i.doc_no||'')+'</b></td>'
+        +'<td>'+esc((i.invoice_date||'').toString().slice(0,10))+'</td>'
+        +'<td>'+esc(i.party_name||i.customer_name||'')+'</td>'
+        +'<td style="text-align:right">'+money(i.total_amount)+'</td>'
+        +'</tr>').join('')
+      +'</tbody></table></div>';
   }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load invoices.</p>'; }
 }
 
-async function adTickets(){
-  const box=document.getElementById('ad-tickets');
-  try{
-    const r=await fetch(AD_API+'/support-tickets/all-customers',{ headers:H() });
-    if(r.status===401){ adLogout(); return; }
-    if(r.status===403){ box.innerHTML='<p style="color:#f87171">This view is only for the RRSPHERE parent-tenant admin.</p>'; document.getElementById('ad-n-tk').textContent='—'; document.getElementById('ad-n-open').textContent='—'; return; }
-    const d=await r.json().catch(()=>({})); const tk=d.tickets||[];
-    const open=tk.filter(t=>t.status==='OPEN'||t.status==='IN_PROGRESS').length;
-    document.getElementById('ad-n-tk').textContent=tk.length;
-    document.getElementById('ad-n-open').textContent=open;
-    if(!tk.length){ box.innerHTML='<p style="color:var(--muted)">No tickets.</p>'; return; }
-    box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr><th>Ticket</th><th>Subject</th><th>Customer</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead><tbody>'
-      + tk.map(adTkRow).join('') + '</tbody></table></div>';
-  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load tickets.</p>'; }
-}
-function adTkRow(t){
-  const st=esc(t.status||'OPEN');
-  const col=(st==='RESOLVED'||st==='CLOSED')?'#16a34a':st==='OPEN'?'#d97706':'#2563eb';
-  const when=t.last_reply_at||t.created_at; const date=when?new Date(when).toLocaleDateString('en-IN'):'';
-  return '<tr><td>'+esc(t.ticket_no)+'</td><td>'+esc(t.subject)+'</td><td>'+esc(t.tenant_name||t.company_name||t.contact_email||'—')+'</td><td>'+esc(t.priority||'')+'</td><td><span class="ad-badge" style="background:'+col+'">'+st+'</span></td><td>'+esc(date)+'</td></tr>';
-}
 function toggleMenu(){ const n=document.getElementById('navLinks'); if(n) n.classList.toggle('open'); }
-if(adToken){ adLoad(); }
+
+// Auto-restore session
+if(adToken){
+  document.getElementById('ad-login').style.display='none';
+  document.getElementById('ad-dash').style.display='block';
+  const badge=document.getElementById('ad-role-badge');
+  badge.textContent=adIsSA?'SuperAdmin':'Admin';
+  badge.style.background=adIsSA?'#16a34a':'#2563eb';
+  badge.style.color='#fff';
+  document.getElementById('ad-who').textContent='Admin';
+  adLoadDash();
+}
 </script>
 </body>
 </html>
