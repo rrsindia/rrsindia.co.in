@@ -216,8 +216,10 @@ async function adLogin(){
       btn.disabled=false; btn.textContent=orig; return;
     }
     if(!r.ok||!d.token){ adShowErr(d.error||'Sign-in failed. Check your credentials.'); btn.disabled=false; btn.textContent=orig; return; }
+    adIsSA  = !!(d.user&&d.user.is_superadmin);
+    const isWeb = !!(d.user&&d.user.is_web_admin);
+    if(!adIsSA && !isWeb){ adShowErr('This portal is for website administrators only.'); btn.disabled=false; btn.textContent=orig; return; }
     adToken=d.token; adTemp='';
-    adIsSA=!!(d.user&&d.user.is_superadmin);
     adTenant=(d.companies&&d.companies[0])?String(d.companies[0].id):'';
     adCompany=(d.companies&&d.companies[0])?String(d.companies[0].company_id||d.companies[0].id):'';
     sessionStorage.setItem('ad_token',adToken);
@@ -225,7 +227,7 @@ async function adLogin(){
     sessionStorage.setItem('ad_sa',adIsSA?'1':'0');
     document.getElementById('ad-who').textContent=d.user?(d.user.name||d.user.email):id;
     const badge=document.getElementById('ad-role-badge');
-    badge.textContent=adIsSA?'SuperAdmin':'Admin';
+    badge.textContent=adIsSA?'SuperAdmin':'Web Admin';
     badge.style.background=adIsSA?'#16a34a':'#2563eb';
     badge.style.color='#fff';
     adLoadDash(d);
