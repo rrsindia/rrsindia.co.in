@@ -45,19 +45,36 @@ function toggleFaq(el) {
   if(!isOpen) item.classList.add('open');
 }
 
-// ── CONTACT FORM → WHATSAPP ──
-function submitForm() {
+// ── CONTACT FORM → RRFinEApp enquiry API (web_submissions) ──
+async function submitForm() {
   const name = document.getElementById('cf-name').value.trim();
   const contact = document.getElementById('cf-contact').value.trim();
   const topic = document.getElementById('cf-topic').value;
   const msg = document.getElementById('cf-msg').value.trim();
   if(!name || !contact) { alert('Please fill in your name and contact details.'); return; }
-  const waMsg = encodeURIComponent(
-    `Hello R.R. Sphere India!\n\n*Name:* ${name}\n*Contact:* ${contact}\n*Topic:* ${topic || 'General Enquiry'}\n*Message:* ${msg || '(no message)'}`
-  );
-  window.open(`https://wa.me/919417128045?text=${waMsg}`, '_blank');
-  document.getElementById('form-success').style.display = 'block';
-  document.querySelector('.form-submit').style.display = 'none';
+  const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact);
+  const btn = document.querySelector('.form-submit');
+  const orig = btn.textContent; btn.textContent = 'Sending…'; btn.disabled = true;
+  try {
+    const res = await fetch(RRFINEAPP_API + '/public/enquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
+      body: JSON.stringify({ name, phone: isEmail ? '' : contact, email: isEmail ? contact : '',
+        business: '', plan_interest: topic || 'General Enquiry', message: msg })
+    });
+    const data = await res.json().catch(()=>({}));
+    if(res.ok && data.ok) {
+      const s = document.getElementById('form-success');
+      if(s){ s.style.display = 'block'; s.textContent = `✅ Thank you! Your message has been received (ref ${data.ref_no}). We'll get back to you shortly!`; }
+      btn.style.display = 'none';
+    } else {
+      alert(data.error || 'Sorry, something went wrong. Please try again.');
+      btn.textContent = orig; btn.disabled = false;
+    }
+  } catch(err) {
+    alert('Network issue — please check your connection and try again.');
+    btn.textContent = orig; btn.disabled = false;
+  }
 }
 
 // ── ENQUIRY FORM (RRFinEApp page) → our own API (web_submissions) ──
@@ -108,7 +125,7 @@ function setRecommend(val) {
     if(btn){ btn.style.borderColor = val===v?'var(--g4)':'var(--border)'; btn.style.color = val===v?'var(--g4)':'var(--muted)'; }
   });
 }
-// Web3Forms access key — sends feedback to rrsindia122@gmail.com
+// Web3Forms access key (legacy — feedback now posts to the RRFinEApp API below)
 const WEB3FORMS_KEY = 'c06fa8d4-b67d-4cc3-9982-ad202da2d532';
 const IMGBB_KEY = '96a92f3973c9b79d3b83aa5d19cee3d0';
 
@@ -517,7 +534,7 @@ async function trkRenderOne(no, email, box) {
 (function(){
   const KB = [
     {k:['price','pricing','cost','fee','charge','how much','rupee','plan','rate','expensive'],
-     a:"Our RRFinEApp pricing plans are launching shortly! 🏷️ In the meantime we're happy to share current pricing and a personalised quote.<br><br>👉 <a href='enquire.html'>Request a quote</a> or <a href='https://wa.me/919417128045?text=I%27d%20like%20RRFinEApp%20pricing' target='_blank'>WhatsApp us</a>"},
+     a:"Our RRFinEApp pricing plans are launching shortly! 🏷️ In the meantime we're happy to share current pricing and a personalised quote.<br><br>👉 <a href='enquire.html'>Request a quote</a>"},
     {k:['demo','trial','try','test','see it','show me','free demo'],
      a:"You can get a free demo of RRFinEApp! 🎓 We'll walk you through it the same day.<br><br>👉 <a href='enquire.html'>Book a free demo</a> or open the app at <a href='https://fin.rrsindia.co.in' target='_blank'>fin.rrsindia.co.in</a>"},
     {k:['what is','about rrfin','about the app','rrfineapp','tell me about','what does','rrfine'],
@@ -533,13 +550,13 @@ async function trkRenderOne(no, email, box) {
     {k:['feature','what can','module','report','ledger','balance sheet','profit','loss','stock','inventory','trial balance','day book'],
      a:"RRFinEApp includes 📒 full accounting (Ledger, Trial Balance, Day Book), 🧾 GST invoicing, 📊 Final Accounts (P&L, Balance Sheet, Ageing), 📦 Stock & Inventory and 🏢 multi-company support.<br><br>Full list on the <a href='finapp.html'>RRFinEApp page</a>."},
     {k:['issue','problem','bug','error','not working','complaint','broken','crash','stuck','hang','wrong','fix','trouble','help me','support','report'],
-     a:"Sorry you're facing trouble! 🛠️ You can report the issue directly to our support team and we'll look into it fast.<br><br>👉 <a href='support.html'>Report an Issue</a> or <a href='https://wa.me/919417128045?text=I%27m%20facing%20an%20issue%20with%20RRFinEApp' target='_blank'>WhatsApp support</a>"},
+     a:"Sorry you're facing trouble! 🛠️ You can report the issue directly to our support team and we'll look into it fast.<br><br>👉 <a href='support.html'>Report an Issue</a>"},
     {k:['coaching','tuition','class','study','student','maths','math','school','child','kid','board'],
      a:"R.R. Coaching Classes offers expert tuition from Nursery to Class 10 — all boards & subjects 📚 — including our signature 'Maths Made Easy' program!<br><br>👉 <a href='coaching.html'>Learn about coaching</a>"},
     {k:['service','software','development','website','ai solution','what do you do','consulting','erp','data analytics'],
      a:"We offer custom software development, AI-powered solutions, cloud & DevOps, data analytics, IT training and ERP integrations 💻<br><br>👉 <a href='services.html'>Explore our services</a>"},
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
-     a:"Reach us anytime! 📞<br>📱 WhatsApp/Call: <a href='https://wa.me/919417128045' target='_blank'>+91-94171-28045</a><br>📧 <a href='mailto:rrsindia122@gmail.com'>rrsindia122@gmail.com</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
+     a:"Reach us anytime! 📞<br>📧 <a href='mailto:rrsindia@yahoo.co.in'>rrsindia@yahoo.co.in</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
      a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
@@ -549,7 +566,7 @@ async function trkRenderOne(no, email, box) {
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere India is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
-  const FALLBACK = "I'm not totally sure about that one 🤔 — but our team would love to help!<br><br>👉 <a href='https://wa.me/919417128045' target='_blank'>WhatsApp us</a> or <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
+  const FALLBACK = "I'm not totally sure about that one 🤔 — but our team would love to help!<br><br>👉 <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
   const QUICK = ["💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
 
   function findAnswer(text){
