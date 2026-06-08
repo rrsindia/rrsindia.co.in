@@ -297,7 +297,8 @@ function adRenderOrders(){
   const box=document.getElementById('ad-orders-list');
   if(!list.length){box.innerHTML='<p style="color:var(--muted)">No orders found.</p>';return;}
   box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
-    +'<th>Order</th><th>Date</th><th>Customer</th><th>Category</th><th>Co.s</th><th>Billing</th><th>Status</th><th style="min-width:190px">Update Status</th>'
+    +'<th>Order</th><th>Date</th><th>Customer</th><th>Category</th><th>Co.s</th><th>Billing</th><th>Status</th>'
+    +(adIsSA?'<th style="min-width:190px">Update Status</th>':'')
     +'</tr></thead><tbody>'+list.map(adOrdRow).join('')+'</tbody></table></div>';
 }
 
@@ -314,10 +315,10 @@ function adOrdRow(o){
     +'<td style="font-size:.8rem;text-align:center">'+esc(o.num_companies||'')+'</td>'
     +'<td style="font-size:.78rem">'+esc(o.billing_period||'')+'</td>'
     +'<td><span class="ad-badge" style="background:'+col+'">'+esc(o.status||'')+'</span></td>'
-    +'<td><div style="display:flex;gap:5px;align-items:center">'
+    +(adIsSA?('<td><div style="display:flex;gap:5px;align-items:center">'
       +'<select class="ad-sel" id="adord-sel-'+o.id+'">'+opts+'</select>'
       +'<button class="ad-btn-sm" onclick="adSaveOrder('+o.id+')">Save</button>'
-    +'</div></td>'
+    +'</div></td>'):'')
     +'</tr>';
 }
 
