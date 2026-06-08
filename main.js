@@ -417,6 +417,11 @@ async function submitOrder(){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('od-email'))){ alert('Please enter a valid email.'); return; }
   const catEl = document.querySelector('input[name="od-cat"]:checked');
   if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
+  const bFrom = v('od-billing-from'), bTo = v('od-billing-to');
+  if(!bFrom || !bTo){ alert('Please select the billing period — both the from and to dates.'); return; }
+  if(bTo < bFrom){ alert('Billing period: the "to" date must be on or after the "from" date.'); return; }
+  const fmtD = s => new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const billingPeriod = fmtD(bFrom) + ' to ' + fmtD(bTo);
   const premium = Array.from(document.querySelectorAll('#od-feat input:checked')).map(i=>i.value);
   const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
   if(users.length < 3){ alert('Add at least 3 users (1 Admin + 1 Data Entry + 1 Viewer).'); return; }
@@ -431,7 +436,7 @@ async function submitOrder(){
       body: JSON.stringify({
         account_code: v('od-code'), customer_name: v('od-name'), customer_company: v('od-company'),
         num_companies: parseInt(v('od-companies'),10)||1,
-        billing_period: v('od-billing'),
+        billing_period: billingPeriod,
         customer_email: v('od-email'),
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
         address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
@@ -453,9 +458,8 @@ async function submitOrder(){
   } catch(e){ alert('Network issue — please try again.'); btn.textContent=orig; btn.disabled=false; }
 }
 function odResetForm(){
-  ['od-code','od-name','od-company','od-email','od-phone','od-gstin','od-add1','od-add2','od-city','od-pin','od-state','od-notes','od-custom','od-timeline-notes'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  ['od-code','od-name','od-company','od-email','od-phone','od-gstin','od-add1','od-add2','od-city','od-pin','od-state','od-notes','od-custom','od-timeline-notes','od-billing-from','od-billing-to'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
   const comp=document.getElementById('od-companies'); if(comp) comp.value='1';
-  const bp=document.getElementById('od-billing'); if(bp) bp.selectedIndex=0;
   const ub=document.getElementById('od-users'); if(ub) ub.innerHTML = odUserRow('admin')+odUserRow('dataentry')+odUserRow('viewonly');
   document.querySelectorAll('#od-feat input:checked, #od-cat input:checked').forEach(c=>{ c.checked=false; });
   if(typeof odTotal==='function') odTotal();

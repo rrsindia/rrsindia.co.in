@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 <style>
 .od-sec{font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--white);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .od-grid{display:flex;gap:14px;flex-wrap:wrap}
@@ -66,7 +66,13 @@
         <div class="form-group"><label>State <span class="req">*</span></label><input type="text" id="od-state" placeholder="State"></div>
       </div>
       <div class="form-group"><label>Broker <span style="color:var(--muted);font-weight:400">(optional — from our broker list)</span></label><select id="od-broker"><option value="">— None —</option></select></div>
-      <div class="form-group" style="max-width:300px"><label>Billing Period <span class="req">*</span></label><select id="od-billing"><option value="Yearly">Yearly</option><option value="Half-Yearly">Half-Yearly</option><option value="Quarterly">Quarterly</option><option value="Monthly">Monthly</option></select></div>
+      <div class="form-group" style="max-width:440px"><label>Billing Period <span class="req">*</span> <span style="color:var(--muted);font-weight:400;font-size:.8rem">(from – to)</span>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+          <input type="date" id="od-billing-from" style="flex:1" title="Billing from date">
+          <span style="color:var(--muted)">to</span>
+          <input type="date" id="od-billing-to" style="flex:1" title="Billing to date">
+        </div>
+      </label></div>
 
       <div class="od-sec">2 · Plan (Tenant Category) <span class="req">*</span></div>
       <div id="od-cat" class="od-cat"><p style="color:var(--muted)">Loading plans…</p></div>
@@ -118,5 +124,5 @@
 </div>
 
 <footer><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p></div></footer>
-<script src="main.js?v=18"></script>
+<script src="main.js?v=19"></script>
 </body></html>
