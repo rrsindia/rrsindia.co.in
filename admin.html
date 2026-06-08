@@ -48,7 +48,7 @@
   <div class="page-hero"><div class="page-hero-inner">
     <div class="section-tag">ADMIN PORTAL</div>
     <h1>R.R.Sphere <span>Admin</span></h1>
-    <p>Manage orders, support tickets, enquiries and feedback. Sign in with your admin credentials.</p>
+    <p>Manage support tickets, enquiries and feedback. Sign in with your admin credentials.</p>
   </div></div>
 
   <div class="section">
@@ -88,12 +88,6 @@
 
       <!-- Summary tiles -->
       <div class="ad-tiles">
-        <div class="ad-tile" onclick="adTab('orders')" style="cursor:pointer" title="View orders">
-          <div class="n" id="ad-n-orders">—</div><div class="l">Total orders</div>
-        </div>
-        <div class="ad-tile" onclick="adTab('orders')" style="cursor:pointer" title="View pending orders">
-          <div class="n" id="ad-n-pending">—</div><div class="l">Pending orders</div>
-        </div>
         <div class="ad-tile" onclick="adTab('tickets')" style="cursor:pointer" title="View open tickets">
           <div class="n" id="ad-n-open">—</div><div class="l">Open tickets</div>
         </div>
@@ -107,30 +101,12 @@
 
       <!-- Tabs -->
       <div class="ad-tabs">
-        <button class="ad-tab active" onclick="adTab('orders')">Orders</button>
-        <button class="ad-tab" onclick="adTab('tickets')">Tickets</button>
+        <button class="ad-tab active" onclick="adTab('tickets')">Tickets</button>
         <button class="ad-tab" onclick="adTab('enquiries')">Enquiries &amp; Feedback</button>
       </div>
 
-      <!-- Orders tab -->
-      <div id="ad-tab-orders">
-        <div class="ad-filter">
-          <label>Status:</label>
-          <select class="ad-sel" id="ad-ord-filter" onchange="adRenderOrders()">
-            <option value="">All</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="VERIFIED">Verified</option>
-            <option value="INVOICED">Invoiced</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
-          <button class="ad-btn-sm" onclick="adLoadOrders()">&#8635; Refresh</button>
-        </div>
-        <div id="ad-orders-list"><p style="color:var(--muted)">Loading orders…</p></div>
-      </div>
-
       <!-- Tickets tab -->
-      <div id="ad-tab-tickets" style="display:none">
+      <div id="ad-tab-tickets">
         <div class="ad-filter">
           <label>Status:</label>
           <select class="ad-sel" id="ad-tk-filter" onchange="adRenderTickets()">
@@ -179,7 +155,7 @@ let adIsSA    = sessionStorage.getItem('ad_sa') === '1';
 let adIsWeb   = sessionStorage.getItem('ad_web') === '1';   // Web Admin staff (manage, no delete)
 let adWho     = sessionStorage.getItem('ad_who') || 'Admin';
 let adTemp    = '';
-let adAllOrders = [], adAllTickets = [], adAllSubs = [];
+let adAllTickets = [], adAllSubs = [];
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function money(v){ return '₹'+parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -245,89 +221,27 @@ function adLogout(){
 async function adLoadDash(loginData){
   document.getElementById('ad-login').style.display='none';
   document.getElementById('ad-dash').style.display='block';
-  adLoadOrders();
   adLoadTickets();
   adLoadSubs();
 }
 
 /* ── Tab switching ─────────────────────────────────────────────────────────── */
 function adTab(tab){
-  ['orders','tickets','enquiries'].forEach(t=>{
+  ['tickets','enquiries'].forEach(t=>{
     const el=document.getElementById('ad-tab-'+t);
     if(el) el.style.display = t===tab?'block':'none';
   });
   document.querySelectorAll('.ad-tab').forEach(b=>{
     const lbl=b.textContent.toLowerCase();
     b.classList.toggle('active',
-      (tab==='orders'&&lbl.includes('order'))||
       (tab==='tickets'&&lbl.includes('ticket'))||
       (tab==='enquiries'&&(lbl.includes('enqui')||lbl.includes('feedback')))
     );
   });
 }
 
-const ORD_COL={PENDING:'#d97706',APPROVED:'#2563eb',VERIFIED:'#7c3aed',INVOICED:'#16a34a',REJECTED:'#dc2626'};
 const TK_COL ={OPEN:'#d97706',IN_PROGRESS:'#2563eb',RESOLVED:'#16a34a',CLOSED:'#6b7280'};
 const SUB_COL={NEW:'#dc2626',IN_PROGRESS:'#d97706',CLOSED:'#16a34a'};
-
-/* ── Orders ────────────────────────────────────────────────────────────────── */
-async function adLoadOrders(){
-  const box=document.getElementById('ad-orders-list');
-  box.innerHTML='<p style="color:var(--muted)">Loading orders…</p>';
-  if(!adIsSA && !adIsWeb){
-    box.innerHTML='<div class="ad-access-denied"><b>Web Admin or SuperAdmin sign-in required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your admin account to manage orders.</span></div>';
-    document.getElementById('ad-n-orders').textContent='—';
-    document.getElementById('ad-n-pending').textContent='—';
-    return;
-  }
-  try{
-    const r=await fetch(AD_API+'/superadmin/orders?limit=300',{headers:SH()});
-    if(r.status===401){adLogout();return;}
-    const d=await r.json().catch(()=>({}));
-    adAllOrders=Array.isArray(d)?d:(d.orders||[]);
-    document.getElementById('ad-n-orders').textContent=adAllOrders.length;
-    document.getElementById('ad-n-pending').textContent=adAllOrders.filter(o=>o.status==='PENDING').length;
-    adRenderOrders();
-  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load orders.</p>'; }
-}
-
-function adRenderOrders(){
-  const statusF=document.getElementById('ad-ord-filter').value;
-  const list=statusF?adAllOrders.filter(o=>o.status===statusF):adAllOrders;
-  const box=document.getElementById('ad-orders-list');
-  if(!list.length){box.innerHTML='<p style="color:var(--muted)">No orders found.</p>';return;}
-  box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
-    +'<th>Order</th><th>Date</th><th>Customer</th><th>Category</th><th>Co.s</th><th>Billing</th><th>Status</th>'
-    +(adIsSA?'<th style="min-width:190px">Update Status</th>':'')
-    +'</tr></thead><tbody>'+list.map(adOrdRow).join('')+'</tbody></table></div>';
-}
-
-function adOrdRow(o){
-  const col=ORD_COL[o.status]||'#6b7280';
-  const opts=['PENDING','APPROVED','VERIFIED','INVOICED','REJECTED']
-    .map(s=>'<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>').join('');
-  return '<tr id="adord-'+o.id+'">'
-    +'<td><b style="color:var(--g4);font-size:.82rem">'+esc(o.order_no||'')+'</b>'
-      +(o.notes?'<div style="color:var(--muted);font-size:.72rem;margin-top:3px;font-style:italic">'+esc(String(o.notes).slice(0,60))+'</div>':'')+'</td>'
-    +'<td style="font-size:.78rem">'+esc(fmtDT(o.created_at))+'</td>'
-    +'<td><div>'+esc(o.customer_name||'')+'</div><div style="color:var(--muted);font-size:.73rem">'+esc(o.customer_email||o.customer_mobile||'')+'</div></td>'
-    +'<td style="font-size:.8rem">'+esc(o.tenant_category||'')+'</td>'
-    +'<td style="font-size:.8rem;text-align:center">'+esc(o.num_companies||'')+'</td>'
-    +'<td style="font-size:.78rem">'+esc(o.billing_period||'')+'</td>'
-    +'<td><span class="ad-badge" style="background:'+col+'">'+esc(o.status||'')+'</span></td>'
-    +(adIsSA?('<td><div style="display:flex;gap:5px;align-items:center">'
-      +'<select class="ad-sel" id="adord-sel-'+o.id+'">'+opts+'</select>'
-      +'<button class="ad-btn-sm" onclick="adSaveOrder('+o.id+')">Save</button>'
-    +'</div></td>'):'')
-    +'</tr>';
-}
-
-async function adSaveOrder(id){
-  const sel=document.getElementById('adord-sel-'+id); if(!sel)return;
-  const r=await fetch(AD_API+'/superadmin/orders/'+id,{method:'PUT',headers:SH(),body:JSON.stringify({status:sel.value})}).catch(()=>null);
-  if(r&&r.ok){ toast('Order status updated to '+sel.value,true); adLoadOrders(); }
-  else{ const d=r?await r.json().catch(()=>({})):({}); toast(d.error||'Update failed',false); }
-}
 
 /* ── Tickets ───────────────────────────────────────────────────────────────── */
 async function adLoadTickets(){
