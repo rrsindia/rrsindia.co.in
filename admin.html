@@ -177,6 +177,8 @@ let adToken   = sessionStorage.getItem('ad_token')   || '';
 let adTenant  = sessionStorage.getItem('ad_tenant')  || '';
 let adCompany = sessionStorage.getItem('ad_company') || '';
 let adIsSA    = sessionStorage.getItem('ad_sa') === '1';
+let adIsWeb   = sessionStorage.getItem('ad_web') === '1';   // Web Admin staff (manage, no delete)
+let adWho     = sessionStorage.getItem('ad_who') || 'Admin';
 let adTemp    = '';
 let adAllOrders = [], adAllTickets = [], adAllSubs = [];
 
@@ -217,15 +219,18 @@ async function adLogin(){
     }
     if(!r.ok||!d.token){ adShowErr(d.error||'Sign-in failed. Check your credentials.'); btn.disabled=false; btn.textContent=orig; return; }
     adIsSA  = !!(d.user&&d.user.is_superadmin);
-    const isWeb = !!(d.user&&d.user.is_web_admin);
-    if(!adIsSA && !isWeb){ adShowErr('This portal is for website administrators only.'); btn.disabled=false; btn.textContent=orig; return; }
+    adIsWeb = !!(d.user&&d.user.is_web_admin);
+    if(!adIsSA && !adIsWeb){ adShowErr('This portal is for website administrators only.'); btn.disabled=false; btn.textContent=orig; return; }
     adToken=d.token; adTemp='';
     adTenant=(d.companies&&d.companies[0])?String(d.companies[0].id):'';
     adCompany=(d.companies&&d.companies[0])?String(d.companies[0].company_id||d.companies[0].id):'';
+    adWho = d.user?(d.user.name||d.user.email):id;
     sessionStorage.setItem('ad_token',adToken);
     sessionStorage.setItem('ad_tenant',adTenant);
     sessionStorage.setItem('ad_sa',adIsSA?'1':'0');
-    document.getElementById('ad-who').textContent=d.user?(d.user.name||d.user.email):id;
+    sessionStorage.setItem('ad_web',adIsWeb?'1':'0');
+    sessionStorage.setItem('ad_who',adWho);
+    document.getElementById('ad-who').textContent=adWho;
     const badge=document.getElementById('ad-role-badge');
     badge.textContent=adIsSA?'SuperAdmin':'Web Admin';
     badge.style.background=adIsSA?'#16a34a':'#2563eb';
@@ -270,8 +275,8 @@ const SUB_COL={NEW:'#dc2626',IN_PROGRESS:'#d97706',CLOSED:'#16a34a'};
 async function adLoadOrders(){
   const box=document.getElementById('ad-orders-list');
   box.innerHTML='<p style="color:var(--muted)">Loading orders…</p>';
-  if(!adIsSA){
-    box.innerHTML='<div class="ad-access-denied"><b>SuperAdmin credentials required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your SuperAdmin account to manage orders.</span></div>';
+  if(!adIsSA && !adIsWeb){
+    box.innerHTML='<div class="ad-access-denied"><b>Web Admin or SuperAdmin sign-in required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your admin account to manage orders.</span></div>';
     document.getElementById('ad-n-orders').textContent='—';
     document.getElementById('ad-n-pending').textContent='—';
     return;
@@ -352,14 +357,14 @@ function adRenderTickets(){
   if(!list.length){box.innerHTML='<p style="color:var(--muted)">No tickets.</p>';return;}
   box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
     +'<th>Ticket</th><th>Subject / Description</th><th>Customer</th><th>Priority</th><th>Status</th><th>Updated</th>'
-    +(adIsSA?'<th style="min-width:180px">Manage</th>':'')
+    +((adIsSA||adIsWeb)?'<th style="min-width:180px">Manage</th>':'')
     +'</tr></thead><tbody>'+list.map(adTkRow).join('')+'</tbody></table></div>';
 }
 
 function adTkRow(t){
   const col=TK_COL[t.status]||'#6b7280';
   const when=t.last_reply_at||t.updated_at||t.created_at;
-  const saActions=adIsSA?'<td><div style="display:flex;gap:5px;flex-direction:column">'
+  const saActions=(adIsSA||adIsWeb)?'<td><div style="display:flex;gap:5px;flex-direction:column">'
     +'<div style="display:flex;gap:5px;flex-wrap:wrap">'
       +'<select class="ad-sel" id="adtk-st-'+t.id+'">'
         +['OPEN','IN_PROGRESS','RESOLVED','CLOSED'].map(s=>'<option value="'+s+'"'+(s===t.status?' selected':'')+'>'+s.replace('_',' ')+'</option>').join('')
@@ -409,8 +414,8 @@ async function adSendReply(id){
 async function adLoadSubs(){
   const box=document.getElementById('ad-subs-list');
   box.innerHTML='<p style="color:var(--muted)">Loading…</p>';
-  if(!adIsSA){
-    box.innerHTML='<div class="ad-access-denied"><b>SuperAdmin credentials required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your SuperAdmin account to manage enquiries and feedback.</span></div>';
+  if(!adIsSA && !adIsWeb){
+    box.innerHTML='<div class="ad-access-denied"><b>Web Admin or SuperAdmin sign-in required</b><br><span style="font-size:.85rem;margin-top:6px;display:block">Sign in with your admin account to manage enquiries and feedback.</span></div>';
     document.getElementById('ad-n-sub').textContent='—'; return;
   }
   try{
@@ -469,10 +474,10 @@ if(adToken){
   document.getElementById('ad-login').style.display='none';
   document.getElementById('ad-dash').style.display='block';
   const badge=document.getElementById('ad-role-badge');
-  badge.textContent=adIsSA?'SuperAdmin':'Admin';
+  badge.textContent=adIsSA?'SuperAdmin':(adIsWeb?'Web Admin':'Admin');
   badge.style.background=adIsSA?'#16a34a':'#2563eb';
   badge.style.color='#fff';
-  document.getElementById('ad-who').textContent='Admin';
+  document.getElementById('ad-who').textContent=adWho;
   adLoadDash();
 }
 </script>
