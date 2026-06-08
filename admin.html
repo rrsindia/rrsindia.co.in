@@ -48,7 +48,7 @@
   <div class="page-hero"><div class="page-hero-inner">
     <div class="section-tag">ADMIN PORTAL</div>
     <h1>R.R.Sphere <span>Admin</span></h1>
-    <p>Manage orders, support tickets, enquiries and invoices. Sign in with your admin credentials.</p>
+    <p>Manage orders, support tickets, enquiries and feedback. Sign in with your admin credentials.</p>
   </div></div>
 
   <div class="section">
@@ -104,9 +104,6 @@
         <div class="ad-tile" onclick="adTab('enquiries')" style="cursor:pointer" title="View enquiries & feedback">
           <div class="n" id="ad-n-sub">—</div><div class="l">Enquiries &amp; Feedback</div>
         </div>
-        <div class="ad-tile" onclick="adTab('invoices')" style="cursor:pointer" title="View draft invoices">
-          <div class="n" id="ad-n-inv">—</div><div class="l">Draft invoices</div>
-        </div>
       </div>
 
       <!-- Tabs -->
@@ -114,7 +111,6 @@
         <button class="ad-tab active" onclick="adTab('orders')">Orders</button>
         <button class="ad-tab" onclick="adTab('tickets')">Tickets</button>
         <button class="ad-tab" onclick="adTab('enquiries')">Enquiries &amp; Feedback</button>
-        <button class="ad-tab" onclick="adTab('invoices')">Draft Invoices</button>
       </div>
 
       <!-- Orders tab -->
@@ -171,10 +167,6 @@
         <div id="ad-subs-list"><p style="color:var(--muted)">Loading…</p></div>
       </div>
 
-      <!-- Draft Invoices tab -->
-      <div id="ad-tab-invoices" style="display:none">
-        <div id="ad-invoices-list"><p style="color:var(--muted)">Loading draft invoices…</p></div>
-      </div>
     </div>
   </div>
 </div>
@@ -247,34 +239,23 @@ function adLogout(){
 async function adLoadDash(loginData){
   document.getElementById('ad-login').style.display='none';
   document.getElementById('ad-dash').style.display='block';
-  // Resolve company ID for tenant-scoped invoice calls
-  if(!adCompany){
-    try{
-      const cr=await fetch(AD_API+'/companies',{headers:TH()});
-      const cs=await cr.json().catch(()=>[]);
-      if(Array.isArray(cs)&&cs[0]){ adCompany=String(cs[0].id); sessionStorage.setItem('ad_company',adCompany); }
-    }catch(e){}
-  }
   adLoadOrders();
   adLoadTickets();
   adLoadSubs();
-  adLoadInvoices();
 }
 
 /* ── Tab switching ─────────────────────────────────────────────────────────── */
 function adTab(tab){
-  ['orders','tickets','enquiries','invoices'].forEach(t=>{
+  ['orders','tickets','enquiries'].forEach(t=>{
     const el=document.getElementById('ad-tab-'+t);
     if(el) el.style.display = t===tab?'block':'none';
   });
   document.querySelectorAll('.ad-tab').forEach(b=>{
-    const map={orders:'orders',tickets:'tickets',enquiries:'enquiries',invoices:'invoices'};
     const lbl=b.textContent.toLowerCase();
     b.classList.toggle('active',
       (tab==='orders'&&lbl.includes('order'))||
       (tab==='tickets'&&lbl.includes('ticket'))||
-      (tab==='enquiries'&&(lbl.includes('enqui')||lbl.includes('feedback')))||
-      (tab==='invoices'&&lbl.includes('invoice'))
+      (tab==='enquiries'&&(lbl.includes('enqui')||lbl.includes('feedback')))
     );
   });
 }
@@ -479,30 +460,6 @@ async function adSaveSub(id){
 }
 
 /* ── Draft Invoices ────────────────────────────────────────────────────────── */
-async function adLoadInvoices(){
-  const box=document.getElementById('ad-invoices-list');
-  box.innerHTML='<p style="color:var(--muted)">Loading draft invoices…</p>';
-  if(!adTenant){ box.innerHTML='<p style="color:var(--muted)">No company found for invoice lookup.</p>'; document.getElementById('ad-n-inv').textContent='0'; return; }
-  try{
-    const headers=TH({'X-Company-Id':adCompany});
-    const r=await fetch(AD_API+'/invoices?doc_type=SALE&status=DRAFT',{headers});
-    if(r.status===401){adLogout();return;}
-    const d=await r.json().catch(()=>[]); const inv=Array.isArray(d)?d:(d.invoices||[]);
-    document.getElementById('ad-n-inv').textContent=inv.length;
-    if(!inv.length){box.innerHTML='<p style="color:var(--muted)">No draft invoices.</p>';return;}
-    box.innerHTML='<div style="overflow-x:auto"><table class="ad-tbl"><thead><tr>'
-      +'<th>Invoice No.</th><th>Date</th><th>Customer</th><th style="text-align:right">Amount</th>'
-      +'</tr></thead><tbody>'
-      +inv.map(i=>'<tr>'
-        +'<td><b style="color:var(--g4)">'+esc(i.invoice_number||i.doc_no||'')+'</b></td>'
-        +'<td>'+esc((i.invoice_date||'').toString().slice(0,10))+'</td>'
-        +'<td>'+esc(i.party_name||i.customer_name||'')+'</td>'
-        +'<td style="text-align:right">'+money(i.total_amount)+'</td>'
-        +'</tr>').join('')
-      +'</tbody></table></div>';
-  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load invoices.</p>'; }
-}
-
 function toggleMenu(){ const n=document.getElementById('navLinks'); if(n) n.classList.toggle('open'); }
 
 // Auto-restore session
