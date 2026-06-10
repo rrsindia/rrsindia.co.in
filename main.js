@@ -336,7 +336,29 @@ function odTotal(){
   const el=document.getElementById('od-total'); if(!el) return;
   odRenderPremium();
   const { total }=odBreakdown();
-  el.innerHTML = 'Tentative total: ₹'+total.toLocaleString('en-IN')+' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(excl. taxes · all premium free)</span>';
+  el.innerHTML = 'Tentative total: ₹'+total.toLocaleString('en-IN')+' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span>';
+}
+
+// Billing is a fixed 1 year — show the auto end date from the chosen start date.
+function odBillingEnd(){
+  const s=document.getElementById('od-billing-start'), out=document.getElementById('od-billing-end');
+  if(!out) return;
+  if(!s || !s.value){ out.textContent=''; return; }
+  const d0=new Date(s.value+'T00:00:00'); const d1=new Date(d0); d1.setFullYear(d1.getFullYear()+1); d1.setDate(d1.getDate()-1);
+  const f=x=>x.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  out.innerHTML='🗓 Valid till <b style="color:var(--g4)">'+f(d1)+'</b> &nbsp;(1 year)';
+}
+
+// When the plan changes, set the Users section to the plan's included user count.
+function odPlanChanged(){
+  const c=odSelCat(), ub=document.getElementById('od-users');
+  if(c && ub){
+    const inclU=Math.max(1, c.incl_users||1);
+    const roles=['admin','dataentry','viewonly','auditor'];
+    let html=''; for(let i=0;i<inclU;i++) html+=odUserRow(roles[Math.min(i,roles.length-1)]);
+    ub.innerHTML=html;
+  }
+  odTotal();
 }
 
 async function loadPlansFeatures(){
@@ -351,13 +373,19 @@ async function loadPlansFeatures(){
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
-      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odTotal()"><span>'+odEsc(c.label)+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
+      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
     // Offer banner (auto-selected free premium · worth ₹10,000 · activated within 48 hrs).
     const ob = document.getElementById('od-offer');
     if(ob && OD.note){ ob.textContent = '🎁 ' + OD.note; ob.style.display = 'block'; }
     odRenderPremium();
-    odTotal();
+    odPlanChanged();   // set Users to the selected plan's included count + total
+    // Auto, incremental account/tenant code.
+    try {
+      const cr = await fetch(RRFINEAPP_API + '/public/next-account-code', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
+      const cd = await cr.json().catch(()=>({})); const ce = document.getElementById('od-code');
+      if(ce && cd.code) ce.value = cd.code;
+    } catch(e){}
   } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
 }
 
@@ -413,7 +441,7 @@ function printDraftOrder(orderNo){
     '.note{color:#6b7280;font-size:11px;margin-top:14px;line-height:1.5}'+
     '.btns{margin-top:16px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}'+
     '@media print{.btns{display:none}.top,.offer,.card-h,.hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
-    '<div class="top"><div class="brand">R.R. Sphere <span>India</span><small>RRFinEApp · www.rrsindia.co.in</small></div>'+
+    '<div class="top"><div class="brand">R.R. Sphere <span>India</span><small>RRFinEApp · https://rrsindia.co.in</small></div>'+
       '<div class="docttl">'+docTitle+'<br><span style="color:#bbf7d0;font-weight:400;font-size:11px">'+(orderNo?('Ref: '+esc(orderNo)):'not a final invoice')+'</span></div></div>'+
     (OD.note?'<div class="offer">🎁 '+esc(OD.note)+'</div>':'')+
     '<div class="hdr">'+
@@ -423,7 +451,7 @@ function printDraftOrder(orderNo){
       '<div><div class="k">Tentative total</div><div class="val" style="color:#166534">'+inr(total)+'</div></div>'+
     '</div>'+
     '<div class="two">'+
-      '<div class="card"><div class="card-h">Provider</div><div class="addr"><b>R.R. Sphere India</b><br>RRFinEApp — Reliable &amp; Robust Finance Enterprise Application<br>www.rrsindia.co.in · fin.rrsindia.co.in</div></div>'+
+      '<div class="card"><div class="card-h">Provider</div><div class="addr"><b>R.R. Sphere India</b><br>RRFinEApp — Reliable &amp; Robust Finance Enterprise Application<br>https://rrsindia.co.in &nbsp; https://fin.rrsindia.co.in</div></div>'+
       '<div class="card"><div class="card-h">Account / Tenant</div><div class="addr"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+
         (v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+
         '<br>'+esc(v('od-email'))+(v('od-phone')?' · 📞 '+esc(v('od-phone')):'')+(v('od-gstin')?'<br>GSTIN: '+esc(v('od-gstin')):'')+'</div></div>'+
@@ -434,7 +462,6 @@ function printDraftOrder(orderNo){
     '<div class="card"><div class="card-h">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+'</tbody></table>'+
       '<table class="totals"><tbody>'+
         '<tr><td>Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
-        '<tr><td>Taxes (GST)</td><td style="text-align:right;color:#6b7280">As applicable</td></tr>'+
         '<tr class="gt"><td>Order Total</td><td style="text-align:right">'+inr(total)+'*</td></tr>'+
       '</tbody></table></div>'+
     '<div class="card"><div class="card-h">Payment &amp; activation</div><div class="addr" style="font-size:13px">'+
@@ -442,7 +469,7 @@ function printDraftOrder(orderNo){
       '• You are onboarded and made <b>live within 48 hours</b> of order confirmation.<br>'+
       '• All premium features are <b>activated after your first user login, within 48 hours</b>.</div></div>'+
     termsBox + customBox +
-    '<p class="note">*Tentative — prices may change. Taxes (GST) extra as applicable. Final pricing, any discount and the GST invoice are confirmed by R.R. Sphere India after you place the order.</p>'+
+    '<p class="note">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</p>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
   const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the order.'); return; }
