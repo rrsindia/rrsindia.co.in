@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=22">
 <style>
 .od-sec{font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--white);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .od-grid{display:flex;gap:14px;flex-wrap:wrap}
@@ -54,9 +54,8 @@
       <div class="od-grid">
         <div class="form-group"><label>Account / Tenant Code <span style="color:var(--muted);font-weight:400;font-size:.8rem">(auto-assigned)</span></label><input type="text" id="od-code" readonly placeholder="RRS001" style="background:rgba(255,255,255,.04);cursor:not-allowed"></div>
         <div class="form-group"><label>Account / Tenant Name <span class="req">*</span></label><input type="text" id="od-name" placeholder="Can be your business name — or different"></div>
-        <div class="form-group" style="max-width:170px"><label>Number of Companies <span class="req">*</span></label><input type="number" id="od-companies" min="1" value="1" placeholder="1"></div>
       </div>
-      <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional — only if different from the tenant name)</span></label><input type="text" id="od-company" value="R.R. Sphere INDIA" placeholder="e.g. Sharma Traders"></div>
+      <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional — only if different from the tenant name)</span></label><input type="text" id="od-company" placeholder="e.g. R.R. Sphere India / Sharma Traders"></div>
       <div class="od-grid">
         <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" id="od-email" placeholder="you@example.com"></div>
         <div class="form-group"><label>Phone</label><input type="text" id="od-phone" placeholder="Mobile number"></div>
@@ -90,10 +89,16 @@
       <div id="od-users"></div>
       <button type="button" class="btn-outline" onclick="odAddUser()" style="font-size:.82rem;padding:7px 14px">+ Add user</button>
 
-      <div class="od-sec">5 · Notes</div>
+      <div class="od-sec">5 · Number of Companies <span class="req">*</span></div>
+      <div class="form-group" style="max-width:240px">
+        <input type="number" id="od-companies" min="1" value="1" onchange="odTotal()">
+        <div class="od-mini" id="od-companies-hint" style="margin-top:4px"></div>
+      </div>
+
+      <div class="od-sec">6 · Notes</div>
       <div class="form-group"><textarea rows="3" id="od-notes" placeholder="Anything we should know?"></textarea></div>
 
-      <div class="od-sec">6 · Need something not listed? <span style="color:var(--muted);font-size:.8rem;font-weight:400">(optional — custom requirement)</span></div>
+      <div class="od-sec">7 · Need something not listed? <span style="color:var(--muted);font-size:.8rem;font-weight:400">(optional — custom requirement)</span></div>
       <div class="form-group"><label>Describe the custom feature / category you need</label>
         <textarea rows="3" id="od-custom" placeholder="e.g. a custom report, an industry-specific module, an integration… anything not in the plans/features above"></textarea></div>
       <div class="od-grid">
@@ -129,5 +134,5 @@
 </div>
 
 <footer><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p></div></footer>
-<script src="main.js?v=21"></script>
+<script src="main.js?v=22"></script>
 </body></html>

@@ -284,7 +284,10 @@ const ROLE_OPTS = [['admin','Admin'],['dataentry','Data Entry'],['viewonly','Vie
 function odUserRow(role){
   return '<div class="od-user"><select onchange="odTotal()">' +
     ROLE_OPTS.map(r => '<option value="'+r[0]+'"'+(r[0]===role?' selected':'')+'>'+r[1]+'</option>').join('') +
-    '</select><input type="text" placeholder="User name (optional)"><button type="button" class="rm" onclick="this.parentNode.remove();odTotal()">✕</button></div>';
+    '</select>'+
+    '<input type="text" class="od-uname" placeholder="Full name">'+
+    '<input type="text" class="od-ulogin" placeholder="Email or mobile (login)">'+
+    '<button type="button" class="rm" onclick="this.parentNode.remove();odTotal()">✕</button></div>';
 }
 function odAddUser(role){ const box=document.getElementById('od-users'); if(box){ box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); odTotal(); } }
 
@@ -358,6 +361,9 @@ function odPlanChanged(){
     let html=''; for(let i=0;i<inclU;i++) html+=odUserRow(roles[Math.min(i,roles.length-1)]);
     ub.innerHTML=html;
   }
+  // Default Number of Companies to the plan's included count (editable).
+  const comp=document.getElementById('od-companies'), hint=document.getElementById('od-companies-hint');
+  if(c && comp){ const inclC=Math.max(1, c.incl_companies||1); comp.value=inclC; if(hint) hint.innerHTML='Plan includes <b style="color:var(--g4)">'+inclC+'</b> — add more if needed (extra charged per price list).'; }
   odTotal();
 }
 
@@ -485,9 +491,17 @@ async function submitOrder(){
   if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
   const bStart = v('od-billing-start');
   if(!bStart){ alert('Please select the billing start date.'); return; }
-  const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
+  const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({
+    role:r.querySelector('select').value,
+    name:(((r.querySelector('.od-uname')||{}).value)||'').trim(),
+    login:(((r.querySelector('.od-ulogin')||{}).value)||'').trim()
+  }));
   if(!users.length){ alert('Please add at least one user.'); return; }
   if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
+  for(const u of users){
+    if(!u.name){ alert('Enter a name for each user.'); return; }
+    if(!u.login){ alert('Enter an email or mobile (login) for each user — this is their username.'); return; }
+  }
 
   const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
   try {
