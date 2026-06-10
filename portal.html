@@ -150,13 +150,31 @@ function ptTicketCard(t){
   const st=esc(t.status||'OPEN');
   const col=(st==='RESOLVED'||st==='CLOSED')?'#16a34a':st==='OPEN'?'#d97706':'#2563eb';
   const when=t.last_reply_at||t.created_at;
+  const closed=(t.status==='CLOSED');
   return '<div class="pt-card">'
     +'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">'
     +'<div><b style="color:var(--white);font-size:1rem">'+esc(t.subject)+'</b>'
     +'<div style="color:var(--muted);font-size:.8rem;margin-top:4px">'+esc(t.ticket_no)+' · '+esc(t.category||'General')+' · '+esc(t.priority||'')+(when?' · '+fmtDT(when):'')+'</div></div>'
     +'<span class="pt-badge" style="background:'+col+'">'+st+'</span></div>'
     +(t.description?'<p style="color:var(--muted);font-size:.85rem;margin:8px 0 0">'+esc(String(t.description).slice(0,200))+(String(t.description).length>200?'…':'')+'</p>':'')
+    +(closed?'':'<div style="margin-top:10px">'
+        +'<button class="btn-outline" style="font-size:.78rem;padding:5px 12px" onclick="ptToggleReply('+t.id+')">✍ Reply</button>'
+        +'<div id="pt-reply-'+t.id+'" style="display:none;margin-top:8px">'
+          +'<textarea id="pt-reply-tx-'+t.id+'" rows="2" placeholder="Type your reply…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--white);padding:8px 10px;font-size:.85rem;font-family:inherit;resize:vertical"></textarea>'
+          +'<button class="btn-primary" style="font-size:.8rem;padding:6px 14px;margin-top:6px" onclick="ptReply('+t.id+')">Send reply</button>'
+        +'</div></div>')
     +'</div>';
+}
+function ptToggleReply(id){ const b=document.getElementById('pt-reply-'+id); if(b) b.style.display=(b.style.display==='none'?'block':'none'); }
+async function ptReply(id){
+  const tx=document.getElementById('pt-reply-tx-'+id); const body=((tx&&tx.value)||'').trim();
+  if(!body){ alert('Please type your reply first.'); return; }
+  try{
+    const r=await fetch(PT_API+'/support-tickets/'+id+'/reply',{ method:'POST', headers:Object.assign({'Content-Type':'application/json'}, ptHdr()), body:JSON.stringify({ body }) });
+    const d=await r.json().catch(()=>({}));
+    if(r.ok && d.ok){ ptLoadTickets(); }
+    else alert(d.error||'Could not send your reply.');
+  }catch(e){ alert('Network issue — please try again.'); }
 }
 
 /* ── Orders ──────────────────────────────────────────────────────────────── */
