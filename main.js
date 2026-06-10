@@ -288,125 +288,164 @@ function odUserRow(role){
 }
 function odAddUser(role){ const box=document.getElementById('od-users'); if(box){ box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); odTotal(); } }
 
-let OD = { cats:[], prices:[], feats:[], userRates:{} };   // loaded plan/feature/price data
-function odFeatPrice(code){ const f = OD.feats.find(x=>x.code===code); return f?Number(f.rate)||0:0; }
-function odUserRate(role){ return Number(OD.userRates[role])||0; }
+let OD = { cats:[], prices:[], feats:[], userRates:{}, offer:{eligible:true,value:10000}, terms:'', note:'' };
+function odEsc(s){ return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()===String(code).toUpperCase()); return p?Number(p.rate)||0:0; }
+function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
+function odOfferVal(){ return (OD.offer&&OD.offer.value)||10000; }
 
-// Build the full order breakdown: plan + selected features + users (by type).
+// Premium features that apply to the selected plan (min_plan all/null or == plan).
+function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
+  return OD.feats.filter(f=>{ const m=(f.min_plan||'all'); return (m==='all'||m===plan); }); }
+
+// Render the "included free" premium list + a separate display-only upcoming window.
+function odRenderPremium(){
+  const feat=document.getElementById('od-feat'); if(!feat) return;
+  const list=odPlanPremium();
+  const now=list.filter(f=>!f.coming_soon), soon=list.filter(f=>f.coming_soon);
+  let html='';
+  if(now.length){
+    html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(OD.offer&&OD.offer.eligible?(' — worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')):'')+'</div>'+
+      now.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'✨')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
+        (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':'')).join('')+
+      '<div class="od-incl-note">Auto-selected for you — activated after your first user login, within 48 hours.</div></div>';
+  } else { html += '<p style="color:var(--muted)">Premium features are included with your plan.</p>'; }
+  if(soon.length){
+    html += '<div class="od-soon"><div class="od-soon-h">★ Upcoming — coming soon</div>'+
+      soon.map(f=>'<div class="od-soon-row"><b>'+(f.icon||'✨')+' '+odEsc(f.name)+'</b>'+(f.description?'<span> — '+odEsc(f.description)+'</span>':'')+'</div>').join('')+
+      '<div class="od-incl-note">Preview only — not part of this order. We’ll let you know when these launch.</div></div>';
+  }
+  feat.innerHTML=html;
+}
+
+// Build the order breakdown: plan + (premium free) + extra companies + extra users.
 function odBreakdown(){
-  const lines = []; let total = 0;
-  const cat = document.querySelector('input[name="od-cat"]:checked');
-  if(cat){ const c = OD.cats.find(x=>x.code===cat.value); if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r}); total+=r; } }
-  document.querySelectorAll('#od-feat input:checked').forEach(i=>{ const f=OD.feats.find(x=>x.code===i.value); const r=odFeatPrice(i.value); lines.push({label:'Feature: '+(f?f.name:i.value), qty:1, rate:r, amt:r}); total+=r; });
-  const roleCount = {}; document.querySelectorAll('#od-users .od-user select').forEach(s=>{ roleCount[s.value]=(roleCount[s.value]||0)+1; });
-  const roleLbl = {admin:'Admin',dataentry:'Data Entry',viewonly:'Viewer',auditor:'Auditor'};
-  Object.entries(roleCount).forEach(([role,n])=>{ const r=odUserRate(role); const amt=r*n; lines.push({label:'User × '+n+' ('+(roleLbl[role]||role)+')', qty:n, rate:r, amt:amt}); total+=amt; });
-  return { lines, total };
+  const lines=[]; let total=0;
+  const c=odSelCat();
+  const inclC=c?(c.incl_companies||1):1, inclU=c?(c.incl_users||1):1;
+  if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
+  const prem=odPlanPremium().filter(f=>!f.coming_soon);
+  if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:prem.length, rate:0, amt:0, note:'FREE — worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')}); }
+  const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
+  const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
+  const nUsers=document.querySelectorAll('#od-users .od-user').length;
+  const exU=Math.max(0,nUsers-inclU); if(exU>0){ const r=odPrice('ADDON_EXTRA_USER'); lines.push({label:'Extra users × '+exU, qty:exU, rate:r, amt:r*exU}); total+=r*exU; }
+  return { lines, total, inclC, inclU };
 }
 function odTotal(){
-  const el = document.getElementById('od-total'); if(!el) return;
-  const { total } = odBreakdown();
-  el.innerHTML = 'Tentative total: ₹' + total.toLocaleString('en-IN') + ' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(excl. taxes)</span>';
+  const el=document.getElementById('od-total'); if(!el) return;
+  odRenderPremium();
+  const { total }=odBreakdown();
+  el.innerHTML = 'Tentative total: ₹'+total.toLocaleString('en-IN')+' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(excl. taxes · all premium free)</span>';
 }
 
 async function loadPlansFeatures(){
   const cat = document.getElementById('od-cat'), feat = document.getElementById('od-feat');
   if(!cat) return;
-  const ub = document.getElementById('od-users'); if(ub && !ub.children.length){ ub.innerHTML = odUserRow('admin') + odUserRow('dataentry') + odUserRow('viewonly'); }
+  const ub = document.getElementById('od-users'); if(ub && !ub.children.length){ ub.innerHTML = odUserRow('admin'); }
   try {
     const res = await fetch(RRFINEAPP_API + '/public/plans-features', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
     const d = await res.json().catch(()=>({}));
     OD.cats = d.categories||[]; OD.prices = d.prices||[]; OD.feats = d.premiumFeatures||[]; OD.userRates = d.userRates||{};
+    OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||'';
     const cy = document.getElementById('od-country');
-    if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+c.label.replace(/</g,'&lt;')+'</option>').join(''); }
-    // Broker dropdown — from the R.R.Sphere broker master.
-    const bk = document.getElementById('od-broker');
-    if(bk && Array.isArray(d.brokers)){ bk.innerHTML = '<option value="">— None —</option>' + d.brokers.map(b=>'<option value="'+b.name.replace(/"/g,'')+'">'+b.name.replace(/</g,'&lt;')+'</option>').join(''); }
+    if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
-      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odTotal()"><span>'+c.label.replace(/</g,'&lt;')+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')):'')+'</span></label>'
+      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odTotal()"><span>'+odEsc(c.label)+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
-    // Premium features — grouped by category; ALL selectable; coming-soon LABELLED (still selectable).
-    if(OD.feats.length){
-      const groups = {};
-      OD.feats.forEach(f=>{ const g=f.category||'General'; (groups[g]=groups[g]||[]).push(f); });
-      feat.innerHTML = Object.keys(groups).map(g=>
-        '<div style="grid-column:1/-1;color:var(--g4);font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:.95rem;margin:6px 0 2px">'+g.replace(/</g,'&lt;')+'</div>' +
-        groups[g].map(f=>{
-          const pr = odFeatPrice(f.code); const prTxt = pr ? (' — ₹'+pr.toLocaleString('en-IN')) : '';
-          const cs = f.coming_soon ? ' <em style="color:#f59e0b">(coming soon)</em>' : '';
-          return '<label><input type="checkbox" value="'+f.code+'" onchange="odTotal()">' +
-            '<span><span class="ft">'+(f.icon||'✨')+' '+f.name.replace(/</g,'&lt;')+prTxt+cs+'</span>' +
-            (f.description?'<span class="fd">'+f.description.replace(/</g,'&lt;')+'</span>':'')+'</span></label>';
-        }).join('')
-      ).join('');
-    } else { feat.innerHTML = '<p style="color:var(--muted)">No premium features available right now.</p>'; }
+    // Offer banner (auto-selected free premium · worth ₹10,000 · activated within 48 hrs).
+    const ob = document.getElementById('od-offer');
+    if(ob && OD.note){ ob.textContent = '🎁 ' + OD.note; ob.style.display = 'block'; }
+    odRenderPremium();
     odTotal();
   } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
 }
 
-// Print a DRAFT ORDER (before confirming) — Amazon-style order summary.
-function printDraftOrder(){
+// Print a professional GREEN order summary (DRAFT, or FINAL when an order_no is given).
+function printDraftOrder(orderNo){
   const v = id => (document.getElementById(id)?document.getElementById(id).value.trim():'');
   const cat = document.querySelector('input[name="od-cat"]:checked');
   if(!cat){ alert('Please choose a plan first.'); return; }
-  const { lines, total } = odBreakdown();
-  const esc = s => String(s||'').replace(/</g,'&lt;');
+  const { lines, total, inclC, inclU } = odBreakdown();
+  const c = odSelCat();
+  const esc = odEsc;
   const inr = n => '₹'+Number(n||0).toLocaleString('en-IN');
   const today = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   const addr = [v('od-add1'),v('od-add2'),[v('od-city'),v('od-pin')].filter(Boolean).join(' '),v('od-state')].filter(Boolean);
+  // Billing = fixed 1 year from the chosen start date.
+  const bStart = v('od-billing-start');
+  let period = '1 year';
+  if(bStart){ const d0=new Date(bStart+'T00:00:00'); const d1=new Date(d0); d1.setFullYear(d1.getFullYear()+1); d1.setDate(d1.getDate()-1);
+    const f=x=>x.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); period=f(d0)+' to '+f(d1)+' (1 year)'; }
+  const numC = parseInt(v('od-companies'),10)||1;
+  const nUsers = document.querySelectorAll('#od-users .od-user').length;
+  const premNames = odPlanPremium().filter(f=>!f.coming_soon).map(f=>f.name);
   const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
   const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
-  const pr = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
+  const pri = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
   const custom = v('od-custom');
   const itemRows = lines.map(l=>
-    '<tr><td style="padding:12px 8px;border-bottom:1px solid #eee">'+esc(l.label)+
-      '<div style="color:#565959;font-size:12px;margin-top:2px">Qty: '+l.qty+' &nbsp;·&nbsp; Unit ₹'+Number(l.rate).toLocaleString('en-IN')+'</div></td>'+
-    '<td style="padding:12px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;font-weight:600">'+inr(l.amt)+'</td></tr>').join('');
+    '<tr><td style="padding:11px 10px;border-bottom:1px solid #e5e7eb">'+esc(l.label)+
+      (l.note?'<div style="color:#6b7280;font-size:12px;margin-top:2px">'+esc(l.note)+'</div>':'')+'</td>'+
+    '<td style="padding:11px 10px;border-bottom:1px solid #e5e7eb;text-align:center;color:#6b7280">'+l.qty+'</td>'+
+    '<td style="padding:11px 10px;border-bottom:1px solid #e5e7eb;text-align:right;white-space:nowrap;font-weight:600">'+(l.amt?inr(l.amt):'<span style="color:#166534">FREE</span>')+'</td></tr>').join('');
+  const termsBox = OD.terms ?
+    '<div class="card"><div class="card-h">Terms &amp; Conditions</div><div class="addr" style="white-space:pre-wrap;color:#374151;font-size:12px">'+esc(OD.terms)+'</div></div>' : '';
   const customBox = custom ?
-    '<div class="card"><div class="card-h">🛠 Custom / additional requirement</div><div style="padding:12px 14px;font-size:13px">'+
-      esc(custom)+'<div style="color:#565959;font-size:12px;margin-top:8px">⏱ Timeline: <b>'+esc(TL[tl]||'—')+'</b>'+(v('od-timeline-notes')?' ('+esc(v('od-timeline-notes'))+')':'')+
-      ' &nbsp;·&nbsp; Priority: <b>'+(pr==='now'?'Need it now':pr==='next_update'?'Future update is fine':'—')+'</b></div></div></div>' : '';
-  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Order Summary — RRFinEApp</title><style>'+
-    '*{box-sizing:border-box}body{font-family:"Amazon Ember",Arial,Helvetica,sans-serif;color:#0F1111;background:#fff;max-width:760px;margin:0 auto;padding:0 14px 28px}'+
-    '.top{background:#232F3E;color:#fff;border-radius:0 0 6px 6px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}'+
-    '.brand{font-size:20px;font-weight:700}.brand span{color:#FF9900}.brand small{display:block;font-size:11px;color:#cfd6dd;font-weight:400}'+
-    '.docttl{font-size:13px;color:#FF9900;font-weight:700;text-align:right}'+
-    '.hdr{background:#F0F2F2;border:1px solid #D5D9D9;border-radius:8px;margin:16px 0;padding:12px 16px;display:flex;gap:28px;flex-wrap:wrap}'+
-    '.hdr div .k{font-size:11px;color:#565959;text-transform:uppercase;letter-spacing:.3px}.hdr div .val{font-size:14px;font-weight:600;margin-top:2px}'+
-    '.card{border:1px solid #D5D9D9;border-radius:8px;margin-bottom:14px;overflow:hidden}'+
-    '.card-h{background:#F7F8F8;border-bottom:1px solid #D5D9D9;padding:9px 14px;font-size:13px;font-weight:700}'+
+    '<div class="card"><div class="card-h">🛠 Custom / additional requirement</div><div class="addr" style="font-size:13px">'+
+      esc(custom)+'<div style="color:#6b7280;font-size:12px;margin-top:8px">⏱ Timeline: <b>'+esc(TL[tl]||'—')+'</b>'+(v('od-timeline-notes')?' ('+esc(v('od-timeline-notes'))+')':'')+
+      ' &nbsp;·&nbsp; Priority: <b>'+(pri==='now'?'Need it now':pri==='next_update'?'Future update is fine':'—')+'</b></div></div></div>' : '';
+  const docTitle = orderNo ? 'ORDER CONFIRMATION' : 'DRAFT ORDER';
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+docTitle+' — RRFinEApp</title><style>'+
+    '*{box-sizing:border-box}body{font-family:Segoe UI,Arial,Helvetica,sans-serif;color:#111827;background:#fff;max-width:780px;margin:0 auto;padding:0 14px 28px}'+
+    '.top{background:#14532d;color:#fff;border-radius:0 0 8px 8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}'+
+    '.brand{font-size:21px;font-weight:700}.brand span{color:#86efac}.brand small{display:block;font-size:11px;color:#bbf7d0;font-weight:400}'+
+    '.docttl{font-size:13px;color:#86efac;font-weight:700;text-align:right}'+
+    '.hdr{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin:16px 0;padding:12px 16px;display:flex;gap:26px;flex-wrap:wrap}'+
+    '.hdr div .k{font-size:11px;color:#15803d;text-transform:uppercase;letter-spacing:.3px}.hdr div .val{font-size:14px;font-weight:600;margin-top:2px}'+
+    '.offer{background:#ecfdf5;border:1px solid #86efac;border-radius:8px;padding:11px 14px;margin:0 0 14px;color:#166534;font-size:13px;font-weight:600}'+
+    '.card{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:14px;overflow:hidden}'+
+    '.card-h{background:#f0fdf4;border-bottom:1px solid #e5e7eb;padding:9px 14px;font-size:13px;font-weight:700;color:#166534}'+
     '.two{display:flex;gap:14px;flex-wrap:wrap}.two .card{flex:1;min-width:240px}'+
     '.addr{padding:12px 14px;font-size:13px;line-height:1.55}'+
-    'table{width:100%;border-collapse:collapse}'+
-    '.totals{margin-top:6px;width:280px;margin-left:auto;font-size:13px}.totals td{padding:5px 8px}.totals .gt td{border-top:2px solid #0F1111;font-size:16px;font-weight:700;padding-top:8px}'+
-    '.note{color:#565959;font-size:11px;margin-top:14px;line-height:1.5}'+
-    '.btns{margin-top:16px;text-align:center}.pbtn{padding:9px 26px;background:#FFD814;border:1px solid #FCD200;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}'+
-    '@media print{.btns{display:none}.top{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
+    'table{width:100%;border-collapse:collapse;font-size:13px}thead th{background:#f9fafb;text-align:left;padding:8px 10px;font-size:12px;color:#6b7280;border-bottom:1px solid #e5e7eb}'+
+    '.totals{margin-top:6px;width:300px;margin-left:auto;font-size:13px}.totals td{padding:5px 10px}.totals .gt td{border-top:2px solid #14532d;font-size:16px;font-weight:700;padding-top:8px;color:#166534}'+
+    '.note{color:#6b7280;font-size:11px;margin-top:14px;line-height:1.5}'+
+    '.btns{margin-top:16px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}'+
+    '@media print{.btns{display:none}.top,.offer,.card-h,.hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
     '<div class="top"><div class="brand">R.R. Sphere <span>India</span><small>RRFinEApp · www.rrsindia.co.in</small></div>'+
-      '<div class="docttl">DRAFT ORDER<br><span style="color:#cfd6dd;font-weight:400;font-size:11px">not a final invoice</span></div></div>'+
+      '<div class="docttl">'+docTitle+'<br><span style="color:#bbf7d0;font-weight:400;font-size:11px">'+(orderNo?('Ref: '+esc(orderNo)):'not a final invoice')+'</span></div></div>'+
+    (OD.note?'<div class="offer">🎁 '+esc(OD.note)+'</div>':'')+
     '<div class="hdr">'+
-      '<div><div class="k">Order placed</div><div class="val">'+today+'</div></div>'+
-      '<div><div class="k">Plan</div><div class="val">'+esc(cat.parentElement.innerText.split('—')[0].trim()||cat.value)+'</div></div>'+
-      '<div><div class="k">Tentative total</div><div class="val" style="color:#B12704">'+inr(total)+'</div></div>'+
+      '<div><div class="k">Order date</div><div class="val">'+today+'</div></div>'+
+      '<div><div class="k">Plan</div><div class="val">'+esc(c?c.label:cat.value)+'</div></div>'+
+      '<div><div class="k">Billing period</div><div class="val">'+esc(period)+'</div></div>'+
+      '<div><div class="k">Tentative total</div><div class="val" style="color:#166534">'+inr(total)+'</div></div>'+
     '</div>'+
     '<div class="two">'+
+      '<div class="card"><div class="card-h">Provider</div><div class="addr"><b>R.R. Sphere India</b><br>RRFinEApp — Reliable &amp; Robust Finance Enterprise Application<br>www.rrsindia.co.in · fin.rrsindia.co.in</div></div>'+
       '<div class="card"><div class="card-h">Account / Tenant</div><div class="addr"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+
-        (v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'</div></div>'+
-      '<div class="card"><div class="card-h">Contact</div><div class="addr">'+esc(v('od-email'))+
-        (v('od-phone')?'<br>📞 '+esc(v('od-phone')):'')+(v('od-gstin')?'<br>GSTIN: '+esc(v('od-gstin')):'')+
-        (v('od-broker')?'<br>Broker: '+esc(v('od-broker')):'')+'</div></div>'+
+        (v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+
+        '<br>'+esc(v('od-email'))+(v('od-phone')?' · 📞 '+esc(v('od-phone')):'')+(v('od-gstin')?'<br>GSTIN: '+esc(v('od-gstin')):'')+'</div></div>'+
     '</div>'+
-    '<div class="card"><div class="card-h">Order details</div><table><tbody>'+itemRows+'</tbody></table>'+
+    '<div class="card"><div class="card-h">Subscription summary</div><div class="addr">'+
+      'Companies: <b>'+numC+'</b> (plan includes '+inclC+')<br>Users: <b>'+nUsers+'</b> (plan includes '+inclU+')<br>'+
+      'Premium features (all included free): '+(premNames.length?esc(premNames.join(', ')):'—')+'</div></div>'+
+    '<div class="card"><div class="card-h">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+'</tbody></table>'+
       '<table class="totals"><tbody>'+
-        '<tr><td>Items subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
-        '<tr><td>Taxes (GST)</td><td style="text-align:right;color:#565959">As applicable</td></tr>'+
-        '<tr class="gt"><td>Order Total</td><td style="text-align:right;color:#B12704">'+inr(total)+'*</td></tr>'+
+        '<tr><td>Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
+        '<tr><td>Taxes (GST)</td><td style="text-align:right;color:#6b7280">As applicable</td></tr>'+
+        '<tr class="gt"><td>Order Total</td><td style="text-align:right">'+inr(total)+'*</td></tr>'+
       '</tbody></table></div>'+
-    customBox+
-    '<p class="note">*Tentative — prices may change. Taxes (GST) extra as applicable. Final pricing, any discount and the GST tax invoice are confirmed by R.R. Sphere India after you place the order. This draft is for your reference only.</p>'+
+    '<div class="card"><div class="card-h">Payment &amp; activation</div><div class="addr" style="font-size:13px">'+
+      '• <b>50% advance</b> on placing the order; balance <b>50% within 7 days</b> of first user login.<br>'+
+      '• You are onboarded and made <b>live within 48 hours</b> of order confirmation.<br>'+
+      '• All premium features are <b>activated after your first user login, within 48 hours</b>.</div></div>'+
+    termsBox + customBox +
+    '<p class="note">*Tentative — prices may change. Taxes (GST) extra as applicable. Final pricing, any discount and the GST invoice are confirmed by R.R. Sphere India after you place the order.</p>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
-  const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the draft order.'); return; }
+  const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the order.'); return; }
   w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(), 350);
 }
 
@@ -417,17 +456,11 @@ async function submitOrder(){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('od-email'))){ alert('Please enter a valid email.'); return; }
   const catEl = document.querySelector('input[name="od-cat"]:checked');
   if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
-  const bFrom = v('od-billing-from'), bTo = v('od-billing-to');
-  if(!bFrom || !bTo){ alert('Please select the billing period — both the from and to dates.'); return; }
-  if(bTo < bFrom){ alert('Billing period: the "to" date must be on or after the "from" date.'); return; }
-  const fmtD = s => new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const billingPeriod = fmtD(bFrom) + ' to ' + fmtD(bTo);
-  const premium = Array.from(document.querySelectorAll('#od-feat input:checked')).map(i=>i.value);
+  const bStart = v('od-billing-start');
+  if(!bStart){ alert('Please select the billing start date.'); return; }
   const users = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:r.querySelector('input').value.trim() }));
-  if(users.length < 3){ alert('Add at least 3 users (1 Admin + 1 Data Entry + 1 Viewer).'); return; }
+  if(!users.length){ alert('Please add at least one user.'); return; }
   if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
-  if(!users.some(u=>u.role==='dataentry')){ alert('At least one Data Entry user is required.'); return; }
-  if(!users.some(u=>u.role==='viewonly')){ alert('At least one Viewer (view-only) user is required.'); return; }
 
   const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
   try {
@@ -436,12 +469,12 @@ async function submitOrder(){
       body: JSON.stringify({
         account_code: v('od-code'), customer_name: v('od-name'), customer_company: v('od-company'),
         num_companies: parseInt(v('od-companies'),10)||1,
-        billing_period: billingPeriod,
+        billing_from: bStart,
         customer_email: v('od-email'),
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
         address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
-        state_code: v('od-state').slice(0,2).toUpperCase(), broker: v('od-broker'),
-        tenant_category: catEl.value, premium_features: premium, users, notes: v('od-notes'),
+        state_code: v('od-state').slice(0,2).toUpperCase(),
+        tenant_category: catEl.value, users, notes: v('od-notes'),
         custom_requirement: v('od-custom'),
         dev_timeline: (document.querySelector('input[name="od-timeline"]:checked')||{}).value || '',
         dev_timeline_notes: v('od-timeline-notes'),
@@ -451,17 +484,16 @@ async function submitOrder(){
     const d = await res.json().catch(()=>({}));
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your order will be processed within 48 hours. We\'ll confirm pricing and send your invoice. Track your order on the <a href="portal.html">Customer Login</a> page.';
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b> — we’ll confirm pricing and send your invoice. <b>All premium features are included free</b> (worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')+'). '+
+        '<button type="button" class="btn-outline" style="margin-top:8px;font-size:.82rem;padding:6px 14px" onclick="printDraftOrder(\''+String(d.order_no).replace(/[^A-Za-z0-9\-]/g,'')+'\')">🖨 Print your order</button><br>Track it on the <a href="portal.html">Customer Login</a> page.';
       s.style.display='block'; btn.style.display='none';
-      odResetForm();
     } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }
   } catch(e){ alert('Network issue — please try again.'); btn.textContent=orig; btn.disabled=false; }
 }
 function odResetForm(){
-  ['od-code','od-name','od-company','od-email','od-phone','od-gstin','od-add1','od-add2','od-city','od-pin','od-state','od-notes','od-custom','od-timeline-notes','od-billing-from','od-billing-to'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  ['od-code','od-name','od-company','od-email','od-phone','od-gstin','od-add1','od-add2','od-city','od-pin','od-state','od-notes','od-custom','od-timeline-notes','od-billing-start'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
   const comp=document.getElementById('od-companies'); if(comp) comp.value='1';
-  const ub=document.getElementById('od-users'); if(ub) ub.innerHTML = odUserRow('admin')+odUserRow('dataentry')+odUserRow('viewonly');
-  document.querySelectorAll('#od-feat input:checked, #od-cat input:checked').forEach(c=>{ c.checked=false; });
+  const ub=document.getElementById('od-users'); if(ub) ub.innerHTML = odUserRow('admin');
   if(typeof odTotal==='function') odTotal();
 }
 if(document.getElementById('od-cat')) loadPlansFeatures();

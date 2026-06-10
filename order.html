@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=20">
 <style>
 .od-sec{font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--white);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .od-grid{display:flex;gap:14px;flex-wrap:wrap}
@@ -24,6 +24,15 @@
 .od-user select,.od-user input{flex:1}
 .od-user .rm{background:none;border:1px solid var(--border);color:#f87171;border-radius:8px;padding:8px 12px;cursor:pointer}
 .od-mini{color:var(--muted);font-size:.78rem;margin:-4px 0 10px}
+.od-incl{grid-column:1/-1;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.35);border-radius:12px;padding:14px}
+.od-incl-h{color:var(--g4);font-weight:700;font-size:.92rem;margin-bottom:8px}
+.od-incl-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);color:var(--white);font-size:.86rem}
+.od-incl-d{color:var(--muted);font-size:.74rem;margin:-2px 0 4px}
+.od-free{color:#22c55e;font-weight:700;font-size:.74rem;border:1px solid rgba(34,197,94,.5);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.od-incl-note{color:var(--muted);font-size:.76rem;margin-top:8px}
+.od-soon{grid-column:1/-1;background:rgba(245,158,11,.08);border:1px dashed rgba(245,158,11,.5);border-radius:12px;padding:14px;margin-top:10px}
+.od-soon-h{color:#f59e0b;font-weight:700;font-size:.92rem;margin-bottom:8px}
+.od-soon-row{color:var(--white);font-size:.85rem;padding:4px 0}
 </style>
 </head>
 <body>
@@ -65,23 +74,19 @@
         <div class="form-group"><label>PIN / ZIP <span class="req">*</span></label><input type="text" id="od-pin" placeholder="PIN code"></div>
         <div class="form-group"><label>State <span class="req">*</span></label><input type="text" id="od-state" placeholder="State"></div>
       </div>
-      <div class="form-group"><label>Broker <span style="color:var(--muted);font-weight:400">(optional — from our broker list)</span></label><select id="od-broker"><option value="">— None —</option></select></div>
-      <div class="form-group" style="max-width:440px"><label>Billing Period <span class="req">*</span> <span style="color:var(--muted);font-weight:400;font-size:.8rem">(from – to)</span>
-        <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
-          <input type="date" id="od-billing-from" style="flex:1" title="Billing from date">
-          <span style="color:var(--muted)">to</span>
-          <input type="date" id="od-billing-to" style="flex:1" title="Billing to date">
-        </div>
+      <div class="form-group" style="max-width:300px"><label>Billing Start Date <span class="req">*</span> <span style="color:var(--muted);font-weight:400;font-size:.8rem">(1-year subscription)</span>
+        <input type="date" id="od-billing-start" style="margin-top:4px" title="Your subscription starts on this date and is valid for one year">
       </label></div>
 
       <div class="od-sec">2 · Plan (Tenant Category) <span class="req">*</span></div>
       <div id="od-cat" class="od-cat"><p style="color:var(--muted)">Loading plans…</p></div>
 
-      <div class="od-sec">3 · Premium Features <span style="color:var(--muted);font-size:.8rem;font-weight:400">(optional)</span></div>
+      <div class="od-sec">3 · Premium Features <span style="color:var(--g4);font-size:.8rem;font-weight:600">(all included free)</span></div>
+      <div id="od-offer" style="display:none;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);border-radius:10px;padding:10px 14px;color:var(--g4);font-size:.85rem;margin-bottom:10px"></div>
       <div id="od-feat" class="od-feat"><p style="color:var(--muted)">Loading features…</p></div>
 
       <div class="od-sec">4 · Users <span class="req">*</span></div>
-      <p class="od-mini">Minimum 3 — at least 1 <b>Admin</b>, 1 <b>Data Entry</b> and 1 <b>Viewer</b> (mandatory). Add more users as needed.</p>
+      <p class="od-mini">At least 1 <b>Admin</b> is required. Your plan includes a set number of users free — add more as needed (extra users are charged per the price list).</p>
       <div id="od-users"></div>
       <button type="button" class="btn-outline" onclick="odAddUser()" style="font-size:.82rem;padding:7px 14px">+ Add user</button>
 
@@ -124,5 +129,5 @@
 </div>
 
 <footer><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p></div></footer>
-<script src="main.js?v=19"></script>
+<script src="main.js?v=20"></script>
 </body></html>
