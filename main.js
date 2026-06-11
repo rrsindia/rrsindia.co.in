@@ -471,7 +471,7 @@ function printDraftOrder(orderNo){
         '<tr class="gt"><td>Order Total</td><td style="text-align:right">'+inr(total)+'*</td></tr>'+
       '</tbody></table></div>'+
     '<div class="card"><div class="card-h">Payment &amp; activation</div><div class="addr" style="font-size:13px">'+
-      '• <b>50% advance</b> on placing the order; balance <b>50% within 7 days</b> of first user login.<br>'+
+      '• <b>50% advance</b> on placing the order; balance <b>50% within 7 days</b>.<br>'+
       '• You are onboarded and made <b>live within 48 hours</b> of order confirmation.<br>'+
       '• All premium features are <b>activated after your first user login, within 48 hours</b>.</div></div>'+
     termsBox + customBox +
@@ -484,7 +484,7 @@ function printDraftOrder(orderNo){
 
 async function submitOrder(){
   const v = id => (document.getElementById(id)?document.getElementById(id).value.trim():'');
-  const req = [['od-code','Account/Tenant Code'],['od-name','Account/Tenant Name'],['od-email','Email'],['od-add1','Address Line 1'],['od-city','City'],['od-pin','PIN'],['od-state','State']];
+  const req = [['od-name','Account/Tenant Name'],['od-email','Email'],['od-phone','Phone'],['od-add1','Address Line 1'],['od-city','City'],['od-pin','PIN'],['od-state','State']];
   for(const [id,lbl] of req){ if(!v(id)){ alert('Please fill: '+lbl); document.getElementById(id)?.focus(); return; } }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('od-email'))){ alert('Please enter a valid email.'); return; }
   const catEl = document.querySelector('input[name="od-cat"]:checked');

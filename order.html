@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 <style>
 .od-sec{font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--white);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .od-grid{display:flex;gap:14px;flex-wrap:wrap}
@@ -53,17 +53,13 @@
       <div class="od-sec">1 · Account / Tenant Details</div>
       <div class="od-grid">
         <div class="form-group"><label>Account / Tenant Code <span style="color:var(--muted);font-weight:400;font-size:.8rem">(auto-assigned)</span></label><input type="text" id="od-code" readonly placeholder="RRS001" style="background:rgba(255,255,255,.04);cursor:not-allowed"></div>
-        <div class="form-group"><label>Account / Tenant Name <span class="req">*</span></label><input type="text" id="od-name" placeholder="Can be your business name — or different"></div>
+        <div class="form-group"><label>Country <span class="req">*</span></label><select id="od-country"><option value="IN">India</option></select></div>
       </div>
-      <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional — only if different from the tenant name)</span></label><input type="text" id="od-company" placeholder="e.g. R.R. Sphere India / Sharma Traders"></div>
+      <div class="form-group"><label>Account / Tenant Name <span class="req">*</span></label><input type="text" id="od-name" placeholder="Can be your business name — or different"></div>
+      <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional — only if different from the tenant name)</span></label><input type="text" id="od-company" placeholder="e.g. R.R. Sphere India"></div>
       <div class="od-grid">
         <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" id="od-email" placeholder="you@example.com"></div>
-        <div class="form-group"><label>Phone</label><input type="text" id="od-phone" placeholder="Mobile number"></div>
-      </div>
-      <div class="od-grid">
-        <div class="form-group"><label>Country <span class="req">*</span></label>
-          <select id="od-country"><option value="IN">India</option></select>
-        </div>
+        <div class="form-group"><label>Phone <span class="req">*</span></label><input type="text" id="od-phone" placeholder="Mobile number"></div>
       </div>
       <div class="form-group"><label>Address Line 1 <span class="req">*</span></label><input type="text" id="od-add1" placeholder="Building / Street"></div>
       <div class="form-group"><label>Address Line 2</label><input type="text" id="od-add2" placeholder="Area / Locality"></div>
@@ -99,6 +95,7 @@
       <div class="form-group"><textarea rows="3" id="od-notes" placeholder="Anything we should know?"></textarea></div>
 
       <div class="od-sec">7 · Need something not listed? <span style="color:var(--muted);font-size:.8rem;font-weight:400">(optional — custom requirement)</span></div>
+      <p class="od-mini">⚠ Any heavy customization or custom development is <b>charged extra</b> — we'll quote it separately.</p>
       <div class="form-group"><label>Describe the custom feature / category you need</label>
         <textarea rows="3" id="od-custom" placeholder="e.g. a custom report, an industry-specific module, an integration… anything not in the plans/features above"></textarea></div>
       <div class="od-grid">
@@ -134,5 +131,5 @@
 </div>
 
 <footer><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p></div></footer>
-<script src="main.js?v=22"></script>
+<script src="main.js?v=23"></script>
 </body></html>
