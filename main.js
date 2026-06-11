@@ -296,7 +296,7 @@ function odEsc(s){ return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;',
 function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()===String(code).toUpperCase()); return p?Number(p.rate)||0:0; }
 function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
 function odOfferVal(){ const c=odSelCat(); return (c&&c.free_value)||(OD.offer&&OD.offer.value)||10000; }
-function odOfferNote(){ return 'All premium features are auto-selected and FREE for the first 10 clients (worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')+'), activated after your first user login within 48 hours.'; }
+function odOfferNote(){ if(OD.note && OD.note.trim()) return OD.note; return 'All premium features are auto-selected and FREE for the first 10 clients (worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')+'), activated after your first user login within 48 hours.'; }
 
 // Premium features that apply to the selected plan (min_plan all/null or == plan).
 function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
