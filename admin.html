@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 <style>
 .ad-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid rgba(255,255,255,.12);padding-bottom:0;flex-wrap:wrap}
 .ad-tab{padding:9px 16px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
@@ -319,8 +319,8 @@ async function adLoadThread(id){
   const d=r?await r.json().catch(()=>({})):{};
   if(!r||!r.ok){ box.innerHTML='<div style="color:#f87171;font-size:.78rem">'+esc((d&&d.error)||'Could not load.')+'</div>'; return; }
   box.innerHTML=((d.messages||[]).map(function(m){ const sup=m.sender_type==='superadmin';
-    return '<div style="margin:5px 0;padding:7px 10px;border-radius:7px;font-size:.8rem;color:var(--white);'+(sup?'background:rgba(34,197,94,.12)':'background:rgba(255,255,255,.05)')+(m.is_internal?';border:1px dashed #f59e0b':'')+'">'
-      +'<div style="font-size:.7rem;color:var(--muted);margin-bottom:2px">'+(sup?'🛟 '+esc(m.sender_name||'Support'):'👤 '+esc(m.sender_name||'Customer'))+(m.is_internal?' · internal':'')+' · '+esc(fmtDT(m.created_at))+'</div>'
+    return '<div style="margin:6px 0;padding:8px 11px;border-radius:8px;font-size:.85rem;color:var(--white);'+(sup?'background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3)':'background:rgba(255,255,255,.05);border:1px solid var(--border)')+(m.is_internal?';border:1px dashed #f59e0b':'')+'">'
+      +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:3px">'+(sup?'🛟 '+esc(m.sender_name||'Support'):'👤 '+esc(m.sender_name||'Customer'))+(m.is_internal?' · internal':'')+' · '+esc(fmtDT(m.created_at))+'</div>'
       +esc(m.body||'')+'</div>'; }).join(''))||'<div style="color:var(--muted);font-size:.78rem">No replies yet.</div>';
 }
 
@@ -410,6 +410,6 @@ if(adToken){
   adLoadDash();
 }
 </script>
-<script src="main.js?v=26"></script>
+<script src="main.js?v=27"></script>
 </body>
 </html>

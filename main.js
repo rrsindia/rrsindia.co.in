@@ -296,6 +296,7 @@ function odEsc(s){ return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;',
 function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()===String(code).toUpperCase()); return p?Number(p.rate)||0:0; }
 function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
 function odOfferVal(){ const c=odSelCat(); return (c&&c.free_value)||(OD.offer&&OD.offer.value)||10000; }
+function odOfferNote(){ return 'All premium features are auto-selected and FREE for the first 10 clients (worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')+'), activated after your first user login within 48 hours.'; }
 
 // Premium features that apply to the selected plan (min_plan all/null or == plan).
 function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
@@ -368,6 +369,7 @@ function odPlanChanged(){
   // Default Number of Companies to the plan's included count (editable).
   const comp=document.getElementById('od-companies'), hint=document.getElementById('od-companies-hint');
   if(c && comp){ const inclC=Math.max(1, c.incl_companies||1); comp.value=inclC; if(hint) hint.innerHTML='Plan includes <b style="color:var(--g4)">'+inclC+'</b> — add more if needed (extra charged per price list).'; }
+  const ob=document.getElementById('od-offer'); if(ob){ ob.textContent='🎁 '+odOfferNote(); ob.style.display='block'; }
   odTotal();
 }
 
@@ -437,7 +439,8 @@ function printDraftOrder(orderNo){
       ' &nbsp;·&nbsp; Priority: <b>'+(pri==='now'?'Need it now':pri==='next_update'?'Future update is fine':'—')+'</b></div></div></div>' : '';
   const docTitle = orderNo ? 'ORDER CONFIRMATION' : 'DRAFT ORDER';
   const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+docTitle+' — RRFinEApp</title><style>'+
-    '*{box-sizing:border-box}body{font-family:Segoe UI,Arial,Helvetica,sans-serif;color:#111827;background:#fff;max-width:780px;margin:0 auto;padding:0 14px 28px}'+
+    '@page{margin:0}'+
+    '*{box-sizing:border-box}body{font-family:Segoe UI,Arial,Helvetica,sans-serif;color:#111827;background:#fff;max-width:780px;margin:0 auto;padding:12mm 12mm 14mm}'+
     '.top{background:#14532d;color:#fff;border-radius:0 0 8px 8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}'+
     '.brand{font-size:21px;font-weight:700}.brand span{color:#86efac}.brand small{display:block;font-size:11px;color:#bbf7d0;font-weight:400}'+
     '.docttl{font-size:13px;color:#86efac;font-weight:700;text-align:right}'+
@@ -455,7 +458,7 @@ function printDraftOrder(orderNo){
     '@media print{.btns{display:none}.top,.offer,.card-h,.hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
     '<div class="top"><div class="brand">R.R. Sphere <span>India</span><small>RRFinEApp · https://rrsindia.co.in</small></div>'+
       '<div class="docttl">'+docTitle+'<br><span style="color:#bbf7d0;font-weight:400;font-size:11px">'+(orderNo?('Ref: '+esc(orderNo)):'not a final invoice')+'</span></div></div>'+
-    (OD.note?'<div class="offer">🎁 '+esc(OD.note)+'</div>':'')+
+    '<div class="offer">🎁 '+esc(odOfferNote())+'</div>'+
     '<div class="hdr">'+
       '<div><div class="k">Order date</div><div class="val">'+today+'</div></div>'+
       '<div><div class="k">Plan</div><div class="val">'+esc(c?c.label:cat.value)+'</div></div>'+
