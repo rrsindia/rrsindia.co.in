@@ -295,7 +295,7 @@ let OD = { cats:[], prices:[], feats:[], userRates:{}, offer:{eligible:true,valu
 function odEsc(s){ return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
 function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()===String(code).toUpperCase()); return p?Number(p.rate)||0:0; }
 function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
-function odOfferVal(){ return (OD.offer&&OD.offer.value)||10000; }
+function odOfferVal(){ const c=odSelCat(); return (c&&c.free_value)||(OD.offer&&OD.offer.value)||10000; }
 
 // Premium features that apply to the selected plan (min_plan all/null or == plan).
 function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
