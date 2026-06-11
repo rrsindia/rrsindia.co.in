@@ -427,10 +427,9 @@ function printDraftOrder(orderNo){
   const pri = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
   const custom = v('od-custom');
   const itemRows = lines.map(l=>
-    '<tr><td style="padding:11px 10px;border-bottom:1px solid #e5e7eb">'+esc(l.label)+
-      (l.note?'<div style="color:#6b7280;font-size:12px;margin-top:2px">'+esc(l.note)+'</div>':'')+'</td>'+
-    '<td style="padding:11px 10px;border-bottom:1px solid #e5e7eb;text-align:center;color:#6b7280">'+l.qty+'</td>'+
-    '<td style="padding:11px 10px;border-bottom:1px solid #e5e7eb;text-align:right;white-space:nowrap;font-weight:600">'+(l.amt?inr(l.amt):'<span style="color:#166534">FREE</span>')+'</td></tr>').join('');
+    '<tr><td>'+esc(l.label)+(l.note?'<div style="color:#555;font-size:8pt;margin-top:1px">'+esc(l.note)+'</div>':'')+'</td>'+
+    '<td style="text-align:center">'+l.qty+'</td>'+
+    '<td style="text-align:right;white-space:nowrap;font-weight:600">'+(l.amt?inr(l.amt):'<span style="color:#166534">FREE</span>')+'</td></tr>').join('');
   const termsBox = OD.terms ?
     '<div class="card"><div class="card-h">Terms &amp; Conditions</div><div class="addr" style="white-space:pre-wrap;color:#374151;font-size:12px">'+esc(OD.terms)+'</div></div>' : '';
   const customBox = custom ?
@@ -440,57 +439,40 @@ function printDraftOrder(orderNo){
   const docTitle = orderNo ? 'ORDER CONFIRMATION' : 'DRAFT ORDER';
   const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+docTitle+' — RRFinEApp</title><style>'+
     '@page{margin:0}'+
-    '*{box-sizing:border-box}body{font-family:Segoe UI,Arial,Helvetica,sans-serif;color:#111827;background:#fff;max-width:780px;margin:0 auto;padding:12mm 12mm 14mm}'+
-    '.top{background:#14532d;color:#fff;border-radius:0 0 8px 8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}'+
-    '.brand{font-size:21px;font-weight:700}.brand span{color:#86efac}.brand small{display:block;font-size:11px;color:#bbf7d0;font-weight:400}'+
-    '.docttl{font-size:13px;color:#86efac;font-weight:700;text-align:right}'+
-    '.hdr{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin:16px 0;padding:12px 16px;display:flex;gap:26px;flex-wrap:wrap}'+
-    '.hdr div .k{font-size:11px;color:#15803d;text-transform:uppercase;letter-spacing:.3px}.hdr div .val{font-size:14px;font-weight:600;margin-top:2px}'+
-    '.offer{background:#ecfdf5;border:1px solid #86efac;border-radius:8px;padding:11px 14px;margin:0 0 14px;color:#166534;font-size:13px;font-weight:600}'+
-    '.card{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:14px;overflow:hidden}'+
-    '.card-h{background:#f0fdf4;border-bottom:1px solid #e5e7eb;padding:9px 14px;font-size:13px;font-weight:700;color:#166534}'+
-    '.two{display:flex;gap:14px;flex-wrap:wrap}.two .card{flex:1;min-width:240px}'+
-    '.addr{padding:12px 14px;font-size:13px;line-height:1.55}'+
-    'table{width:100%;border-collapse:collapse;font-size:13px}thead th{background:#f9fafb;text-align:left;padding:8px 10px;font-size:12px;color:#6b7280;border-bottom:1px solid #e5e7eb}'+
-    '.totals{margin-top:6px;width:300px;margin-left:auto;font-size:13px}.totals td{padding:5px 10px}.totals .gt td{border-top:2px solid #14532d;font-size:16px;font-weight:700;padding-top:8px;color:#166534}'+
-    '.note{color:#6b7280;font-size:11px;margin-top:14px;line-height:1.5}'+
-    '.btns{margin-top:16px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}'+
-    '@media print{.btns{display:none}.top,.offer,.card-h,.hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
-    '<div class="top"><div class="brand">R.R. Sphere <span>India</span><small>RRFinEApp · https://rrsindia.co.in</small></div>'+
-      '<div class="docttl">'+docTitle+'<br><span style="color:#bbf7d0;font-weight:400;font-size:11px">'+(orderNo?('Ref: '+esc(orderNo)):'not a final invoice')+'</span></div></div>'+
-    '<div class="offer">🎁 '+esc(odOfferNote())+'</div>'+
-    '<div class="hdr">'+
-      '<div><div class="k">Order date</div><div class="val">'+today+'</div></div>'+
-      '<div><div class="k">Plan</div><div class="val">'+esc(c?c.label:cat.value)+'</div></div>'+
-      '<div><div class="k">Billing period</div><div class="val">'+esc(period)+'</div></div>'+
-      '<div><div class="k">Tentative total</div><div class="val" style="color:#166534">'+inr(total)+'</div></div>'+
-    '</div>'+
-    '<div class="two">'+
-      '<div class="card"><div class="card-h">Provider</div><div class="addr"><b>R.R. Sphere India</b><br>RRFinEApp — Reliable &amp; Robust Finance Enterprise Application<br>https://rrsindia.co.in &nbsp; https://fin.rrsindia.co.in</div></div>'+
-      '<div class="card"><div class="card-h">Account / Tenant</div><div class="addr"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+
-        (v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+
-        '<br>'+esc(v('od-email'))+(v('od-phone')?' · 📞 '+esc(v('od-phone')):'')+(v('od-gstin')?'<br>GSTIN: '+esc(v('od-gstin')):'')+'</div></div>'+
-    '</div>'+
-    '<div class="card"><div class="card-h">Subscription summary</div><div class="addr">'+
-      'Companies: <b>'+numC+'</b> (plan includes '+inclC+')<br>Users: <b>'+nUsers+'</b> (plan includes '+inclU+')<br>'+
-      'Premium features (all included free): '+(premNames.length?esc(premNames.join(', ')):'—')+'</div></div>'+
-    usersCard+
-    '<div class="card"><div class="card-h">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+'</tbody></table>'+
-      '<table class="totals"><tbody>'+
-        '<tr><td>Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
-        '<tr class="gt"><td>Order Total</td><td style="text-align:right">'+inr(total)+'*</td></tr>'+
-      '</tbody></table></div>'+
-    '<div class="card"><div class="card-h">Payment &amp; activation</div><div class="addr" style="font-size:13px">'+
-      '• <b>50% advance</b> on placing the order; balance <b>50% within 7 days</b>.<br>'+
-      '• You are onboarded and made <b>live within 48 hours</b> of order confirmation.<br>'+
-      '• All premium features are <b>activated after your first user login, within 48 hours</b>.</div></div>'+
-    termsBox + customBox +
-    '<p class="note">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</p>'+
-    '<div style="margin-top:20px;padding-top:14px;border-top:2px solid #14532d;text-align:center;color:#6b7280;font-size:11.5px;line-height:1.6">'+
-      '<div style="color:#14532d;font-weight:700;font-size:13px;letter-spacing:.3px">R.R. SPHERE INDIA</div>'+
-      'IT &amp; Learning · RRFinEApp — Reliable &amp; Robust Finance Enterprise Application<br>'+
-      'https://rrsindia.co.in &nbsp;·&nbsp; https://fin.rrsindia.co.in &nbsp;·&nbsp; Amritsar, Punjab, India<br>'+
-      '<span style="color:#166534;font-weight:600">Thank you for choosing R.R. Sphere India.</span>'+
+    '*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;max-width:800px;margin:0 auto;padding:8mm}'+
+    '.doc{border:2px solid #000}'+
+    '.hd{display:grid;grid-template-columns:1fr auto;border-bottom:2px solid #000}'+
+    '.hd-l{padding:8px 10px;border-right:1px solid #000}.hd-l .nm{font-size:15pt;font-weight:900;line-height:1.2}.hd-l .ad{font-size:9pt;margin-top:2px}'+
+    '.hd-r{padding:8px 12px;text-align:center;min-width:200px;display:flex;flex-direction:column;justify-content:center;align-items:center}'+
+    '.hd-r .tt{font-size:13pt;font-weight:900;letter-spacing:2px;border-bottom:2px solid #14532d;color:#14532d;padding-bottom:4px;margin-bottom:5px;width:100%}.hd-r .rf{font-size:8.5pt;color:#444}'+
+    '.offer{background:#ecfdf5;border-bottom:1px solid #000;padding:6px 10px;color:#166534;font-size:9pt;font-weight:700}'+
+    '.two{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #000}.two>div{padding:6px 9px}.two>div:first-child{border-right:1px solid #000}'+
+    '.sec-h{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #ccc;padding-bottom:2px;margin-bottom:3px}.row{font-size:9.5pt;line-height:1.5}'+
+    '.band{background:#e8e8e8;border-bottom:1px solid #000;padding:4px 10px;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.5px}'+
+    '.pad{padding:6px 10px;font-size:9.5pt;line-height:1.55;border-bottom:1px solid #000}'+
+    'table{width:100%;border-collapse:collapse;font-size:9pt}th{border:1px solid #000;background:#e8e8e8;padding:4px 6px;font-size:8.5pt;font-weight:700;text-align:left}td{border:1px solid #000;padding:4px 6px;font-size:9pt}.tot td{background:#f0f0f0;font-weight:700}'+
+    '.ft{border-top:2px solid #16a34a;background:#f0fdf4;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;font-size:8.5pt;font-weight:700;color:#14532d;gap:8px}.ft .r{font-weight:600;color:#374151}'+
+    '.btns{margin-top:14px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}'+
+    '@media print{.btns{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
+    '<div class="doc">'+
+      '<div class="hd"><div class="hd-l"><div class="nm">R.R. Sphere India</div>'+
+        '<div class="ad">IT &amp; Learning · RRFinEApp — Reliable &amp; Robust Finance Enterprise Application</div>'+
+        '<div class="ad">https://rrsindia.co.in &nbsp;·&nbsp; https://fin.rrsindia.co.in</div>'+
+        '<div class="ad">Amritsar, Punjab, India</div></div>'+
+        '<div class="hd-r"><div class="tt">'+docTitle+'</div><div class="rf">'+(orderNo?('Ref: '+esc(orderNo)):'Not a final invoice')+'<br>'+today+'</div></div></div>'+
+      '<div class="offer">🎁 '+esc(odOfferNote())+'</div>'+
+      '<div class="two"><div><div class="sec-h">Account / Tenant (Bill To)</div><div class="row"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'<br>'+esc(v('od-email'))+(v('od-phone')?' · Ph: '+esc(v('od-phone')):'')+'</div></div>'+
+        '<div><div class="sec-h">Order Details</div><div class="row"><b>Plan:</b> '+esc(c?c.label:cat.value)+'<br><b>Billing:</b> '+esc(period)+'<br><b>Companies:</b> '+numC+' (incl '+inclC+') &nbsp; <b>Users:</b> '+nUsers+' (incl '+inclU+')</div></div></div>'+
+      '<div class="band">Premium features — all included free</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'—')+'</div>'+
+      (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'—')+'</td><td>'+esc(u.login||'—')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
+      '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+
+        '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
+        '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+inr(total)+'*</td></tr></tbody></table>'+
+      '<div class="band">Payment &amp; activation</div><div class="pad">• <b>50% advance</b> on placing the order; balance <b>50% within 7 days</b>.<br>• Onboarded and made <b>live within 48 hours</b> of order confirmation.<br>• All premium features <b>activated after your first user login, within 48 hours</b>.</div>'+
+      (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
+      (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
+      '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
+      '<div class="ft"><span>RRFinEApp — R.R.Sphere INDIA | https://rrsindia.co.in</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
     '</div>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
