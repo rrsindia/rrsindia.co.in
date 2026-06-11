@@ -278,20 +278,21 @@ function adRenderTickets(){
 function adTkRow(t){
   const col=TK_COL[t.status]||'#6b7280';
   const when=t.last_reply_at||t.updated_at||t.created_at;
-  const saActions=(adIsSA||adIsWeb)?'<td><div style="display:flex;gap:5px;flex-direction:column">'
-    +'<div style="display:flex;gap:5px;flex-wrap:wrap">'
+  const isAdm=(adIsSA||adIsWeb);
+  const manageCell=isAdm?'<td><div style="display:flex;gap:5px;flex-wrap:wrap">'
       +'<select class="ad-sel" id="adtk-st-'+t.id+'">'
         +['OPEN','IN_PROGRESS','RESOLVED','CLOSED'].map(s=>'<option value="'+s+'"'+(s===t.status?' selected':'')+'>'+s.replace('_',' ')+'</option>').join('')
       +'</select>'
       +'<button class="ad-btn-sm" onclick="adSaveTk('+t.id+')">Save</button>'
-    +'</div>'
-    +'<button class="ad-btn-sm" onclick="adToggleReply('+t.id+')">&#8617; Reply</button>'
-    +'<div id="adtk-reply-'+t.id+'" class="ad-reply-area">'
-      +'<div id="adtk-thread-'+t.id+'" style="margin-bottom:8px"></div>'
-      +'<textarea id="adtk-msg-'+t.id+'" placeholder="Type your reply to the customer…"></textarea>'
+      +'<button class="ad-btn-sm" onclick="adToggleReply('+t.id+')">&#8617; Reply</button>'
+    +'</div></td>':'';
+  // Full-width conversation + reply row (spans all columns) — matches the customer portal layout.
+  const replyRow=isAdm?'<tr id="adtk-reply-row-'+t.id+'" style="display:none"><td colspan="7" style="padding:0;border-top:none">'
+    +'<div style="padding:12px 16px;background:rgba(255,255,255,.03);max-width:880px">'
+      +'<div id="adtk-thread-'+t.id+'" style="margin-bottom:10px"></div>'
+      +'<textarea id="adtk-msg-'+t.id+'" placeholder="Type your reply to the customer…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--white);padding:8px 10px;font-size:.85rem;font-family:inherit;resize:vertical;min-height:60px"></textarea>'
       +'<button class="ad-btn-sm green" style="margin-top:6px" onclick="adSendReply('+t.id+')">Send Reply</button>'
-    +'</div>'
-  +'</div></td>':'';
+    +'</div></td></tr>':'';
   return '<tr>'
     +'<td style="white-space:nowrap"><b style="color:var(--g4);font-size:.8rem">'+esc(t.ticket_no||'')+'</b></td>'
     +'<td style="max-width:240px;cursor:pointer" onclick="adToggleReply('+t.id+')" title="View conversation"><div style="font-weight:600;color:var(--g4)">'+esc(t.subject||'')+' 💬</div>'
@@ -301,15 +302,15 @@ function adTkRow(t){
     +'<td style="font-size:.78rem">'+esc(t.priority||'')+'</td>'
     +'<td><span class="ad-badge" style="background:'+col+'">'+esc(t.status||'')+'</span></td>'
     +'<td style="font-size:.75rem;white-space:nowrap">'+esc(fmtDT(when))+'</td>'
-    +saActions
-    +'</tr>';
+    +manageCell
+    +'</tr>'+replyRow;
 }
 
 function adToggleReply(id){
-  const el=document.getElementById('adtk-reply-'+id);
+  const el=document.getElementById('adtk-reply-row-'+id);
   if(!el) return;
-  const opening=el.style.display!=='block';
-  el.style.display=opening?'block':'none';
+  const opening=el.style.display!=='table-row';
+  el.style.display=opening?'table-row':'none';
   if(opening) adLoadThread(id);
 }
 async function adLoadThread(id){
