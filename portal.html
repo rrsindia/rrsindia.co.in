@@ -88,7 +88,7 @@ function ptHdr(){ return { 'Authorization':'Bearer '+ptToken, 'X-Tenant-Id':ptTe
 function fmtDate(d){ return d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : ''; }
 function fmtDT(d){ return d ? new Date(d).toLocaleString('en-IN') : ''; }
 
-async function ptLogin(){
+async function ptLogin(force){
   const id=document.getElementById('pt-id').value.trim();
   const pw=document.getElementById('pt-pw').value;
   const code=document.getElementById('pt-2fa').value.trim();
@@ -96,10 +96,16 @@ async function ptLogin(){
   const btn=document.getElementById('pt-btn'); btn.disabled=true; const o=btn.textContent; btn.textContent='Signing in…';
   try{
     const url  = ptTemp ? PT_API+'/auth/2fa/verify-login' : PT_API+'/auth/login';
-    const body = ptTemp ? { temp_token:ptTemp, code } : { login:id, password:pw };
+    const body = ptTemp ? { temp_token:ptTemp, code } : { login:id, password:pw, force:!!force };
     const r=await fetch(url,{ method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(body) });
     const d=await r.json().catch(()=>({}));
     if(d.twofa_required){ ptTemp=d.temp_token; document.getElementById('pt-2fa-wrap').style.display='block'; ptErr('Enter the 6-digit code from your authenticator app.'); btn.disabled=false; btn.textContent=o; return; }
+    if(d.code==='SESSION_EXISTS'){
+      btn.disabled=false; btn.textContent=o;
+      if(confirm('You are already signed in on another device. Continue here and sign out the other session?')) ptLogin(true);
+      else ptErr('Sign-in cancelled — you are logged in on another device.');
+      return;
+    }
     if(!r.ok||!d.token){ ptErr(d.error||'Sign-in failed. Check your credentials.'); btn.disabled=false; btn.textContent=o; return; }
     ptToken=d.token; ptTemp='';
     ptTenant=(d.companies&&d.companies[0])?String(d.companies[0].id):'';
