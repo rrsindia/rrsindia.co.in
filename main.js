@@ -455,7 +455,7 @@ function printDraftOrder(orderNo){
     '.btns{margin-top:14px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}'+
     '@media print{.btns{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
     '<div class="doc">'+
-      '<div class="hd"><div class="hd-l"><div class="nm">R.R. Sphere India</div>'+
+      '<div class="hd"><div class="hd-l"><div class="nm">R.R. Sphere INDIA</div>'+
         '<div class="ad">IT &amp; Learning · RRFinEApp — Reliable &amp; Robust Finance Enterprise Application</div>'+
         '<div class="ad">https://rrsindia.co.in &nbsp;·&nbsp; https://fin.rrsindia.co.in</div>'+
         '<div class="ad">Amritsar, Punjab, India</div></div>'+
