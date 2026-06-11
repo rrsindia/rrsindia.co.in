@@ -329,7 +329,7 @@ function odBreakdown(){
   const inclC=c?(c.incl_companies||1):1, inclU=c?(c.incl_users||1):1;
   if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
   const prem=odPlanPremium().filter(f=>!f.coming_soon);
-  if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:prem.length, rate:0, amt:0}); }
+  if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:'', rate:0, amt:0, blank:true}); }
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
   // Extra users (beyond the plan's included count) charged per ROLE/category rate.
@@ -428,8 +428,8 @@ function printDraftOrder(orderNo){
   const custom = v('od-custom');
   const itemRows = lines.map(l=>
     '<tr><td>'+esc(l.label)+(l.note?'<div style="color:#555;font-size:8pt;margin-top:1px">'+esc(l.note)+'</div>':'')+'</td>'+
-    '<td style="text-align:center">'+l.qty+'</td>'+
-    '<td style="text-align:right;white-space:nowrap;font-weight:600">'+(l.amt?inr(l.amt):'<span style="color:#166534">FREE</span>')+'</td></tr>').join('');
+    '<td style="text-align:center">'+(l.blank?'':l.qty)+'</td>'+
+    '<td style="text-align:right;white-space:nowrap;font-weight:600">'+(l.blank?'':(l.amt?inr(l.amt):'<span style="color:#166534">FREE</span>'))+'</td></tr>').join('');
   const termsBox = OD.terms ?
     '<div class="card"><div class="card-h">Terms &amp; Conditions</div><div class="addr" style="white-space:pre-wrap;color:#374151;font-size:12px">'+esc(OD.terms)+'</div></div>' : '';
   const customBox = custom ?
