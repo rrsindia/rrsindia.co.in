@@ -483,6 +483,12 @@ function printDraftOrder(orderNo){
       '• All premium features are <b>activated after your first user login, within 48 hours</b>.</div></div>'+
     termsBox + customBox +
     '<p class="note">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</p>'+
+    '<div style="margin-top:20px;padding-top:14px;border-top:2px solid #14532d;text-align:center;color:#6b7280;font-size:11.5px;line-height:1.6">'+
+      '<div style="color:#14532d;font-weight:700;font-size:13px;letter-spacing:.3px">R.R. SPHERE INDIA</div>'+
+      'IT &amp; Learning · RRFinEApp — Reliable &amp; Robust Finance Enterprise Application<br>'+
+      'https://rrsindia.co.in &nbsp;·&nbsp; https://fin.rrsindia.co.in &nbsp;·&nbsp; Amritsar, Punjab, India<br>'+
+      '<span style="color:#166534;font-weight:600">Thank you for choosing R.R. Sphere India.</span>'+
+    '</div>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
   const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the order.'); return; }
