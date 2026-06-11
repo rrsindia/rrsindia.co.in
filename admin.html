@@ -315,7 +315,7 @@ function adToggleReply(id){
 async function adLoadThread(id){
   const box=document.getElementById('adtk-thread-'+id); if(!box) return;
   box.innerHTML='<div style="color:var(--muted);font-size:.78rem">Loading conversation…</div>';
-  const r=await fetch(AD_API+'/superadmin/support-tickets/'+id,{headers:SH()}).catch(()=>null);
+  const r=await fetch(AD_API+'/superadmin/support-tickets/'+id,{headers:{'Authorization':'Bearer '+adToken,'Accept':'application/json'}}).catch(()=>null);
   const d=r?await r.json().catch(()=>({})):{};
   if(!r||!r.ok){ box.innerHTML='<div style="color:#f87171;font-size:.78rem">'+esc((d&&d.error)||'Could not load.')+'</div>'; return; }
   box.innerHTML=((d.messages||[]).map(function(m){ const sup=m.sender_type==='superadmin';
