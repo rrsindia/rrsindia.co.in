@@ -481,7 +481,7 @@ function printDraftOrder(orderNo){
       (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
       (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
       '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
-      '<div class="ft"><span>'+esc(OD.footer||'RRFinEApp — R.R. Sphere INDIA | https://rrsindia.co.in')+'</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
+      '<div class="ft"><span>'+esc(OD.footer||'RRFinEApp — R.R. Sphere INDIA | www.rrsindia.co.in')+'</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
     '</div>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
