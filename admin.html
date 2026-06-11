@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=24">
 <style>
 .ad-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid rgba(255,255,255,.12);padding-bottom:0;flex-wrap:wrap}
 .ad-tab{padding:9px 16px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap}
@@ -287,6 +287,7 @@ function adTkRow(t){
     +'</div>'
     +'<button class="ad-btn-sm" onclick="adToggleReply('+t.id+')">&#8617; Reply</button>'
     +'<div id="adtk-reply-'+t.id+'" class="ad-reply-area">'
+      +'<div id="adtk-thread-'+t.id+'" style="margin-bottom:8px"></div>'
       +'<textarea id="adtk-msg-'+t.id+'" placeholder="Type your reply to the customer…"></textarea>'
       +'<button class="ad-btn-sm green" style="margin-top:6px" onclick="adSendReply('+t.id+')">Send Reply</button>'
     +'</div>'
@@ -306,7 +307,21 @@ function adTkRow(t){
 
 function adToggleReply(id){
   const el=document.getElementById('adtk-reply-'+id);
-  if(el) el.style.display=el.style.display==='block'?'none':'block';
+  if(!el) return;
+  const opening=el.style.display!=='block';
+  el.style.display=opening?'block':'none';
+  if(opening) adLoadThread(id);
+}
+async function adLoadThread(id){
+  const box=document.getElementById('adtk-thread-'+id); if(!box) return;
+  box.innerHTML='<div style="color:var(--muted);font-size:.78rem">Loading conversation…</div>';
+  const r=await fetch(AD_API+'/superadmin/support-tickets/'+id,{headers:SH()}).catch(()=>null);
+  const d=r?await r.json().catch(()=>({})):{};
+  if(!r||!r.ok){ box.innerHTML='<div style="color:#f87171;font-size:.78rem">'+esc((d&&d.error)||'Could not load.')+'</div>'; return; }
+  box.innerHTML=((d.messages||[]).map(function(m){ const sup=m.sender_type==='superadmin';
+    return '<div style="margin:5px 0;padding:7px 10px;border-radius:7px;font-size:.8rem;color:var(--white);'+(sup?'background:rgba(34,197,94,.12)':'background:rgba(255,255,255,.05)')+(m.is_internal?';border:1px dashed #f59e0b':'')+'">'
+      +'<div style="font-size:.7rem;color:var(--muted);margin-bottom:2px">'+(sup?'🛟 '+esc(m.sender_name||'Support'):'👤 '+esc(m.sender_name||'Customer'))+(m.is_internal?' · internal':'')+' · '+esc(fmtDT(m.created_at))+'</div>'
+      +esc(m.body||'')+'</div>'; }).join(''))||'<div style="color:var(--muted);font-size:.78rem">No replies yet.</div>';
 }
 
 async function adSaveTk(id){
@@ -320,7 +335,7 @@ async function adSendReply(id){
   const msg=document.getElementById('adtk-msg-'+id);
   if(!msg||!msg.value.trim()){ toast('Enter a reply message',false); return; }
   const r=await fetch(AD_API+'/superadmin/support-tickets/'+id+'/reply',{method:'POST',headers:SH(),body:JSON.stringify({body:msg.value.trim()})}).catch(()=>null);
-  if(r&&r.ok){ toast('Reply sent',true); msg.value=''; adToggleReply(id); adLoadTickets(); }
+  if(r&&r.ok){ toast('Reply sent',true); msg.value=''; adLoadThread(id); adLoadTickets(); }
   else{ const d=r?await r.json().catch(()=>({})):({}); toast(d.error||'Reply failed',false); }
 }
 
@@ -395,6 +410,6 @@ if(adToken){
   adLoadDash();
 }
 </script>
-<script src="main.js?v=23"></script>
+<script src="main.js?v=24"></script>
 </body>
 </html>

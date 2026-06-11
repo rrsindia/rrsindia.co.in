@@ -331,8 +331,12 @@ function odBreakdown(){
   if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:prem.length, rate:0, amt:0, note:'FREE — worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')}); }
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
-  const nUsers=document.querySelectorAll('#od-users .od-user').length;
-  const exU=Math.max(0,nUsers-inclU); if(exU>0){ const r=odPrice('ADDON_EXTRA_USER'); lines.push({label:'Extra users × '+exU, qty:exU, rate:r, amt:r*exU}); total+=r*exU; }
+  // Extra users (beyond the plan's included count) charged per ROLE/category rate.
+  const userRoles=Array.from(document.querySelectorAll('#od-users .od-user select')).map(s=>s.value);
+  const extraRoles=userRoles.slice(inclU);
+  const roleLbl={admin:'Admin',dataentry:'Data Entry',viewonly:'Viewer',auditor:'Auditor'};
+  const rc={}; extraRoles.forEach(role=>{ rc[role]=(rc[role]||0)+1; });
+  Object.keys(rc).forEach(role=>{ const n=rc[role]; const r=odPrice('USER_'+role.toUpperCase()); lines.push({label:'Extra user × '+n+' ('+(roleLbl[role]||role)+')', qty:n, rate:r, amt:r*n}); total+=r*n; });
   return { lines, total, inclC, inclU };
 }
 function odTotal(){
@@ -412,7 +416,9 @@ function printDraftOrder(orderNo){
   if(bStart){ const d0=new Date(bStart+'T00:00:00'); const d1=new Date(d0); d1.setFullYear(d1.getFullYear()+1); d1.setDate(d1.getDate()-1);
     const f=x=>x.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); period=f(d0)+' to '+f(d1)+' (1 year)'; }
   const numC = parseInt(v('od-companies'),10)||1;
-  const nUsers = document.querySelectorAll('#od-users .od-user').length;
+  const odUsers = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:(((r.querySelector('.od-uname')||{}).value)||'').trim(), login:(((r.querySelector('.od-ulogin')||{}).value)||'').trim() }));
+  const nUsers = odUsers.length;
+  const usersCard = odUsers.length ? '<div class="card"><div class="card-h">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:right">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.name||'—')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.login||'—')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table></div>' : '';
   const premNames = odPlanPremium().filter(f=>!f.coming_soon).map(f=>f.name);
   const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
   const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
@@ -465,6 +471,7 @@ function printDraftOrder(orderNo){
     '<div class="card"><div class="card-h">Subscription summary</div><div class="addr">'+
       'Companies: <b>'+numC+'</b> (plan includes '+inclC+')<br>Users: <b>'+nUsers+'</b> (plan includes '+inclU+')<br>'+
       'Premium features (all included free): '+(premNames.length?esc(premNames.join(', ')):'—')+'</div></div>'+
+    usersCard+
     '<div class="card"><div class="card-h">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+'</tbody></table>'+
       '<table class="totals"><tbody>'+
         '<tr><td>Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+

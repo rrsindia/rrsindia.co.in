@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=24">
 <style>
 .pt-tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:2px solid rgba(255,255,255,.12);padding-bottom:0}
 .pt-tab{padding:9px 18px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
@@ -156,29 +156,43 @@ function ptTicketCard(t){
   const st=esc(t.status||'OPEN');
   const col=(st==='RESOLVED'||st==='CLOSED')?'#16a34a':st==='OPEN'?'#d97706':'#2563eb';
   const when=t.last_reply_at||t.created_at;
-  const closed=(t.status==='CLOSED');
   return '<div class="pt-card">'
-    +'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">'
+    +'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;cursor:pointer" onclick="ptOpenThread('+t.id+')">'
     +'<div><b style="color:var(--white);font-size:1rem">'+esc(t.subject)+'</b>'
     +'<div style="color:var(--muted);font-size:.8rem;margin-top:4px">'+esc(t.ticket_no)+' · '+esc(t.category||'General')+' · '+esc(t.priority||'')+(when?' · '+fmtDT(when):'')+'</div></div>'
     +'<span class="pt-badge" style="background:'+col+'">'+st+'</span></div>'
-    +(t.description?'<p style="color:var(--muted);font-size:.85rem;margin:8px 0 0">'+esc(String(t.description).slice(0,200))+(String(t.description).length>200?'…':'')+'</p>':'')
-    +(closed?'':'<div style="margin-top:10px">'
-        +'<button class="btn-outline" style="font-size:.78rem;padding:5px 12px" onclick="ptToggleReply('+t.id+')">✍ Reply</button>'
-        +'<div id="pt-reply-'+t.id+'" style="display:none;margin-top:8px">'
-          +'<textarea id="pt-reply-tx-'+t.id+'" rows="2" placeholder="Type your reply…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--white);padding:8px 10px;font-size:.85rem;font-family:inherit;resize:vertical"></textarea>'
-          +'<button class="btn-primary" style="font-size:.8rem;padding:6px 14px;margin-top:6px" onclick="ptReply('+t.id+')">Send reply</button>'
-        +'</div></div>')
+    +(t.description?'<p style="color:var(--muted);font-size:.85rem;margin:8px 0 0">'+esc(String(t.description).slice(0,160))+(String(t.description).length>160?'…':'')+'</p>':'')
+    +'<div style="margin-top:10px"><button class="btn-outline" style="font-size:.78rem;padding:5px 12px" onclick="ptOpenThread('+t.id+')">💬 View conversation / Reply</button></div>'
+    +'<div id="pt-thread-'+t.id+'" style="display:none;margin-top:10px"></div>'
     +'</div>';
 }
-function ptToggleReply(id){ const b=document.getElementById('pt-reply-'+id); if(b) b.style.display=(b.style.display==='none'?'block':'none'); }
+// Show the full reply chain for a ticket (customer ↔ support) + the reply box.
+async function ptOpenThread(id, keep){
+  const box=document.getElementById('pt-thread-'+id); if(!box) return;
+  if(!keep && box.style.display==='block'){ box.style.display='none'; return; }
+  box.style.display='block'; box.innerHTML='<p style="color:var(--muted);font-size:.82rem">Loading conversation…</p>';
+  try{
+    const r=await fetch(PT_API+'/support-tickets/'+id,{ headers:ptHdr() });
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){ box.innerHTML='<p style="color:#f87171;font-size:.82rem">'+esc(d.error||'Could not load the conversation.')+'</p>'; return; }
+    const msgs=(d.messages||[]).map(m=>{ const sup=m.sender_type==='superadmin';
+      return '<div style="margin:6px 0;padding:8px 11px;border-radius:8px;font-size:.85rem;color:var(--white);'+(sup?'background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3)':'background:rgba(255,255,255,.05);border:1px solid var(--border)')+'">'
+        +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:3px">'+(sup?'🛟 Support':'👤 You')+(m.sender_name?' · '+esc(m.sender_name):'')+' · '+fmtDT(m.created_at)+'</div>'
+        +esc(m.body||'')+'</div>'; }).join('');
+    const closed=(d.status==='CLOSED');
+    box.innerHTML=(msgs||'<p style="color:var(--muted);font-size:.82rem">No replies yet — start the conversation below.</p>')
+      +(closed?'<p style="color:var(--muted);font-size:.8rem;margin-top:8px">This ticket is closed.</p>'
+        :'<div style="margin-top:8px"><textarea id="pt-reply-tx-'+id+'" rows="2" placeholder="Type your reply…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--white);padding:8px 10px;font-size:.85rem;font-family:inherit;resize:vertical"></textarea>'
+          +'<button class="btn-primary" style="font-size:.8rem;padding:6px 14px;margin-top:6px" onclick="ptReply('+id+')">Send reply</button></div>');
+  }catch(e){ box.innerHTML='<p style="color:#f87171;font-size:.82rem">Network issue — please try again.</p>'; }
+}
 async function ptReply(id){
   const tx=document.getElementById('pt-reply-tx-'+id); const body=((tx&&tx.value)||'').trim();
   if(!body){ alert('Please type your reply first.'); return; }
   try{
     const r=await fetch(PT_API+'/support-tickets/'+id+'/reply',{ method:'POST', headers:Object.assign({'Content-Type':'application/json'}, ptHdr()), body:JSON.stringify({ body }) });
     const d=await r.json().catch(()=>({}));
-    if(r.ok && d.ok){ alert('✅ Your reply has been sent to support.'); ptLoadTickets(); }
+    if(r.ok && d.ok){ ptOpenThread(id, true); }   // reload the thread to show the new reply
     else alert(d.error||'Could not send your reply.');
   }catch(e){ alert('Network issue — please try again.'); }
 }
@@ -248,6 +262,6 @@ function ptMsgCard(m){
 function toggleMenu(){ const n=document.getElementById('navLinks'); if(n) n.classList.toggle('open'); }
 if(ptToken){ ptShowPortal(); }
 </script>
-<script src="main.js?v=23"></script>
+<script src="main.js?v=24"></script>
 </body>
 </html>
