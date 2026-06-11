@@ -291,7 +291,7 @@ function odUserRow(role){
 }
 function odAddUser(role){ const box=document.getElementById('od-users'); if(box){ box.insertAdjacentHTML('beforeend', odUserRow(role||'dataentry')); odTotal(); } }
 
-let OD = { cats:[], prices:[], feats:[], userRates:{}, offer:{eligible:true,value:10000}, terms:'', note:'' };
+let OD = { cats:[], prices:[], feats:[], userRates:{}, offer:{eligible:true,value:10000}, terms:'', note:'', company:null };
 function odEsc(s){ return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
 function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()===String(code).toUpperCase()); return p?Number(p.rate)||0:0; }
 function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
@@ -390,7 +390,7 @@ async function loadPlansFeatures(){
     const res = await fetch(RRFINEAPP_API + '/public/plans-features', { headers: { 'x-api-key': RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } });
     const d = await res.json().catch(()=>({}));
     OD.cats = d.categories||[]; OD.prices = d.prices||[]; OD.feats = d.premiumFeatures||[]; OD.userRates = d.userRates||{};
-    OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||'';
+    OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||''; OD.company = d.company||null;
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
@@ -464,10 +464,11 @@ function printDraftOrder(orderNo){
     '.btns{margin-top:14px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}'+
     '@media print{.btns{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
     '<div class="doc">'+
-      '<div class="hd"><div class="hd-l"><div class="nm">R.R. Sphere INDIA</div>'+
-        '<div class="ad">IT &amp; Learning · RRFinEApp — Reliable &amp; Robust Finance Enterprise Application</div>'+
-        '<div class="ad">https://rrsindia.co.in &nbsp;·&nbsp; https://fin.rrsindia.co.in</div>'+
-        '<div class="ad">Amritsar, Punjab, India</div></div>'+
+      '<div class="hd"><div class="hd-l"><div class="nm">'+esc((OD.company&&OD.company.name)||'R.R. Sphere INDIA')+'</div>'+
+        ((OD.company&&OD.company.address)?'<div class="ad">'+esc(OD.company.address)+'</div>':'')+
+        ((OD.company&&OD.company.state_pin)?'<div class="ad">'+esc(OD.company.state_pin)+'</div>':'')+
+        ((OD.company&&(OD.company.phone||OD.company.email))?'<div class="ad">'+(OD.company.phone?'Ph: '+esc(OD.company.phone):'')+((OD.company.phone&&OD.company.email)?' &nbsp;·&nbsp; ':'')+(OD.company.email?'Email: '+esc(OD.company.email):'')+'</div>':'')+
+        '<div class="ad">https://rrsindia.co.in &nbsp;·&nbsp; https://fin.rrsindia.co.in</div></div>'+
         '<div class="hd-r"><div class="tt">'+docTitle+'</div><div class="rf">'+(orderNo?('Ref: '+esc(orderNo)):'Not a final invoice')+'<br>'+today+'</div></div></div>'+
       '<div class="offer">🎁 '+esc(odOfferNote())+'</div>'+
       '<div class="two"><div><div class="sec-h">Account / Tenant (Bill To)</div><div class="row"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'<br>'+esc(v('od-email'))+(v('od-phone')?' · Ph: '+esc(v('od-phone')):'')+'</div></div>'+
@@ -480,7 +481,7 @@ function printDraftOrder(orderNo){
       (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
       (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
       '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
-      '<div class="ft"><span>RRFinEApp — R.R.Sphere INDIA | https://rrsindia.co.in</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
+      '<div class="ft"><span>RRFinEApp — R.R. Sphere INDIA | https://rrsindia.co.in</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
     '</div>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
