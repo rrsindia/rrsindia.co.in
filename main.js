@@ -329,7 +329,7 @@ function odBreakdown(){
   const inclC=c?(c.incl_companies||1):1, inclU=c?(c.incl_users||1):1;
   if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
   const prem=odPlanPremium().filter(f=>!f.coming_soon);
-  if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:prem.length, rate:0, amt:0, note:'FREE — worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')}); }
+  if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:prem.length, rate:0, amt:0}); }
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
   // Extra users (beyond the plan's included count) charged per ROLE/category rate.
@@ -463,12 +463,11 @@ function printDraftOrder(orderNo){
       '<div class="offer">🎁 '+esc(odOfferNote())+'</div>'+
       '<div class="two"><div><div class="sec-h">Account / Tenant (Bill To)</div><div class="row"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'<br>'+esc(v('od-email'))+(v('od-phone')?' · Ph: '+esc(v('od-phone')):'')+'</div></div>'+
         '<div><div class="sec-h">Order Details</div><div class="row"><b>Plan:</b> '+esc(c?c.label:cat.value)+'<br><b>Billing:</b> '+esc(period)+'<br><b>Companies:</b> '+numC+' (incl '+inclC+') &nbsp; <b>Users:</b> '+nUsers+' (incl '+inclU+')</div></div></div>'+
-      '<div class="band">Premium features — all included free</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'—')+'</div>'+
+      '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'—')+'</div>'+
       (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'—')+'</td><td>'+esc(u.login||'—')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
       '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+
         '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
         '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+inr(total)+'*</td></tr></tbody></table>'+
-      '<div class="band">Payment &amp; activation</div><div class="pad">• <b>50% advance</b> on placing the order; balance <b>50% within 7 days</b>.<br>• Onboarded and made <b>live within 48 hours</b> of order confirmation.<br>• All premium features <b>activated after your first user login, within 48 hours</b>.</div>'+
       (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
       (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
       '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
