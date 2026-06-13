@@ -947,3 +947,43 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', load); else load();
 })();
+
+// ── finapp.html — live pricing plans from the SuperAdmin price list ──────────
+// Renders the plan cards from /public/plans-features (no hardcoded prices). If the
+// list is empty or the request fails, the static "Coming Soon" fallback stays.
+(function initFinappPricing(){
+  function run(){
+    var wrap = document.getElementById('finapp-pricing');
+    if (!wrap) return;                                   // not the finapp page
+    var fallback = document.getElementById('pricing-fallback');
+    var inr = function(n){ return '₹' + (Number(n)||0).toLocaleString('en-IN'); };
+    fetch(RRFINEAPP_API + '/public/plans-features', { headers:{ 'x-api-key':RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d){
+        var plans = (d && d.categories) || [];
+        if (!plans.length) { wrap.removeAttribute('data-loading'); return; }   // keep fallback
+        wrap.innerHTML = plans.map(function(p){
+          var rate = Number(p.rate) || 0;
+          var price = rate > 0
+            ? inr(rate) + '<span style="font-size:.78rem;color:var(--muted);font-weight:500"> / year</span>'
+            : '<span style="font-size:1.1rem">Custom</span>';
+          var comps = p.incl_companies || 1, users = p.incl_users || 1;
+          var free = p.free_value
+            ? '<div style="margin-top:10px;font-size:.78rem;color:var(--g4);font-weight:600">★ Premium features free — worth ' + inr(p.free_value) + '</div>'
+            : '';
+          return '<div class="reveal" style="background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:18px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center">'
+            + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:1.25rem;color:var(--white);font-weight:700;letter-spacing:.3px">' + (p.label||'') + '</div>'
+            + '<div style="font-size:1.9rem;color:var(--g4);font-weight:800;margin:10px 0 6px">' + price + '</div>'
+            + '<div style="color:var(--muted);font-size:.85rem;line-height:1.9">'
+            +   comps + ' compan' + (comps>1?'ies':'y') + '<br>' + users + ' user' + (users>1?'s':'') + ' included'
+            + '</div>' + free
+            + '<a href="order.html" class="btn-primary" style="margin-top:18px;display:inline-block">Order Now</a>'
+            + '</div>';
+        }).join('');
+        wrap.removeAttribute('data-loading');
+        if (fallback) fallback.style.display = 'none';
+      })
+      .catch(function(){ wrap.removeAttribute('data-loading'); });   // network fail → keep fallback
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();

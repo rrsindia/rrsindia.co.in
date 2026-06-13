@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
 
@@ -153,21 +153,26 @@
       <div class="feat-card"><div class="feat-icon">☁️</div><h4>Always Safe &amp; Backed Up</h4><p>Daily automated Google Drive backup. SuperAdmin monitoring. Posted entries are immutable — no silent edits, ever.</p></div>
     </div>
 
-    <!-- Pricing -->
+    <!-- Pricing — plans pulled live from the price list (SuperAdmin → Price List). No hardcoded values. -->
     <div style="margin-top:60px">
       <div class="section-tag" style="text-align:center">Pricing</div>
-      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;margin-bottom:8px;text-align:center">Plans <span style="color:var(--g4)">Coming Soon</span></h3>
-      <p style="color:var(--muted);font-size:.9rem;margin-bottom:32px;text-align:center">We're putting the finishing touches on our pricing plans.</p>
-      <div class="reveal" style="max-width:620px;margin:0 auto;text-align:center;background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.2));border:1px solid var(--g3);border-radius:20px;padding:48px 32px;position:relative;overflow:hidden">
+      <h3 style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;margin-bottom:8px;text-align:center">Simple, Transparent <span style="color:var(--g4)">Pricing</span></h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:32px;text-align:center">SME-friendly plans with no hidden charges and no per-module costs.</p>
+
+      <!-- Filled by main.js from /public/price-list. Stays empty (fallback shows) until plans load. -->
+      <div id="finapp-pricing" data-loading="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;max-width:920px;margin:0 auto"></div>
+
+      <!-- Fallback shown until plans load, or if none are published yet -->
+      <div id="pricing-fallback" class="reveal" style="max-width:620px;margin:0 auto;text-align:center;background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.2));border:1px solid var(--g3);border-radius:20px;padding:48px 32px;position:relative;overflow:hidden">
         <div style="font-size:3rem;margin-bottom:12px">🏷️</div>
         <div style="display:inline-block;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:var(--g4);font-size:.75rem;font-weight:700;letter-spacing:1px;padding:6px 16px;border-radius:100px;margin-bottom:18px">⏳ COMING SOON</div>
         <h4 style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;color:var(--white);margin-bottom:10px">Affordable Plans, Announcing Shortly</h4>
         <p style="color:var(--muted);font-size:.9rem;line-height:1.7;max-width:460px;margin:0 auto 28px">Transparent, SME-friendly pricing with no hidden charges and no per-module costs. Want current pricing or a personalized quote in the meantime? Just reach out — we're happy to help.</p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
           <a href="enquire.html" class="btn-primary">Get a Quote</a>
-          
         </div>
       </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:22px;text-align:center">Prices exclude GST. Need a tailored quote? <a href="enquire.html" style="color:var(--g4)">Get a Quote</a>.</p>
     </div>
 
     <!-- FAQ -->
@@ -199,5 +204,5 @@
 </div>
 
 <footer><div class="footer-grid"><div class="footer-brand"><div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g4)">R.R. Sphere India</div><p>IT &amp; Learning | AI-Powered Solutions. Est. 1995 — 30+ Years of IT Expertise.</p></div><div class="footer-col"><h5>Company</h5><a href="index.html">Home</a><a href="about.html">About Us</a><a href="services.html">Services</a><a href="contact.html">Contact</a><a href="feedback.html">Feedback</a></div><div class="footer-col"><h5>Products</h5><a href="finapp.html">RRFinEApp</a><a href="https://fin.rrsindia.co.in" target="_blank">App Login ↗</a><a href="coaching.html">Coaching Classes</a><a href="finapp.html">What “RRFinEApp” Means</a><a href="support.html">Report an Issue</a></div><div class="footer-col"><h5>Follow Us</h5><a href="https://facebook.com/rrsindia122/" target="_blank">📘 Facebook</a><a href="https://instagram.com/_rrsindia/" target="_blank">📸 Instagram</a><a href="https://linkedin.com/company/rrsindia122" target="_blank">💼 LinkedIn</a></div></div><div class="footer-bottom"><p>© 2026 <span>R.R. Sphere India</span>. All rights reserved.</p><p>Built with ❤️ in <span><span class="in-hl">India</span></span></p></div></footer>
-<script src="main.js?v=40"></script>
+<script src="main.js?v=41"></script>
 </body></html>
