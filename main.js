@@ -913,3 +913,37 @@ async function trkRenderOne(no, email, box) {
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+// ── Promo / announcement banner ─────────────────────────────────────────────
+// Pulls the SAME SuperAdmin announcements the app uses (login_announcements via
+// /public/login-page) and shows a highlighted strip at the top of every website
+// page. One announcement (SuperAdmin → Announcements) → app login + dashboard +
+// the whole website. Dismissible per session.
+(function(){
+  function esc(s){ return String(s==null?'':s).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
+  function render(a){
+    if(!a || sessionStorage.getItem('promoDismiss_'+a.id)) return;
+    var bar = document.createElement('div');
+    bar.style.cssText = 'position:relative;z-index:50;padding:10px 42px 10px 18px;text-align:center;font-size:.9rem;font-weight:600;line-height:1.5;'+
+      'background:'+(a.bg_color||'linear-gradient(90deg,#f59e0b,#16a34a)')+';color:'+(a.text_color||'#ffffff')+';box-shadow:0 2px 8px rgba(0,0,0,.2)';
+    bar.innerHTML = (a.emoji?a.emoji+' ':'')+(a.tag?'<b style="text-transform:uppercase;letter-spacing:.5px">'+esc(a.tag)+'</b> · ':'')+
+      '<b>'+esc(a.title||'')+'</b>'+(a.body?' — '+esc(a.body):'');
+    var x = document.createElement('button');
+    x.innerHTML = '&times;'; x.setAttribute('aria-label','Dismiss');
+    x.style.cssText = 'position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:inherit;font-size:1.35rem;cursor:pointer;line-height:1;opacity:.85';
+    x.onclick = function(){ bar.remove(); try{ sessionStorage.setItem('promoDismiss_'+a.id,'1'); }catch(e){} };
+    bar.appendChild(x);
+    var host = document.querySelector('.page-wrapper') || document.querySelector('.page-hero');
+    if(host){ host.insertBefore(bar, host.firstChild); }
+    else { document.body.insertBefore(bar, (document.querySelector('nav')?document.querySelector('nav').nextSibling:document.body.firstChild)); }
+  }
+  function load(){
+    try{
+      fetch('https://fin.rrsindia.co.in/api/v1/public/login-page', { headers:{ 'x-api-key':'2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0', 'Accept':'application/json' } })
+        .then(function(r){ return r.ok?r.json():null; })
+        .then(function(d){ if(!d) return; var list=(d.festival_banners||[]).concat(d.app_highlights||[]); if(list.length) render(list[0]); })
+        .catch(function(){});
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', load); else load();
+})();
