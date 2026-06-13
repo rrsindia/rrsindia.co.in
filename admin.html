@@ -148,6 +148,14 @@
 
 <script>
 const AD_API = 'https://fin.rrsindia.co.in/api/v1';
+// fetch with a timeout so a hung request (server restart / network blip) fails
+// fast instead of leaving the page stuck on "Loading…" forever.
+function fetchT(url, opts, ms){
+  ms = ms || 15000;
+  const c = new AbortController();
+  const t = setTimeout(function(){ c.abort(); }, ms);
+  return fetch(url, Object.assign({}, opts||{}, { signal: c.signal })).finally(function(){ clearTimeout(t); });
+}
 let adToken   = sessionStorage.getItem('ad_token')   || '';
 let adTenant  = sessionStorage.getItem('ad_tenant')  || '';
 let adCompany = sessionStorage.getItem('ad_company') || '';
@@ -249,7 +257,7 @@ async function adLoadTickets(){
   box.innerHTML='<p style="color:var(--muted)">Loading tickets…</p>';
   // Use parent-tenant view for list (RRSPHERE-scoped, works for both admin + superadmin)
   try{
-    const r=await fetch(AD_API+'/support-tickets/all-customers',{headers:TH()});
+    const r=await fetchT(AD_API+'/support-tickets/all-customers',{headers:TH()});
     if(r.status===401){adLogout();return;}
     if(r.status===403){
       box.innerHTML='<div class="ad-access-denied"><b>RRSPHERE parent tenant access required.</b></div>';
@@ -261,7 +269,7 @@ async function adLoadTickets(){
     document.getElementById('ad-n-tk').textContent=adAllTickets.length;
     document.getElementById('ad-n-open').textContent=open;
     adRenderTickets();
-  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load tickets.</p>'; }
+  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load tickets. <button onclick="adLoadTickets()" style="margin-left:8px;padding:4px 12px;border-radius:6px;border:1px solid var(--g4);background:transparent;color:var(--g4);cursor:pointer">↻ Retry</button></p>'; }
 }
 
 function adRenderTickets(){
@@ -349,13 +357,13 @@ async function adLoadSubs(){
     document.getElementById('ad-n-sub').textContent='—'; return;
   }
   try{
-    const r=await fetch(AD_API+'/superadmin/web-submissions?limit=300',{headers:SH()});
+    const r=await fetchT(AD_API+'/superadmin/web-submissions?limit=300',{headers:SH()});
     if(r.status===401){adLogout();return;}
     const d=await r.json().catch(()=>({}));
     adAllSubs=Array.isArray(d)?d:(d.submissions||[]);
     document.getElementById('ad-n-sub').textContent=adAllSubs.length;
     adRenderSubs();
-  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load submissions.</p>'; }
+  }catch(e){ box.innerHTML='<p style="color:#f87171">Could not load submissions. <button onclick="adLoadSubs()" style="margin-left:8px;padding:4px 12px;border-radius:6px;border:1px solid var(--g4);background:transparent;color:var(--g4);cursor:pointer">↻ Retry</button></p>'; }
 }
 
 function adRenderSubs(){
