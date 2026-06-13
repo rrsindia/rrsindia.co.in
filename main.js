@@ -65,7 +65,7 @@ async function submitForm() {
     const data = await res.json().catch(()=>({}));
     if(res.ok && data.ok) {
       const s = document.getElementById('form-success');
-      if(s){ s.style.display = 'block'; s.textContent = `✅ Thank you! Your message has been received (ref ${data.ref_no}). We'll get back to you shortly!`; }
+      if(s){ s.style.display = 'block'; s.innerHTML = `✅ Thank you! Your message has been received (ref ${data.ref_no}). We'll get back to you shortly!` + SPAM_NOTE; }
       btn.style.display = 'none';
     } else {
       alert(data.error || 'Sorry, something went wrong. Please try again.');
@@ -103,7 +103,7 @@ async function submitEnquiry() {
     const data = await res.json();
     if(res.ok && data.ok) {
       const s = document.getElementById('enq-success');
-      if (s) { s.style.display = 'block'; s.textContent = `✅ Thank you! Your enquiry reference is ${data.ref_no}. Our team will get back to you shortly.`; }
+      if (s) { s.style.display = 'block'; s.innerHTML = `✅ Thank you! Your enquiry reference is ${data.ref_no}. Our team will get back to you shortly.` + SPAM_NOTE; }
       btn.style.display = 'none';
     } else {
       alert(data.error || 'Sorry, something went wrong sending your enquiry. Please try WhatsApp or call us.');
@@ -136,6 +136,9 @@ const IMGBB_KEY = '96a92f3973c9b79d3b83aa5d19cee3d0';
 // and screenshots are hosted on our own server. PUBLIC key is a submit-only,
 // publishable token (same posture as the Web3Forms key above).
 const RRFINEAPP_API        = 'https://fin.rrsindia.co.in/api/v1';
+// Highlighted reminder appended to every form's success message — our confirmation
+// email may land in Spam/Junk, so prompt the user to check there.
+const SPAM_NOTE = '<div style="margin-top:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.55);border-radius:10px;padding:10px 12px;color:#f59e0b;font-size:.85rem;font-weight:600;line-height:1.5">📬 <b>Please also check your Spam / Junk folder</b> for our confirmation email. If you find it there, mark it &ldquo;Not spam&rdquo; so our replies reach your inbox.</div>';
 const RRFINEAPP_PUBLIC_KEY = '2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0';
 
 async function submitFeedback() {
@@ -166,7 +169,7 @@ async function submitFeedback() {
     const data = await res.json();
     if(res.ok && data.ok) {
       const s = document.getElementById('fb-success');
-      if (s) { s.style.display = 'block'; s.textContent = `🌟 Thank you for your feedback! Reference ${data.ref_no}.`; }
+      if (s) { s.style.display = 'block'; s.innerHTML = `🌟 Thank you for your feedback! Reference ${data.ref_no}.` + SPAM_NOTE; }
       btn.style.display = 'none';
     } else {
       alert(data.error || 'Sorry, something went wrong sending your feedback. Please try the WhatsApp option below.');
@@ -271,7 +274,7 @@ async function submitTicket() {
     if(res.ok && data.ok) {
       const s = document.getElementById('tk-success');
       s.innerHTML = '✅ Your issue has been logged! Your reference number is <strong>' + data.ticket_no +
-        '</strong>. Please keep it to track your ticket. Our support team will get back to you soon. 🙏';
+        '</strong>. Please keep it to track your ticket. Our support team will get back to you soon. 🙏' + SPAM_NOTE;
       s.style.display = 'block';
       btn.style.display = 'none';
     } else {
@@ -541,7 +544,7 @@ async function submitOrder(){
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
       s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b> — we’ll confirm pricing and send your invoice. <b>All premium features are included free</b> (worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')+'). '+
-        '<button type="button" class="btn-outline" style="margin-top:8px;font-size:.82rem;padding:6px 14px" onclick="printDraftOrder(\''+String(d.order_no).replace(/[^A-Za-z0-9\-]/g,'')+'\')">🖨 Print your order</button><br>Track it on the <a href="portal.html">Customer Login</a> page.';
+        '<button type="button" class="btn-outline" style="margin-top:8px;font-size:.82rem;padding:6px 14px" onclick="printDraftOrder(\''+String(d.order_no).replace(/[^A-Za-z0-9\-]/g,'')+'\')">🖨 Print your order</button><br>Track it on the <a href="portal.html">Customer Login</a> page.' + SPAM_NOTE;
       s.style.display='block'; btn.style.display='none';
     } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }
   } catch(e){ alert('Network issue — please try again.'); btn.textContent=orig; btn.disabled=false; }
