@@ -81,8 +81,10 @@ async function submitForm() {
 async function submitEnquiry() {
   const name = document.getElementById('enq-name').value.trim();
   const contact = document.getElementById('enq-contact').value.trim();
-  if(!name || !contact) { alert('Please fill in your name and phone/WhatsApp number.'); return; }
   const email = document.getElementById('enq-email').value.trim();
+  if(!name) { alert('Please enter your name.'); return; }
+  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+  if((contact.replace(/\D/g,'')).length < 10) { alert('Please enter a valid phone / WhatsApp number with country code.'); return; }
   const biz = document.getElementById('enq-biz').value.trim();
   const plan = document.getElementById('enq-plan').value || 'Not specified';
   const msg = document.getElementById('enq-msg').value.trim();
@@ -140,6 +142,10 @@ async function submitFeedback() {
   const msg = document.getElementById('fb-msg').value.trim();
   if(!fbRating) { alert('Please select a star rating.'); return; }
   if(!msg) { alert('Please write a short feedback message.'); return; }
+  const email = document.getElementById('fb-email').value.trim();
+  const phone = document.getElementById('fb-phone').value.trim();
+  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+  if((phone.replace(/\D/g,'')).length < 10) { alert('Please enter a valid phone / WhatsApp number with country code.'); return; }
   const name = document.getElementById('fb-name').value.trim() || 'Anonymous';
   const biz  = document.getElementById('fb-biz').value.trim();
   const cat  = document.getElementById('fb-category').value || 'General';
@@ -155,7 +161,7 @@ async function submitFeedback() {
     const res = await fetch(RRFINEAPP_API + '/public/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
-      body: JSON.stringify({ name, business: biz, category: cat, rating: fbRating, recommend: fbRecommend || null, message: msg })
+      body: JSON.stringify({ name, email, phone, business: biz, category: cat, rating: fbRating, recommend: fbRecommend || null, message: msg })
     });
     const data = await res.json();
     if(res.ok && data.ok) {
@@ -185,13 +191,14 @@ async function submitTicket() {
 
   // required fields
   if(!name)    { alert('Please enter your name.'); return; }
-  if(!contact) { alert('Please enter your phone / WhatsApp number.'); return; }
+  if(!contact || (contact.replace(/\D/g,'')).length < 10) { alert('Please enter a valid phone / WhatsApp number with country code.'); return; }
   if(!area)    { alert('Please select which area of the app the issue is in.'); return; }
   if(!type)    { alert('Please select the type of issue.'); return; }
   if(!sevEl)   { alert('Please choose how serious the issue is.'); return; }
   if(!desc)    { alert('Please describe the problem.'); return; }
 
   const email    = document.getElementById('tk-email').value.trim();
+  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
   const biz      = document.getElementById('tk-biz').value.trim();
   const tenantId = (document.getElementById('tk-tenant')  || {}).value ? document.getElementById('tk-tenant').value.trim()  : '';
   const companyId= (document.getElementById('tk-company') || {}).value ? document.getElementById('tk-company').value.trim() : '';
@@ -494,6 +501,7 @@ async function submitOrder(){
   const req = [['od-name','Account/Tenant Name'],['od-email','Email'],['od-phone','Phone'],['od-add1','Address Line 1'],['od-city','City'],['od-pin','PIN'],['od-state','State']];
   for(const [id,lbl] of req){ if(!v(id)){ alert('Please fill: '+lbl); document.getElementById(id)?.focus(); return; } }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('od-email'))){ alert('Please enter a valid email.'); return; }
+  if((v('od-phone').replace(/\D/g,'')).length < 10){ alert('Please enter a valid phone / WhatsApp number with country code.'); return; }
   const catEl = document.querySelector('input[name="od-cat"]:checked');
   if(!catEl){ alert('Please choose a plan (Tenant Category).'); return; }
   const bStart = v('od-billing-start');
