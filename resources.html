@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resources — Decks & Documents | R.R. Sphere India</title>
+<meta name="description" content="View R.R. Sphere India presentations and documents online — RRFinEApp decks, brochures and guides. Present in any meeting by sharing your screen.">
+<meta property="og:title" content="Resources — R.R. Sphere India"><meta property="og:url" content="https://www.rrsindia.co.in/resources.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.css?v=49">
+</head>
+<body>
+
+<nav><div class="nav-inner"><a class="nav-logo" href="index.html"><img src="favicon.svg" alt="R.R. Sphere India" style="width:38px;height:38px;border-radius:8px;display:block"><div class="nav-logo-text"><strong>R.R. Sphere India</strong><br>IT &amp; Learning</div></a><div class="nav-links" id="navLinks"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="finapp.html">RRFinEApp</a><a href="order.html">Order</a><a href="resources.html" class="active">Resources</a><a href="coaching.html">Coaching</a><a href="feedback.html">Feedback</a><a href="enquire.html">Enquire</a><a href="portal.html">Customer Login</a><a href="admin.html">Admin</a><a href="contact.html" class="cta">Contact Us</a></div><div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+
+<div class="page-wrapper">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="section-tag">Resources</div>
+      <h1>Decks &amp; <span>Documents</span></h1>
+      <p>View our presentations, brochures and guides online. Open any item in the viewer and present it in a meeting by sharing your screen. No download needed.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div id="resources-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;max-width:1100px;margin:0 auto">
+      <p style="color:var(--muted)">Loading…</p>
+    </div>
+    <div id="resources-empty" style="display:none;text-align:center;color:var(--muted);max-width:520px;margin:30px auto">
+      No resources have been published yet. Please check back soon, or <a href="contact.html" style="color:var(--g4)">contact us</a> for a demo.
+    </div>
+  </div>
+</div>
+
+<!-- Online viewer modal -->
+<div id="res-viewer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:1000;padding:2vh 2vw">
+  <div style="max-width:1150px;height:96vh;margin:0 auto;background:#0a1a0e;border:1px solid var(--g3);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#0b3d24;color:#fff;flex-shrink:0">
+      <strong id="res-title" style="font-family:'Rajdhani',sans-serif;font-size:1.1rem"></strong>
+      <span>
+        <a id="res-open" href="#" target="_blank" rel="noreferrer" style="color:#4ade80;font-size:.82rem;margin-right:16px;text-decoration:none">Open file ↗</a>
+        <button onclick="closeResource()" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:1">×</button>
+      </span>
+    </div>
+    <iframe id="res-iframe" src="" style="width:100%;flex:1;border:none;background:#fff"></iframe>
+  </div>
+</div>
+
+<script src="main.js?v=49"></script>
+</body>
+</html>
