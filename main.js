@@ -1007,7 +1007,6 @@ async function trkRenderOne(no, email, box) {
   window.openResource=function(r){
     var t=document.getElementById('res-title'); if(t) t.textContent=(ICON[r.doc_type]||'🗂️')+'  '+r.title;
     var f=document.getElementById('res-iframe'); if(f) f.src=viewerSrc(r);
-    var o=document.getElementById('res-open'); if(o) o.href=absUrl(r.file_url);
     var v=document.getElementById('res-viewer'); if(v) v.style.display='block';
     document.body.style.overflow='hidden';
   };
