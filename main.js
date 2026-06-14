@@ -448,7 +448,7 @@ function printDraftOrder(orderNo){
   const itemRows = lines.map(l=>
     '<tr><td>'+esc(l.label)+(l.note?'<div style="color:#555;font-size:8pt;margin-top:1px">'+esc(l.note)+'</div>':'')+'</td>'+
     '<td style="text-align:center">'+(l.blank?'':l.qty)+'</td>'+
-    '<td style="text-align:right;white-space:nowrap;font-weight:600">'+(l.blank?'':(l.amt?inr(l.amt):'<span style="color:#166534">FREE</span>'))+'</td></tr>').join('');
+    '<td style="text-align:right;white-space:nowrap;font-weight:600">'+(l.blank?'':(l.amt?inr(l.amt):''))+'</td></tr>').join('');
   const termsBox = OD.terms ?
     '<div class="card"><div class="card-h">Terms &amp; Conditions</div><div class="addr" style="white-space:pre-wrap;color:#374151;font-size:12px">'+esc(OD.terms)+'</div></div>' : '';
   const customBox = custom ?
