@@ -999,6 +999,7 @@ async function trkRenderOne(no, email, box) {
 // PDF). Present in a meeting by screen-sharing the viewer. ?r=<token> deep-links a
 // link-only item.
 (function initResources(){
+  function esc(s){ return String(s==null?'':s).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
   function absUrl(u){ return (u && u.indexOf('http')===0) ? u : ('https://fin.rrsindia.co.in' + (u||'')); }
   function isPdf(r){ var u=absUrl(r.file_url).toLowerCase().split('?')[0]; return (r.doc_type==='pdf') || /\.pdf$/.test(u); }
   function viewerSrc(r){ var url=absUrl(r.file_url); return isPdf(r) ? url : ('https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(url)); }
