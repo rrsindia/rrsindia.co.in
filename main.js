@@ -972,14 +972,14 @@ async function trkRenderOne(no, email, box) {
           var rate = Number(p.rate) || 0;
           var price = rate > 0
             ? inr(rate) + '<span style="font-size:.78rem;color:var(--muted);font-weight:500"> / year</span>'
-            : '<span style="font-size:1.1rem">Custom</span>';
+            : '';
           var comps = p.incl_companies || 1, users = p.incl_users || 1;
           var free = p.free_value
             ? '<div style="margin-top:10px;font-size:.78rem;color:var(--g4);font-weight:600">★ Premium features free — worth ' + inr(p.free_value) + '</div>'
             : '';
           return '<div class="reveal" style="background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:18px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center">'
             + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:1.25rem;color:var(--white);font-weight:700;letter-spacing:.3px">' + (p.label||'') + '</div>'
-            + '<div style="font-size:1.9rem;color:var(--g4);font-weight:800;margin:10px 0 6px">' + price + '</div>'
+            + (price ? '<div style="font-size:1.9rem;color:var(--g4);font-weight:800;margin:10px 0 6px">' + price + '</div>' : '')
             + '<div style="color:var(--muted);font-size:.85rem;line-height:1.9">'
             +   comps + ' compan' + (comps>1?'ies':'y') + '<br>' + users + ' user' + (users>1?'s':'') + ' included'
             + '</div>' + free
