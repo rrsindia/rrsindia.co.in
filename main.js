@@ -305,15 +305,21 @@ let OD = { cats:[], prices:[], feats:[], userRates:{}, offer:{eligible:true,valu
 function odEsc(s){ return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
 function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()===String(code).toUpperCase()); return p?Number(p.rate)||0:0; }
 function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
-function odOfferVal(){ const c=odSelCat(); return (c&&c.free_value)||(OD.offer&&OD.offer.value)||10000; }
-// Offer note is a TEMPLATE: {value} = selected plan's free value, {limit} = client limit,
-// {count} = number of premium features in the plan. So the note auto-adapts per category.
+// Premium value = the SELECTED plan's "Premium worth ₹" configured in SuperAdmin →
+// Price List. NO code fallback: if it's blank, it stays blank (shows no "worth ₹X").
+function odOfferVal(){ const c=odSelCat(); return (c && c.free_value) ? Number(c.free_value) : 0; }
+// Offer note is a TEMPLATE: {worth} = " (worth ₹X)" or blank, {limit} = client limit,
+// {count} = number of premium features. {value} is also supported (blank when unset).
 function odOfferNote(){
+  var val = odOfferVal();
+  var worthTxt = val > 0 ? (' (worth ₹' + val.toLocaleString('en-IN') + ')') : '';
   var tpl = (OD.note && OD.note.trim()) ? OD.note
-    : 'All premium features are auto-selected and FREE for the first {limit} clients (worth ₹{value}), activated after your first user login within 48 hours.';
+    : 'All premium features are auto-selected and FREE for the first {limit} clients{worth}, activated after your first user login within 48 hours.';
   var lim = (OD.offer && (OD.offer.client_limit || OD.offer.limit)) || 10;
   var cnt = odPlanPremium().filter(function(f){ return !f.coming_soon; }).length;
-  return tpl.replace(/\{value\}/g, Number(odOfferVal()).toLocaleString('en-IN'))
+  return tpl.replace(/\s*\(worth ₹\{value\}\)/g, worthTxt)   // old templates with (worth ₹{value})
+            .replace(/\{worth\}/g, worthTxt)
+            .replace(/\{value\}/g, val > 0 ? val.toLocaleString('en-IN') : '')
             .replace(/\{limit\}/g, lim).replace(/\{count\}/g, cnt);
 }
 
@@ -328,7 +334,7 @@ function odRenderPremium(){
   const now=list.filter(f=>!f.coming_soon), soon=list.filter(f=>f.coming_soon);
   let html='';
   if(now.length){
-    html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(OD.offer&&OD.offer.eligible?(' — worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')):'')+'</div>'+
+    html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(odOfferVal()>0?(' — worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
       now.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'✨')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
         (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':'')).join('')+
       '<div class="od-incl-note">Auto-selected for you — activated after your first user login, within 48 hours.</div></div>';
@@ -543,7 +549,7 @@ async function submitOrder(){
     const d = await res.json().catch(()=>({}));
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b> — we’ll confirm pricing and send your invoice. <b>All premium features are included free</b> (worth ₹'+Number(odOfferVal()).toLocaleString('en-IN')+'). '+
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b> — we’ll confirm pricing and send your invoice. <b>All premium features are included free</b>'+(odOfferVal()>0?(' (worth ₹'+odOfferVal().toLocaleString('en-IN')+')'):'')+'. '+
         '<button type="button" class="btn-outline" style="margin-top:8px;font-size:.82rem;padding:6px 14px" onclick="printDraftOrder(\''+String(d.order_no).replace(/[^A-Za-z0-9\-]/g,'')+'\')">🖨 Print your order</button><br>Track it on the <a href="portal.html">Customer Login</a> page.' + SPAM_NOTE;
       s.style.display='block'; btn.style.display='none';
     } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }
