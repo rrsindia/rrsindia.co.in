@@ -486,8 +486,8 @@ function printDraftOrder(orderNo){
       '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'—')+'</div>'+
       (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'—')+'</td><td>'+esc(u.login||'—')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
       '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+
-        '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+inr(total)+'</td></tr>'+
-        '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+inr(total)+'*</td></tr></tbody></table>'+
+        '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+(total?inr(total):'')+'</td></tr>'+
+        '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+(total?inr(total)+'*':'')+'</td></tr></tbody></table>'+
       (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
       (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
       '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
