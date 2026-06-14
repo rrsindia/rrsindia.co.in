@@ -993,3 +993,57 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
+// ── resources.html — Web Resources online viewer (PPT/DOC/XLS/PDF) ────────────
+// Reads the admin-managed, public resources from /public/web-resources and opens
+// each in an online viewer (Microsoft Office Online for office files, direct for
+// PDF). Present in a meeting by screen-sharing the viewer. ?r=<token> deep-links a
+// link-only item.
+(function initResources(){
+  function absUrl(u){ return (u && u.indexOf('http')===0) ? u : ('https://fin.rrsindia.co.in' + (u||'')); }
+  function isPdf(r){ var u=absUrl(r.file_url).toLowerCase().split('?')[0]; return (r.doc_type==='pdf') || /\.pdf$/.test(u); }
+  function viewerSrc(r){ var url=absUrl(r.file_url); return isPdf(r) ? url : ('https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(url)); }
+  var ICON={ppt:'📊',doc:'📄',xls:'📈',pdf:'📕',auto:'🗂️'};
+  window.openResource=function(r){
+    var t=document.getElementById('res-title'); if(t) t.textContent=(ICON[r.doc_type]||'🗂️')+'  '+r.title;
+    var f=document.getElementById('res-iframe'); if(f) f.src=viewerSrc(r);
+    var o=document.getElementById('res-open'); if(o) o.href=absUrl(r.file_url);
+    var v=document.getElementById('res-viewer'); if(v) v.style.display='block';
+    document.body.style.overflow='hidden';
+  };
+  window.closeResource=function(){
+    var v=document.getElementById('res-viewer'); if(v) v.style.display='none';
+    var f=document.getElementById('res-iframe'); if(f) f.src='';
+    document.body.style.overflow='';
+  };
+  function card(r){
+    var icon=ICON[r.doc_type]||'🗂️';
+    var d=document.createElement('div');
+    d.style.cssText='background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:16px;padding:22px;cursor:pointer;transition:transform .2s,border-color .2s';
+    d.onmouseover=function(){ d.style.transform='translateY(-3px)'; d.style.borderColor='var(--g4)'; };
+    d.onmouseout=function(){ d.style.transform=''; d.style.borderColor=''; };
+    d.innerHTML='<div style="font-size:2rem;margin-bottom:8px">'+icon+'</div>'+
+      '<div style="font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:1.12rem;color:var(--white);margin-bottom:4px">'+esc(r.title)+'</div>'+
+      (r.description?'<div style="color:var(--muted);font-size:.85rem;line-height:1.5;margin-bottom:10px">'+esc(r.description)+'</div>':'<div style="margin-bottom:10px"></div>')+
+      (r.category?'<div style="font-size:.72rem;color:var(--g4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">'+esc(r.category)+'</div>':'')+
+      '<span class="btn-primary" style="display:inline-block;font-size:.85rem">View &#9658;</span>';
+    d.onclick=function(){ openResource(r); };
+    return d;
+  }
+  function run(){
+    var wrap=document.getElementById('resources-list'); if(!wrap) return;
+    var empty=document.getElementById('resources-empty');
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeResource(); });
+    fetch(RRFINEAPP_API+'/public/web-resources', { headers:{ 'x-api-key':RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(list){
+        wrap.innerHTML='';
+        if(!list || !list.length){ wrap.style.display='none'; if(empty) empty.style.display='block'; return; }
+        list.forEach(function(r){ wrap.appendChild(card(r)); });
+        var tok=new URLSearchParams(location.search).get('r');
+        if(tok){ fetch(RRFINEAPP_API+'/public/web-resource/'+encodeURIComponent(tok), { headers:{ 'x-api-key':RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } })
+          .then(function(x){ return x.ok ? x.json() : null; }).then(function(r){ if(r) openResource(r); }).catch(function(){}); }
+      })
+      .catch(function(){ wrap.innerHTML=''; wrap.style.display='none'; if(empty) empty.style.display='block'; });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
