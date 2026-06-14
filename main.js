@@ -394,7 +394,7 @@ function odPlanChanged(){
   // Default Number of Companies to the plan's included count (editable).
   const comp=document.getElementById('od-companies'), hint=document.getElementById('od-companies-hint');
   if(c && comp){ const inclC=Math.max(1, c.incl_companies||1); comp.value=inclC; if(hint) hint.innerHTML='Plan includes <b style="color:var(--g4)">'+inclC+'</b> — add more if needed (extra charged per price list).'; }
-  const ob=document.getElementById('od-offer'); if(ob){ ob.textContent='🎁 '+odOfferNote(); ob.style.display='block'; }
+  const ob=document.getElementById('od-offer'); if(ob){ if(odOfferVal()>0){ ob.textContent='🎁 '+odOfferNote(); ob.style.display='block'; } else { ob.style.display='none'; } }
   odTotal();
 }
 
@@ -414,7 +414,7 @@ async function loadPlansFeatures(){
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
     // Offer banner (auto-selected free premium · worth ₹10,000 · activated within 48 hrs).
     const ob = document.getElementById('od-offer');
-    if(ob && OD.note){ ob.textContent = '🎁 ' + OD.note; ob.style.display = 'block'; }
+    if(ob){ if(odOfferVal()>0){ ob.textContent = '🎁 ' + odOfferNote(); ob.style.display = 'block'; } else { ob.style.display = 'none'; } }
     odRenderPremium();
     odPlanChanged();   // set Users to the selected plan's included count + total
     // Auto, incremental account/tenant code.
@@ -486,7 +486,7 @@ function printDraftOrder(orderNo){
         ((OD.company&&(OD.company.phone||OD.company.email))?'<div class="ad">'+(OD.company.phone?'Ph: '+esc(OD.company.phone):'')+((OD.company.phone&&OD.company.email)?' &nbsp;·&nbsp; ':'')+(OD.company.email?'Email: '+esc(OD.company.email):'')+'</div>':'')+
         '</div>'+
         '<div class="hd-r"><div class="tt">'+docTitle+'</div><div class="rf">'+(orderNo?('Ref: '+esc(orderNo)):'Not a final invoice')+'<br>'+today+'</div></div></div>'+
-      '<div class="offer">🎁 '+esc(odOfferNote())+'</div>'+
+      (odOfferVal()>0?'<div class="offer">🎁 '+esc(odOfferNote())+'</div>':'')+
       '<div class="two"><div><div class="sec-h">Account / Tenant (Bill To)</div><div class="row"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'<br>'+esc(v('od-email'))+(v('od-phone')?' · Ph: '+esc(v('od-phone')):'')+'</div></div>'+
         '<div><div class="sec-h">Order Details</div><div class="row"><b>Plan:</b> '+esc(c?c.label:cat.value)+'<br><b>Billing:</b> '+esc(period)+'<br><b>Companies:</b> '+numC+' (incl '+inclC+') &nbsp; <b>Users:</b> '+nUsers+' (incl '+inclU+')</div></div></div>'+
       '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'—')+'</div>'+
