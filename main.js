@@ -499,13 +499,25 @@ function printDraftOrder(orderNo){
         '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+(total?inr(total)+'*':'')+'</td></tr></tbody></table>'+
       (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
       (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
-      '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative — prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
+      ((OD.company&&(OD.company.bank||OD.company.upi_id))?(function(){
+        var bk=OD.company.bank, upi=OD.company.upi_id, nm=(OD.company.name||'R.R. Sphere INDIA');
+        var qr = upi?'<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&qzone=1&data='+encodeURIComponent('upi://pay?pa='+upi+'&pn='+nm)+'" width="112" height="112" alt="UPI QR" style="display:block">':'';
+        return '<div class="band">Payment · Bank Details</div>'+
+          '<div style="display:grid;grid-template-columns:1fr auto">'+
+            '<div class="pad" style="border-right:'+(qr?'1px solid #ccc':'none')+'">'+
+              (bk?'<b>Bank:</b> '+esc(bk.name||'')+'<br><b>A/C No:</b> '+esc(bk.account_no||'')+'<br><b>IFSC:</b> '+esc(bk.ifsc||'')+'<br><b>Branch:</b> '+esc(bk.branch||''):'')+
+              (upi?(bk?'<br>':'')+'<b>UPI:</b> '+esc(upi):'')+
+            '</div>'+
+            (qr?'<div class="pad" style="text-align:center">'+qr+'<div style="font-size:7.5pt;color:#444;margin-top:1px">Scan to pay</div></div>':'')+
+          '</div>';
+      })():'')+
+      '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative, prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
       '<div class="ft"><span>'+esc(OD.footer||'RRFinEApp | R.R. Sphere INDIA | https://rrsindia.co.in | https://fin.rrsindia.co.in')+'</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
     '</div>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
     '</body></html>';
   const w = window.open('', '_blank'); if(!w){ alert('Please allow popups to print the order.'); return; }
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(), 350);
+  w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(), 800);
 }
 
 async function submitOrder(){
