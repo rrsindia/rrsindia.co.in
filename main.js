@@ -331,7 +331,10 @@ function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
 function odRenderPremium(){
   const feat=document.getElementById('od-feat'); if(!feat) return;
   const list=odPlanPremium();
-  const now=list.filter(f=>!f.coming_soon), soon=list.filter(f=>f.coming_soon);
+  // Included/selectable = active features for THIS plan only. Upcoming preview =
+  // ALL coming-soon features (across every plan), display-only, not part of the order.
+  const now=list.filter(f=>!f.coming_soon);
+  const soon=(OD.feats||[]).filter(f=>f.coming_soon);
   let html='';
   if(now.length){
     html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(odOfferVal()>0?(' — worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
