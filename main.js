@@ -1020,6 +1020,10 @@ async function trkRenderOne(no, email, box) {
   function viewerSrc(r){ var url=absUrl(r.file_url); return isPdf(r) ? url : ('https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(url)); }
   var ICON={ppt:'📊',doc:'📄',xls:'📈',pdf:'📕',auto:'🗂️'};
   window.openResource=function(r){
+    // PDFs: open in a new tab (native browser PDF viewer). Cross-origin iframing of
+    // the file is blocked by X-Frame-Options at Cloudflare's edge, so the modal
+    // iframe cannot show it. Office files still use the Office Online embed modal.
+    if(isPdf(r)){ window.open(absUrl(r.file_url), '_blank', 'noopener'); return; }
     var t=document.getElementById('res-title'); if(t) t.textContent=(ICON[r.doc_type]||'🗂️')+'  '+r.title;
     var f=document.getElementById('res-iframe'); if(f) f.src=viewerSrc(r);
     var v=document.getElementById('res-viewer'); if(v) v.style.display='block';
