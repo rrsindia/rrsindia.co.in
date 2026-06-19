@@ -91,6 +91,7 @@ async function submitEnquiry() {
   const isDemo = plan === 'Just a free demo first';
   const demoProduct = isDemo ? ((document.getElementById('enq-demo-product')||{}).value || '') : '';
   const demoUser    = isDemo ? ((document.getElementById('enq-demo-user')||{}).value || 'any') : '';
+  const demoCountry = isDemo ? ((document.getElementById('enq-demo-country')||{}).value || 'IN') : 'IN';
 
   const btn = document.querySelector('.enq-submit');
   const originalText = btn.textContent;
@@ -102,7 +103,7 @@ async function submitEnquiry() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
       body: JSON.stringify({ name, phone: contact, email, business: biz, plan_interest: plan, message: msg,
-        is_demo: isDemo, category: demoProduct, demo_user_type: demoUser })
+        is_demo: isDemo, category: demoProduct, demo_user_type: demoUser, country: demoCountry })
     });
     const data = await res.json();
     if(res.ok && data.ok) {
