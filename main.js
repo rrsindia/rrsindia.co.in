@@ -443,6 +443,9 @@ async function loadPlansFeatures(){
     OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||''; OD.company = d.company||null; OD.footer = d.footer||'';
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
+    // Partner list (from R.R.Sphere brokers) — blank default, names only from the DB (none hardcoded).
+    const pr = document.getElementById('od-partner');
+    if(pr){ pr.innerHTML = '<option value="">— No Partner —</option>' + (Array.isArray(d.brokers)? d.brokers.map(b=>'<option value="'+odEsc(b.name)+'">'+odEsc(b.name)+'</option>').join(''):''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
       '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+(Number(c.rate)?(' · ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
@@ -585,6 +588,7 @@ async function submitOrder(){
         billing_from: bStart,
         customer_email: v('od-email'),
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
+        broker: v('od-partner')||'',
         address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
         state_code: v('od-state').slice(0,2).toUpperCase(),
         tenant_category: catEl.value, users, notes: v('od-notes'),
