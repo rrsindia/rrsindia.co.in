@@ -443,7 +443,7 @@ async function loadPlansFeatures(){
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
-      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+(c.rate?(' — ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
+      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+(Number(c.rate)?(' · ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
     // Offer banner (auto-selected free premium · worth ₹10,000 · activated within 48 hrs).
     const ob = document.getElementById('od-offer');
