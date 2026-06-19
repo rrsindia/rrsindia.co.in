@@ -1103,3 +1103,52 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
+
+// ── Footer "Follow Us" links — driven by SuperAdmin → Social Media Links ──────
+// Single source of truth = system_config social_* (same as the app Login/Sidebar),
+// exposed via /public/login-page. Blank value = hide that platform. On any error
+// the static footer markup is left untouched (graceful).
+(function(){
+  // platform → emoji label; order defines display order. "Follow Us" set only
+  // (email/website are not "follow" links and stay out of this column).
+  var META = {
+    facebook:  '📘 Facebook',
+    instagram: '📸 Instagram',
+    linkedin:  '💼 LinkedIn',
+    youtube:   '▶️ YouTube',
+    google:    '🌐 Google',
+    whatsapp:  '💬 WhatsApp'
+  };
+  function href(platform, val){
+    val = String(val||'').trim();
+    if(!val) return '';
+    if(platform==='whatsapp' && !/^https?:/i.test(val)){
+      var d = val.replace(/\D/g,''); return d ? 'https://wa.me/'+d : '';
+    }
+    return /^https?:/i.test(val) ? val : 'https://'+val;
+  }
+  function findFollowCol(){
+    var cols = document.querySelectorAll('.footer-col');
+    for(var i=0;i<cols.length;i++){
+      var h = cols[i].querySelector('h5');
+      if(h && h.textContent.trim().toLowerCase()==='follow us') return cols[i];
+    }
+    return null;
+  }
+  function run(){
+    var col = findFollowCol(); if(!col) return;
+    fetch(RRFINEAPP_API+'/public/login-page', { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        var s = d && d.social; if(!s) return;   // no data → keep static links
+        var links = Object.keys(META)
+          .filter(function(p){ return s[p] && String(s[p]).trim(); })
+          .map(function(p){ var u = href(p, s[p]); return u ? '<a href="'+u+'" target="_blank" rel="noopener">'+META[p]+'</a>' : ''; })
+          .filter(Boolean);
+        if(!links.length) return;   // nothing configured → keep static links
+        col.innerHTML = '<h5>Follow Us</h5>' + links.join('');
+      })
+      .catch(function(){ /* keep static footer links */ });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
