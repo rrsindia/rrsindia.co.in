@@ -88,6 +88,9 @@ async function submitEnquiry() {
   const biz = document.getElementById('enq-biz').value.trim();
   const plan = document.getElementById('enq-plan').value || 'Not specified';
   const msg = document.getElementById('enq-msg').value.trim();
+  const isDemo = plan === 'Just a free demo first';
+  const demoProduct = isDemo ? ((document.getElementById('enq-demo-product')||{}).value || '') : '';
+  const demoUser    = isDemo ? ((document.getElementById('enq-demo-user')||{}).value || 'any') : '';
 
   const btn = document.querySelector('.enq-submit');
   const originalText = btn.textContent;
@@ -98,12 +101,16 @@ async function submitEnquiry() {
     const res = await fetch(RRFINEAPP_API + '/public/enquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
-      body: JSON.stringify({ name, phone: contact, email, business: biz, plan_interest: plan, message: msg })
+      body: JSON.stringify({ name, phone: contact, email, business: biz, plan_interest: plan, message: msg,
+        is_demo: isDemo, category: demoProduct, demo_user_type: demoUser })
     });
     const data = await res.json();
     if(res.ok && data.ok) {
       const s = document.getElementById('enq-success');
-      if (s) { s.style.display = 'block'; s.innerHTML = `✅ Thank you! Your enquiry reference is ${data.ref_no}. Our team will get back to you shortly.` + SPAM_NOTE; }
+      const okMsg = isDemo
+        ? `🎁 Your free demo is booked! Reference ${data.ref_no}. We'll set it up and email your access details, usually within 48 hours.`
+        : `✅ Thank you! Your enquiry reference is ${data.ref_no}. Our team will get back to you shortly.`;
+      if (s) { s.style.display = 'block'; s.innerHTML = okMsg + SPAM_NOTE; }
       btn.style.display = 'none';
     } else {
       alert(data.error || 'Sorry, something went wrong sending your enquiry. Please try WhatsApp or call us.');
@@ -114,6 +121,29 @@ async function submitEnquiry() {
     btn.textContent = originalText; btn.disabled = false;
   }
 }
+// Show the demo-booking fields (product + who it's for) only when "Just a free demo
+// first" is selected in the enquiry "I'm interested in" dropdown.
+window.enqToggleDemo = function () {
+  const plan = (document.getElementById('enq-plan') || {}).value || '';
+  const box = document.getElementById('enq-demo-fields');
+  if (box) box.style.display = (plan === 'Just a free demo first') ? 'block' : 'none';
+};
+// Honor ?demo=1 (e.g. the app login "Book a Free Demo" link) → preselect the free
+// demo option and reveal its fields on page load.
+(function () {
+  function init() {
+    const sel = document.getElementById('enq-plan');
+    if (!sel || !/[?&]demo=1\b/.test(location.search)) return;
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === 'Just a free demo first' || sel.options[i].text === 'Just a free demo first') {
+        sel.selectedIndex = i; break;
+      }
+    }
+    if (window.enqToggleDemo) window.enqToggleDemo();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
 const starLabels = ['','😞 Poor','😐 Fair','🙂 Good','😊 Very Good','🤩 Excellent!'];
 function setRating(val) {
   fbRating = val;
@@ -372,7 +402,7 @@ function odTotal(){
   const el=document.getElementById('od-total'); if(!el) return;
   odRenderPremium();
   const { total }=odBreakdown();
-  el.innerHTML = 'Tentative total: ₹'+total.toLocaleString('en-IN')+' <span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span>';
+  el.innerHTML = (total ? 'Tentative total: ₹'+total.toLocaleString('en-IN')+' ' : '')+'<span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span>';
 }
 
 // Billing is a fixed 1 year — show the auto end date from the chosen start date.
@@ -437,7 +467,7 @@ function printDraftOrder(orderNo){
   const { lines, total, inclC, inclU } = odBreakdown();
   const c = odSelCat();
   const esc = odEsc;
-  const inr = n => '₹'+Number(n||0).toLocaleString('en-IN');
+  const inr = n => { const x = Number(n)||0; return x ? '₹'+x.toLocaleString('en-IN') : ''; };  // zero/blank → blank, no lone ₹
   const today = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   const addr = [v('od-add1'),v('od-add2'),[v('od-city'),v('od-pin')].filter(Boolean).join(' '),v('od-state')].filter(Boolean);
   // Billing = fixed 1 year from the chosen start date.
@@ -481,7 +511,9 @@ function printDraftOrder(orderNo){
     'table{width:100%;border-collapse:collapse;font-size:9pt}th{border:1px solid #000;background:#e8e8e8;padding:4px 6px;font-size:8.5pt;font-weight:700;text-align:left}td{border:1px solid #000;padding:4px 6px;font-size:9pt}.tot td{background:#f0f0f0;font-weight:700}'+
     '.ft{border-top:2px solid #16a34a;background:#f0fdf4;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;font-size:8.5pt;font-weight:700;color:#14532d;gap:8px}.ft .r{font-weight:600;color:#374151}'+
     '.btns{margin-top:14px;text-align:center}.pbtn{padding:9px 26px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}'+
-    '@media print{.btns{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
+    '.paper-love{background:#ecfdf5;border:1px solid #a7f3d0;color:#166534;border-radius:8px;padding:8px 12px;margin:0 0 12px;font-size:11px;text-align:center;line-height:1.5}'+
+    '@media print{.btns{display:none}.paper-love{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
+    '<div class="paper-love">🌿 A gentle note, with love: if you can, please share this by Email or WhatsApp instead of printing. Every sheet you save is a little love for our planet. 💚 <b>Tech for People &amp; Planet</b></div>'+
     '<div class="doc">'+
       '<div class="hd"><div class="hd-l"><div class="nm">'+esc((OD.company&&OD.company.name)||'R.R. Sphere INDIA')+'</div>'+
         ((OD.company&&OD.company.address)?'<div class="ad">'+esc(OD.company.address)+'</div>':'')+
@@ -977,7 +1009,7 @@ async function trkRenderOne(no, email, box) {
     var wrap = document.getElementById('finapp-pricing');
     if (!wrap) return;                                   // not the finapp page
     var fallback = document.getElementById('pricing-fallback');
-    var inr = function(n){ return '₹' + (Number(n)||0).toLocaleString('en-IN'); };
+    var inr = function(n){ var x = Number(n)||0; return x ? '₹' + x.toLocaleString('en-IN') : ''; };  // zero/blank → blank
     fetch(RRFINEAPP_API + '/public/plans-features', { headers:{ 'x-api-key':RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } })
       .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
       .then(function(d){
