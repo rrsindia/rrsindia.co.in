@@ -369,13 +369,13 @@ function odRenderPremium(){
   let html='';
   if(now.length){
     html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(odOfferVal()>0?(' — worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
-      now.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'✨')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
+      now.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
         (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':'')).join('')+
       '<div class="od-incl-note">Auto-selected for you — activated after your first user login, within 48 hours.</div></div>';
   } else { html += '<p style="color:var(--muted)">Premium features are included with your plan.</p>'; }
   if(soon.length){
     html += '<div class="od-soon"><div class="od-soon-h">★ Upcoming — coming soon</div>'+
-      soon.map(f=>'<div class="od-soon-row"><b>'+(f.icon||'✨')+' '+odEsc(f.name)+'</b>'+(f.description?'<span> — '+odEsc(f.description)+'</span>':'')+'</div>').join('')+
+      soon.map(f=>'<div class="od-soon-row"><b>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</b>'+(f.description?'<span> — '+odEsc(f.description)+'</span>':'')+'</div>').join('')+
       '<div class="od-incl-note">Preview only — not part of this order. We’ll let you know when these launch.</div></div>';
   }
   feat.innerHTML=html;
@@ -1149,6 +1149,42 @@ async function trkRenderOne(no, email, box) {
         col.innerHTML = '<h5>Follow Us</h5>' + links.join('');
       })
       .catch(function(){ /* keep static footer links */ });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+
+// ── New-device first-open counter — records the first time the website is opened
+// on a device (and bumps repeats). Same source as the app; shown in SuperAdmin.
+(function(){
+  try {
+    var id = localStorage.getItem('rr_device_id');
+    if(!id){ id = 'd_'+Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('rr_device_id', id); }
+    fetch(RRFINEAPP_API+'/public/device-open', {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ device_id:id, source:'website' })
+    }).catch(function(){});
+  } catch(e){ /* ignore */ }
+})();
+
+// ── Our Vision page — founder bio from SuperAdmin → Founder / Vision Bio ───────
+// Same source as the app Vision page (system_config founder_*, via /public/login-page).
+// Only overwrites a field when it is configured (non-blank); otherwise the static
+// HTML text is kept. Runs only on the vision page (where #v-name exists).
+(function(){
+  function run(){
+    if(!document.getElementById('v-name')) return;   // not the vision page
+    fetch(RRFINEAPP_API+'/public/login-page', { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        var f = d && d.founder; if(!f) return;
+        [['name','v-name'],['role','v-role'],['subtitle','v-subtitle'],
+         ['tagline','v-tagline'],['bio1','v-bio1'],['bio2','v-bio2']].forEach(function(pair){
+          var val = f[pair[0]] && String(f[pair[0]]).trim();
+          var el  = document.getElementById(pair[1]);
+          if(val && el) el.textContent = val;
+        });
+      })
+      .catch(function(){ /* keep static bio */ });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
