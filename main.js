@@ -1183,6 +1183,15 @@ async function trkRenderOne(no, email, box) {
           var el  = document.getElementById(pair[1]);
           if(val && el) el.textContent = val;
         });
+        // Optional hero banner image (the founder's LinkedIn banner), with a dark overlay.
+        if(f.banner && String(f.banner).trim()){
+          var hero = document.getElementById('v-hero');
+          if(hero){
+            hero.style.backgroundImage = 'linear-gradient(rgba(4,19,10,.55),rgba(4,19,10,.66)), url('+f.banner+')';
+            hero.style.backgroundSize = 'cover';
+            hero.style.backgroundPosition = 'center';
+          }
+        }
       })
       .catch(function(){ /* keep static bio */ });
   }
