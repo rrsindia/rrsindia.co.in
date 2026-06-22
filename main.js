@@ -21,6 +21,32 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// ── DROPDOWN NAV (About / Solutions / Business / Portals) ──
+// Click toggles the menu (works on touch); desktop also opens on hover via CSS.
+(function(){
+  // Highlight the parent menu button when one of its links is the current page.
+  document.querySelectorAll('.nav-dd').forEach(function(dd){
+    if(dd.querySelector('.nav-dd-menu a.active')){
+      const b = dd.querySelector('.nav-dd-btn'); if(b) b.classList.add('active');
+    }
+  });
+  document.querySelectorAll('.nav-dd-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      const dd = btn.parentElement;
+      const wasOpen = dd.classList.contains('open');
+      document.querySelectorAll('.nav-dd.open').forEach(function(d){ d.classList.remove('open'); });
+      if(!wasOpen) dd.classList.add('open');
+    });
+  });
+  // Click anywhere outside an open dropdown closes it.
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.nav-dd')){
+      document.querySelectorAll('.nav-dd.open').forEach(function(d){ d.classList.remove('open'); });
+    }
+  });
+})();
+
 // ── SCROLL REVEAL ──
 function observeReveal() {
   const els = document.querySelectorAll('.reveal:not(.visible)');
