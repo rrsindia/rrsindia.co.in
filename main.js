@@ -47,6 +47,44 @@ document.addEventListener('click', function(e) {
   });
 })();
 
+// ── FREE-DEMO ANNOUNCEMENT BAR + ⚡AI LOGO (every page) ──
+(function(){
+  if(sessionStorage.getItem('promoDismissed') === '1') return;
+  function mount(){
+    if(document.getElementById('promoBar')) return;
+    var bar = document.createElement('div');
+    bar.className = 'promo-bar'; bar.id = 'promoBar';
+    bar.innerHTML =
+      '<button class="promo-x" id="promoX" type="button" aria-label="Dismiss">&times;</button>' +
+      '<a class="promo-cta" href="enquire.html?demo=1">' +
+        '<span class="promo-gift">🎁</span>' +
+        '<span class="promo-msg">Try <b>RRFinEApp</b> FREE for 30 days</span>' +
+        '<span class="promo-go">Book a Free Demo →</span>' +
+      '</a>' +
+      '<div class="promo-ai"><span class="ai-logo"><span class="ai-bolt">⚡</span>AI</span></div>';
+    document.body.appendChild(bar);
+    document.body.classList.add('has-promo');
+    document.getElementById('promoX').addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      bar.remove(); document.body.classList.remove('has-promo');
+      sessionStorage.setItem('promoDismissed', '1');
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
+
+// ── Footer "Sitemap" link (SEO + UX), injected on every page ──
+(function(){
+  function add(){
+    var col = document.querySelector('footer .footer-col');
+    if(col && !col.querySelector('a[href="sitemap.html"]')){
+      var a = document.createElement('a'); a.href = 'sitemap.html'; a.textContent = 'Sitemap';
+      col.appendChild(a);
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+})();
+
 // ── SCROLL REVEAL ──
 function observeReveal() {
   const els = document.querySelectorAll('.reveal:not(.visible)');
