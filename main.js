@@ -56,12 +56,13 @@ document.addEventListener('click', function(e) {
     bar.className = 'promo-bar'; bar.id = 'promoBar';
     bar.innerHTML =
       '<button class="promo-x" id="promoX" type="button" aria-label="Dismiss">&times;</button>' +
+      '<div class="promo-ai"><span class="ai-logo"><span class="ai-bolt">⚡</span>AI</span></div>' +
+      '<span class="promo-ai-sep">·</span>' +
       '<a class="promo-cta" href="enquire.html?demo=1">' +
         '<span class="promo-gift">🎁</span>' +
         '<span class="promo-msg">Try <b>RRFinEApp</b> FREE for 30 days</span>' +
         '<span class="promo-go">Book a Free Demo →</span>' +
-      '</a>' +
-      '<div class="promo-ai"><span class="ai-logo"><span class="ai-bolt">⚡</span>AI</span></div>';
+      '</a>';
     document.body.appendChild(bar);
     document.body.classList.add('has-promo');
     document.getElementById('promoX').addEventListener('click', function(e){

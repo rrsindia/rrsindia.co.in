@@ -43,7 +43,8 @@ nav{position:fixed;top:0;width:100%;z-index:999;background:rgba(3,15,7,0.92);bac
 .nav-dd-menu a{display:block;color:var(--muted);text-decoration:none;font-size:.84rem;font-weight:500;padding:9px 13px;border-radius:8px;white-space:nowrap;transition:all .15s}
 .nav-dd-menu a:hover,.nav-dd-menu a.active{color:var(--g4);background:rgba(34,197,94,0.10)}
 /* ── Free-demo announcement bar (every page, bottom) + ⚡AI logo ── */
-.promo-bar{position:fixed;left:0;right:0;bottom:0;z-index:990;background:linear-gradient(90deg,rgba(3,15,7,.97),rgba(10,61,31,.97));border-top:1px solid var(--border);backdrop-filter:blur(12px);box-shadow:0 -8px 30px rgba(0,0,0,.45);padding:9px 50px 9px 18px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.promo-bar{position:fixed;left:0;right:0;bottom:0;z-index:990;background:linear-gradient(90deg,rgba(3,15,7,.97),rgba(10,61,31,.97));border-top:1px solid var(--border);backdrop-filter:blur(12px);box-shadow:0 -8px 30px rgba(0,0,0,.45);padding:9px 50px;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px}
+.promo-ai-sep{color:var(--border);font-weight:400}
 .promo-cta{display:inline-flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:center;text-decoration:none;color:var(--white);font-size:.96rem;font-weight:600}
 .promo-cta b{color:var(--g5)}
 .promo-gift{font-size:1.1rem}
@@ -55,7 +56,7 @@ nav{position:fixed;top:0;width:100%;z-index:999;background:rgba(3,15,7,0.92);bac
 @keyframes ai-bolt-pulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.22);opacity:1}}
 .promo-x{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:none;color:var(--muted);width:27px;height:27px;border-radius:50%;cursor:pointer;font-size:17px;line-height:1;transition:all .2s}
 .promo-x:hover{background:rgba(255,255,255,.16);color:var(--white)}
-body.has-promo{padding-bottom:72px}
+body.has-promo{padding-bottom:54px}
 /* ── Sitemap page ── */
 .sitemap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:26px;margin-top:32px}
 .sitemap-col h4{color:var(--g4);font-family:'Rajdhani',sans-serif;font-size:1.12rem;letter-spacing:.5px;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:8px}
@@ -312,7 +313,7 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
   .promo-bar{padding:8px 42px 8px 12px}
   .promo-cta{font-size:.85rem;gap:5px}
   .promo-go{font-size:.76rem;padding:4px 10px}
-  body.has-promo{padding-bottom:96px}
+  body.has-promo{padding-bottom:82px}
   .hamburger{display:flex}
   .footer-grid{grid-template-columns:1fr}
   .hero-stats{gap:24px}
