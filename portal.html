@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=66">
+<link rel="stylesheet" href="style.css?v=67">
 <style>
 .pt-tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:2px solid rgba(255,255,255,.12);padding-bottom:0}
 .pt-tab{padding:9px 18px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
@@ -56,7 +56,7 @@
         </div>
       </div>
     </div>
-    <div class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></div></div></nav>
+    <button type="button" class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Open menu" aria-controls="navLinks"><span></span><span></span><span></span></button></div></nav>
 
 <div class="page-wrapper">
   <div class="page-hero"><div class="page-hero-inner">
@@ -300,6 +300,6 @@ function ptMsgCard(m){
 function toggleMenu(){ const n=document.getElementById('navLinks'); if(n) n.classList.toggle('open'); }
 if(ptToken){ ptShowPortal(); }
 </script>
-<script src="main.min.js?v=66"></script>
+<script src="main.min.js?v=67"></script>
 </body>
 </html>
