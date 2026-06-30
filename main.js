@@ -232,9 +232,10 @@ const IMGBB_KEY = '96a92f3973c9b79d3b83aa5d19cee3d0';
 // and screenshots are hosted on our own server. PUBLIC key is a submit-only,
 // publishable token (same posture as the Web3Forms key above).
 const RRFINEAPP_API        = 'https://fin.rrsindia.co.in/api/v1';
-// Highlighted reminder appended to every form's success message — our confirmation
-// email may land in Spam/Junk, so prompt the user to check there.
-const SPAM_NOTE = '<div style="margin-top:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.55);border-radius:10px;padding:10px 12px;color:#f59e0b;font-size:.85rem;font-weight:600;line-height:1.5">📬 <b>Please also check your Spam / Junk folder</b> for our confirmation email. If you find it there, mark it &ldquo;Not spam&rdquo; so our replies reach your inbox.</div>';
+// Appended to every form's success message. Disabled 2026-06-30: mail now sends from
+// the authenticated domain mailbox (SPF/DKIM/DMARC pass) and lands in the inbox, so the
+// "check your spam folder" prompt is no longer needed. Kept as '' to leave call sites intact.
+const SPAM_NOTE = '';
 const RRFINEAPP_PUBLIC_KEY = '2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0';
 
 async function submitFeedback() {
@@ -508,7 +509,7 @@ async function loadPlansFeatures(){
     OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||''; OD.company = d.company||null; OD.footer = d.footer||'';
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
-    // Partner list (from R.R.Sphere brokers) — blank default, names only from the DB (none hardcoded).
+    // Partner list (from R.R. Sphere brokers) — blank default, names only from the DB (none hardcoded).
     const pr = document.getElementById('od-partner');
     if(pr){ pr.innerHTML = '<option value="">— No Partner —</option>' + (Array.isArray(d.brokers)? d.brokers.map(b=>'<option value="'+odEsc(b.name)+'">'+odEsc(b.name)+'</option>').join(''):''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
@@ -612,7 +613,7 @@ function printDraftOrder(orderNo){
             (qr?'<div class="pad" style="text-align:center">'+qr+'<div style="font-size:7.5pt;color:#444;margin-top:1px">Scan to pay</div></div>':'')+
           '</div>';
       })():'')+
-      '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative, prices may change. Final pricing and any discount are confirmed by R.R. Sphere India after you place the order.</div>'+
+      '<div class="pad" style="font-size:8pt;color:#444;border-bottom:none">*Tentative, prices may change. Final pricing and any discount are confirmed by R.R. Sphere INDIA after you place the order.</div>'+
       '<div class="ft"><span>'+esc(OD.footer||'RRFinEApp | R.R. Sphere INDIA | https://rrsindia.co.in | https://fin.rrsindia.co.in')+'</span><span class="r">This is a computer generated '+(orderNo?'order':'draft order')+'.</span></div>'+
     '</div>'+
     '<div class="btns"><button class="pbtn" onclick="window.print()">🖨 Print this order</button></div>'+
@@ -774,15 +775,15 @@ async function trkRenderOne(no, email, box) {
     {k:['service','software','development','website','ai solution','what do you do','consulting','erp','data analytics'],
      a:"We offer custom software development, AI-powered solutions, cloud & DevOps, data analytics, IT training and ERP integrations 💻<br><br>👉 <a href='services.html'>Explore our services</a>"},
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
-     a:"Reach us anytime! 📞<br>📧 <a href='mailto:rrsindia@yahoo.co.in'>rrsindia@yahoo.co.in</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
+     a:"Reach us anytime! 📞<br>📧 <a href='mailto:rrsphere@rrsindia.co.in'>rrsphere@rrsindia.co.in</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
      a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
      a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
-     a:"I'm the AI Assistant — here to help you learn about R.R. Sphere India, RRFinEApp and our coaching classes. Ask me anything!"},
+     a:"I'm the AI Assistant — here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
-     a:"R.R. Sphere India is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
+     a:"R.R. Sphere INDIA is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
   const FALLBACK = "I'm not totally sure about that one 🤔 — but our team would love to help!<br><br>👉 <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
   const QUICK = ["💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
@@ -840,7 +841,7 @@ async function trkRenderOne(no, email, box) {
   }
 
   function anchorToLogo(fab){
-    // Default position: just to the RIGHT of the "R.R. Sphere India" logo (its old
+    // Default position: just to the RIGHT of the "R.R. Sphere INDIA" logo (its old
     // spot). The nav font is now smaller so the menu no longer reaches it. Draggable.
     const logo = document.querySelector('.nav-logo');
     const w = fab.offsetWidth || 60, h = fab.offsetHeight || 36;
@@ -855,7 +856,7 @@ async function trkRenderOne(no, email, box) {
   }
 
   function buildAI(){
-    // ONE floating, draggable AI button — auto-positions next to "R.R. Sphere India"
+    // ONE floating, draggable AI button — auto-positions next to "R.R. Sphere INDIA"
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
@@ -863,7 +864,7 @@ async function trkRenderOne(no, email, box) {
       fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><defs><linearGradient id="boltg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI</span>';
       document.body.appendChild(fab);
 
-      // Always start next to "R.R. Sphere India" on every page load (no memory)
+      // Always start next to "R.R. Sphere INDIA" on every page load (no memory)
       anchorToLogo(fab); requestAnimationFrame(()=>anchorToLogo(fab));
       // keep it beside the name on resize, until the user drags it this session
       window.addEventListener('resize', function(){ if(!fab.dataset.dragged) anchorToLogo(fab); });
@@ -876,7 +877,7 @@ async function trkRenderOne(no, email, box) {
       chat.className = 'ai-chat';
       chat.innerHTML =
         '<div class="ai-chat-header">'+
-          '<div class="ai-ava"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><defs><linearGradient id="boltg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg2)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg></div>'+
+          '<div class="ai-ava"><span class="ai-bolt" style="font-size:1.15rem">⚡</span></div>'+
           '<div><h4>AI Assistant</h4><p>Online now · Alt+A</p></div>'+
           '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
         '</div>'+
@@ -1259,6 +1260,65 @@ async function trkRenderOne(no, email, box) {
         }
       })
       .catch(function(){ /* keep static bio */ });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+
+
+// -- Contact email = SuperAdmin SMTP address (single source) -------------------
+// Keeps every mailto link + visible email text in sync with the address configured
+// in the app (SuperAdmin -> Email), so it is changed in ONE place and reflects on
+// the website. Falls back to whatever is already in the HTML if the API is down.
+(function(){
+  function apply(email){
+    if(!email) return;
+    var mail = 'mailto:' + email;
+    var links = document.querySelectorAll('a[href^="mailto:"]');
+    for(var i=0;i<links.length;i++){
+      var a = links[i];
+      if(a.getAttribute('href') !== mail) a.setAttribute('href', mail);
+      var t = (a.textContent||'').trim();
+      if(t.indexOf('@') > -1 && t !== email) a.textContent = email;
+    }
+  }
+  function load(){
+    try{
+      fetch('https://fin.rrsindia.co.in/api/v1/public/login-page', { headers:{ 'x-api-key':'2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0', 'Accept':'application/json' } })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){
+          if(!d || !d.contactEmail) return;
+          var email = String(d.contactEmail).trim();
+          apply(email);
+          try{ var obs = new MutationObserver(function(){ apply(email); }); obs.observe(document.body, { childList:true, subtree:true }); }catch(e){}
+        })
+        .catch(function(){});
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', load); else load();
+})();
+
+// ── Founder personal social links on the Vision page (#v-social) ──────────────
+// Pulls the founder's Facebook / Instagram / X / LinkedIn (SuperAdmin -> Founder /
+// Vision Bio, founder_* via /public/login-page) and shows only the ones filled in.
+(function(){
+  function run(){
+    var sw = document.getElementById('v-social');
+    if(!sw) return;   // only the vision page
+    try{
+      fetch('https://fin.rrsindia.co.in/api/v1/public/login-page', { headers:{ 'Accept':'application/json' } })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){
+          var f = d && d.founder; if(!f) return;
+          var items = [['facebook','Facebook','👍'],['instagram','Instagram','📸'],['x','X','✖'],['linkedin','LinkedIn','💼']];
+          var html = '';
+          items.forEach(function(it){
+            var u = f[it[0]] && String(f[it[0]]).trim();
+            if(u) html += '<a href="'+u+'" target="_blank" rel="noopener" title="'+it[1]+'" style="display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--g4);text-decoration:none;padding:5px 12px;background:rgba(34,197,94,0.10);border:1px solid var(--border);border-radius:20px">'+it[2]+' '+it[1]+'</a>';
+          });
+          sw.innerHTML = html;
+        })
+        .catch(function(){});
+    }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();

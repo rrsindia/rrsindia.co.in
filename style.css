@@ -51,9 +51,11 @@ nav{position:fixed;top:0;width:100%;z-index:999;background:rgba(3,15,7,0.92);bac
 .promo-go{background:var(--g3);color:#fff;font-weight:700;font-size:.86rem;padding:5px 14px;border-radius:8px;transition:all .2s}
 .promo-cta:hover .promo-go{background:var(--g4);color:var(--dark);transform:translateY(-1px)}
 .promo-ai{display:inline-flex;align-items:center}
-.ai-logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:1.5px;color:var(--g5);display:inline-flex;align-items:center;gap:1px}
-.ai-bolt{display:inline-block;animation:ai-bolt-pulse 2.2s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(255,210,74,.85))}
-@keyframes ai-bolt-pulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.22);opacity:1}}
+/* ⚡AI logo + bolt — matched to the in-app top-bar badge (green gradient pill, white text, rotating "zap" bolt) so app + website read identically. */
+.ai-logo{display:inline-flex;align-items:center;gap:2px;font-weight:900;font-size:.72rem;line-height:1;color:#fff;background:linear-gradient(135deg,var(--g3),var(--g4));border:1px solid rgba(255,255,255,.55);border-radius:5px;padding:3px 7px;letter-spacing:.3px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.ai-bolt{display:inline-block;transform-origin:center;animation:ai-bolt-zap 1.15s ease-in-out infinite}
+@keyframes ai-bolt-zap{0%,100%{transform:scale(1) rotate(0);filter:drop-shadow(0 0 1px rgba(253,224,71,.6))}25%{transform:scale(1.3) rotate(-10deg);filter:drop-shadow(0 0 6px rgba(253,224,71,1))}50%{transform:scale(1.12) rotate(0);filter:drop-shadow(0 0 3px rgba(255,255,255,.95))}75%{transform:scale(1.3) rotate(10deg);filter:drop-shadow(0 0 6px rgba(253,224,71,1))}}
+@media (prefers-reduced-motion:reduce){.ai-bolt{animation:none;transform:none}}
 .promo-x{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:none;color:var(--muted);width:27px;height:27px;border-radius:50%;cursor:pointer;font-size:17px;line-height:1;transition:all .2s}
 .promo-x:hover{background:rgba(255,255,255,.16);color:var(--white)}
 body.has-promo{padding-bottom:54px}
