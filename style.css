@@ -290,8 +290,12 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 @keyframes wa-pulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,0.45)}50%{box-shadow:0 4px 32px rgba(37,211,102,0.75)}}
 
 /* ── SCROLL REVEAL ── */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+/* Entrance fade-up runs via CSS on load (no JS dependency) so the page is NEVER
+   left blank while main.min.js downloads. The JS scroll-reveal still adds .visible. */
+.reveal{animation:revealIn .7s ease both}
+@keyframes revealIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .page-wrapper{animation:fadeIn .4s ease}
 
