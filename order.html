@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=70">
+<link rel="stylesheet" href="style.css?v=71">
 <style>
 .od-sec{font-family:'Rajdhani',sans-serif;font-size:1.25rem;color:var(--white);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .od-grid{display:flex;gap:14px;flex-wrap:wrap}
@@ -92,10 +92,10 @@
       <div class="od-grid">
         <div class="form-group"><label>Account / Tenant Code <span style="color:var(--muted);font-weight:400;font-size:.8rem">(auto-assigned)</span></label><input type="text" id="od-code" readonly placeholder="RRS001" style="background:rgba(255,255,255,.04);cursor:not-allowed"></div>
         <div class="form-group"><label>Country <span class="req">*</span></label><select id="od-country"><option value="IN">India</option></select></div>
-        <div class="form-group"><label>Partner <span style="color:var(--muted);font-weight:400;font-size:.8rem">(optional — who referred you)</span></label><select id="od-partner"><option value="">— No Partner —</option></select></div>
+        <div class="form-group"><label>Partner <span style="color:var(--muted);font-weight:400;font-size:.8rem">(optional, who referred you)</span></label><select id="od-partner"><option value="">No Partner</option></select></div>
       </div>
-      <div class="form-group"><label>Account / Tenant Name <span class="req">*</span></label><input type="text" id="od-name" placeholder="Can be your business name — or different"></div>
-      <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional — only if different from the tenant name)</span></label><input type="text" id="od-company" placeholder="e.g. R.R. Sphere INDIA"></div>
+      <div class="form-group"><label>Account / Tenant Name <span class="req">*</span></label><input type="text" id="od-name" placeholder="Can be your business name, or different"></div>
+      <div class="form-group"><label>Business / Trade Name <span style="color:var(--muted);font-weight:400">(optional, only if different from the tenant name)</span></label><input type="text" id="od-company" placeholder="e.g. R.R. Sphere INDIA"></div>
       <div class="od-grid">
         <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" id="od-email" placeholder="you@example.com"></div>
         <div class="form-group"><label>Phone <span class="req">*</span></label><input type="text" id="od-phone" placeholder="Mobile number"></div>
@@ -120,7 +120,7 @@
       <div id="od-feat" class="od-feat"><p style="color:var(--muted)">Loading features…</p></div>
 
       <div class="od-sec">4 · Users <span class="req">*</span></div>
-      <p class="od-mini">At least 1 <b>Admin</b> is required. Your plan includes a set number of users free — add more as needed (extra users are charged per the price list).</p>
+      <p class="od-mini">At least 1 <b>Admin</b> is required. Your plan includes a set number of users free, add more as needed (extra users are charged per the price list).</p>
       <div id="od-users"></div>
       <button type="button" class="btn-outline" onclick="odAddUser()" style="font-size:.82rem;padding:7px 14px">+ Add user</button>
 
@@ -133,8 +133,8 @@
       <div class="od-sec">6 · Notes</div>
       <div class="form-group"><textarea rows="3" id="od-notes" placeholder="Anything we should know?"></textarea></div>
 
-      <div class="od-sec">7 · Need something not listed? <span style="color:var(--muted);font-size:.8rem;font-weight:400">(optional — custom requirement)</span></div>
-      <p class="od-mini">⚠ Any heavy customization or custom development is <b>charged extra</b> — we'll quote it separately.</p>
+      <div class="od-sec">7 · Need something not listed? <span style="color:var(--muted);font-size:.8rem;font-weight:400">(optional, custom requirement)</span></div>
+      <p class="od-mini">⚠ Any heavy customization or custom development is <b>charged extra</b>, we'll quote it separately.</p>
       <div class="form-group"><label>Describe the custom feature / category you need</label>
         <textarea rows="3" id="od-custom" placeholder="e.g. a custom report, an industry-specific module, an integration… anything not in the plans/features above"></textarea></div>
       <div class="od-grid">
@@ -157,7 +157,7 @@
 
       <div class="od-sec">Order Summary</div>
       <div id="od-total" style="font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;color:var(--g4);text-align:right">Tentative total: ₹0 <span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span></div>
-      <p class="od-mini" style="margin-top:8px">⚠ Prices are <b>tentative and may change</b>. This is a request, not a final bill — our team confirms the final price (any applicable discount) and sends your invoice. The plan may include some users/features; extras are charged as shown.</p>
+      <p class="od-mini" style="margin-top:8px">⚠ Prices are <b>tentative and may change</b>. This is a request, not a final bill, our team confirms the final price (any applicable discount) and sends your invoice. The plan may include some users/features; extras are charged as shown.</p>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
         <button class="form-submit od-submit" onclick="submitOrder()" style="flex:1;min-width:200px">🧾 Place Order →</button>
@@ -165,10 +165,10 @@
       </div>
       <div class="form-success" id="od-success" style="display:none"></div>
     </div>
-    <div class="tk-note" style="max-width:760px;margin:18px auto 0;color:var(--muted);font-size:.8rem;text-align:center">Placing an order doesn't charge you — it sends a request. Our team confirms pricing and shares an invoice. Track everything on the <a href="portal.html">Customer Login</a> page.</div>
+    <div class="tk-note" style="max-width:760px;margin:18px auto 0;color:var(--muted);font-size:.8rem;text-align:center">Placing an order doesn't charge you, it sends a request. Our team confirms pricing and shares an invoice. Track everything on the <a href="portal.html">Customer Login</a> page.</div>
   </div>
 </div>
 
 <footer><div class="footer-bottom"><p style="flex-basis:100%;text-align:center;margin-bottom:6px"><a href="trust.html">Trust &amp; Security</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a> &middot; <a href="sitemap.html">Sitemap</a></p><p>© 2026 <span>R.R. Sphere INDIA</span>. All rights reserved.</p></div></footer>
-<script src="main.min.js?v=70"></script>
+<script src="main.min.js?v=71"></script>
 </body></html>

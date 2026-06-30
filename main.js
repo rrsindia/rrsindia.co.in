@@ -137,7 +137,7 @@ async function submitForm() {
       btn.textContent = orig; btn.disabled = false;
     }
   } catch(err) {
-    alert('Network issue — please check your connection and try again.');
+    alert('Network issue, please check your connection and try again.');
     btn.textContent = orig; btn.disabled = false;
   }
 }
@@ -183,7 +183,7 @@ async function submitEnquiry() {
       btn.textContent = originalText; btn.disabled = false;
     }
   } catch(err) {
-    alert('Network issue — please check your connection or use the WhatsApp option.');
+    alert('Network issue, please check your connection or use the WhatsApp option.');
     btn.textContent = originalText; btn.disabled = false;
   }
 }
@@ -223,7 +223,7 @@ function setRecommend(val) {
     if(btn){ btn.style.borderColor = val===v?'var(--g4)':'var(--border)'; btn.style.color = val===v?'var(--g4)':'var(--muted)'; }
   });
 }
-// Web3Forms access key (legacy — feedback now posts to the RRFinEApp API below)
+// Web3Forms access key (legacy, feedback now posts to the RRFinEApp API below)
 const WEB3FORMS_KEY = 'c06fa8d4-b67d-4cc3-9982-ad202da2d532';
 const IMGBB_KEY = '96a92f3973c9b79d3b83aa5d19cee3d0';
 
@@ -274,7 +274,7 @@ async function submitFeedback() {
       btn.disabled = false;
     }
   } catch(err) {
-    alert('Network issue — please check your connection or use the WhatsApp option below.');
+    alert('Network issue, please check your connection or use the WhatsApp option below.');
     btn.textContent = originalText;
     btn.disabled = false;
   }
@@ -307,7 +307,7 @@ async function submitTicket() {
   const browser = document.getElementById('tk-browser').value.trim();
   const severity = sevEl.value;
 
-  // screenshot (optional) — validate size client-side (server re-checks at 5MB)
+  // screenshot (optional), validate size client-side (server re-checks at 5MB)
   const shotEl = document.getElementById('tk-screenshot');
   const shotFile = (shotEl && shotEl.files && shotEl.files.length) ? shotEl.files[0] : null;
   if(shotFile && shotFile.size > 5 * 1024 * 1024) {
@@ -353,7 +353,7 @@ async function submitTicket() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
       body: JSON.stringify({
-        subject: `${type} — ${area}`,
+        subject: `${type}, ${area}`,
         description,
         name,
         email,
@@ -380,7 +380,7 @@ async function submitTicket() {
       btn.disabled = false;
     }
   } catch(err) {
-    alert('Network issue — please check your connection or use the WhatsApp option below.');
+    alert('Network issue, please check your connection or use the WhatsApp option below.');
     btn.textContent = originalText;
     btn.disabled = false;
   }
@@ -434,15 +434,15 @@ function odRenderPremium(){
   const soon=(OD.feats||[]).filter(f=>f.coming_soon);
   let html='';
   if(now.length){
-    html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(odOfferVal()>0?(' — worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
+    html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(odOfferVal()>0?(', worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
       now.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
         (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':'')).join('')+
-      '<div class="od-incl-note">Auto-selected for you — activated after your first user login, within 48 hours.</div></div>';
+      '<div class="od-incl-note">Auto-selected for you, activated after your first user login, within 48 hours.</div></div>';
   } else { html += '<p style="color:var(--muted)">Premium features are included with your plan.</p>'; }
   if(soon.length){
-    html += '<div class="od-soon"><div class="od-soon-h">★ Upcoming — coming soon</div>'+
-      soon.map(f=>'<div class="od-soon-row"><b>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</b>'+(f.description?'<span> — '+odEsc(f.description)+'</span>':'')+'</div>').join('')+
-      '<div class="od-incl-note">Preview only — not part of this order. We’ll let you know when these launch.</div></div>';
+    html += '<div class="od-soon"><div class="od-soon-h">★ Upcoming, coming soon</div>'+
+      soon.map(f=>'<div class="od-soon-row"><b>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</b>'+(f.description?'<span>, '+odEsc(f.description)+'</span>':'')+'</div>').join('')+
+      '<div class="od-incl-note">Preview only, not part of this order. We’ll let you know when these launch.</div></div>';
   }
   feat.innerHTML=html;
 }
@@ -454,7 +454,7 @@ function odBreakdown(){
   const inclC=c?(c.incl_companies||1):1, inclU=c?(c.incl_users||1):1;
   if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
   const prem=odPlanPremium().filter(f=>!f.coming_soon);
-  if(prem.length){ lines.push({label:'Premium features ('+prem.length+') — all included', qty:'', rate:0, amt:0, blank:true}); }
+  if(prem.length){ lines.push({label:'Premium features ('+prem.length+'), all included', qty:'', rate:0, amt:0, blank:true}); }
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
   // Extra users (beyond the plan's included count) charged per ROLE/category rate.
@@ -472,7 +472,7 @@ function odTotal(){
   el.innerHTML = (total ? 'Tentative total: ₹'+total.toLocaleString('en-IN')+' ' : '')+'<span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span>';
 }
 
-// Billing is a fixed 1 year — show the auto end date from the chosen start date.
+// Billing is a fixed 1 year, show the auto end date from the chosen start date.
 function odBillingEnd(){
   const s=document.getElementById('od-billing-start'), out=document.getElementById('od-billing-end');
   if(!out) return;
@@ -493,7 +493,7 @@ function odPlanChanged(){
   }
   // Default Number of Companies to the plan's included count (editable).
   const comp=document.getElementById('od-companies'), hint=document.getElementById('od-companies-hint');
-  if(c && comp){ const inclC=Math.max(1, c.incl_companies||1); comp.value=inclC; if(hint) hint.innerHTML='Plan includes <b style="color:var(--g4)">'+inclC+'</b> — add more if needed (extra charged per price list).'; }
+  if(c && comp){ const inclC=Math.max(1, c.incl_companies||1); comp.value=inclC; if(hint) hint.innerHTML='Plan includes <b style="color:var(--g4)">'+inclC+'</b>, add more if needed (extra charged per price list).'; }
   const ob=document.getElementById('od-offer'); if(ob){ if(odOfferVal()>0){ ob.textContent='🎁 '+odOfferNote(); ob.style.display='block'; } else { ob.style.display='none'; } }
   odTotal();
 }
@@ -509,9 +509,9 @@ async function loadPlansFeatures(){
     OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||''; OD.company = d.company||null; OD.footer = d.footer||'';
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
-    // Partner list (from R.R. Sphere brokers) — blank default, names only from the DB (none hardcoded).
+    // Partner list (from R.R. Sphere brokers), blank default, names only from the DB (none hardcoded).
     const pr = document.getElementById('od-partner');
-    if(pr){ pr.innerHTML = '<option value="">— No Partner —</option>' + (Array.isArray(d.brokers)? d.brokers.map(b=>'<option value="'+odEsc(b.name)+'">'+odEsc(b.name)+'</option>').join(''):''); }
+    if(pr){ pr.innerHTML = '<option value="">No Partner</option>' + (Array.isArray(d.brokers)? d.brokers.map(b=>'<option value="'+odEsc(b.name)+'">'+odEsc(b.name)+'</option>').join(''):''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
       '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+(Number(c.rate)?(' · ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
@@ -526,7 +526,7 @@ async function loadPlansFeatures(){
       const cd = await cr.json().catch(()=>({})); const ce = document.getElementById('od-code');
       if(ce && cd.code) ce.value = cd.code;
     } catch(e){}
-  } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans — try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
+  } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans, try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
 }
 
 // Print a professional GREEN order summary (DRAFT, or FINAL when an order_no is given).
@@ -548,7 +548,7 @@ function printDraftOrder(orderNo){
   const numC = parseInt(v('od-companies'),10)||1;
   const odUsers = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:(((r.querySelector('.od-uname')||{}).value)||'').trim(), login:(((r.querySelector('.od-ulogin')||{}).value)||'').trim() }));
   const nUsers = odUsers.length;
-  const usersCard = odUsers.length ? '<div class="card"><div class="card-h">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:right">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.name||'—')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.login||'—')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table></div>' : '';
+  const usersCard = odUsers.length ? '<div class="card"><div class="card-h">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:right">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.name||'·')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.login||'·')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table></div>' : '';
   const premNames = odPlanPremium().filter(f=>!f.coming_soon).map(f=>f.name);
   const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
   const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
@@ -562,10 +562,10 @@ function printDraftOrder(orderNo){
     '<div class="card"><div class="card-h">Terms &amp; Conditions</div><div class="addr" style="white-space:pre-wrap;color:#374151;font-size:12px">'+esc(OD.terms)+'</div></div>' : '';
   const customBox = custom ?
     '<div class="card"><div class="card-h">🛠 Custom / additional requirement</div><div class="addr" style="font-size:13px">'+
-      esc(custom)+'<div style="color:#6b7280;font-size:12px;margin-top:8px">⏱ Timeline: <b>'+esc(TL[tl]||'—')+'</b>'+(v('od-timeline-notes')?' ('+esc(v('od-timeline-notes'))+')':'')+
-      ' &nbsp;·&nbsp; Priority: <b>'+(pri==='now'?'Need it now':pri==='next_update'?'Future update is fine':'—')+'</b></div></div></div>' : '';
+      esc(custom)+'<div style="color:#6b7280;font-size:12px;margin-top:8px">⏱ Timeline: <b>'+esc(TL[tl]||'·')+'</b>'+(v('od-timeline-notes')?' ('+esc(v('od-timeline-notes'))+')':'')+
+      ' &nbsp;·&nbsp; Priority: <b>'+(pri==='now'?'Need it now':pri==='next_update'?'Future update is fine':'·')+'</b></div></div></div>' : '';
   const docTitle = orderNo ? 'ORDER CONFIRMATION' : 'DRAFT ORDER';
-  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+docTitle+' — RRFinEApp</title><style>'+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+docTitle+', RRFinEApp</title><style>'+
     '@page{margin:0}'+
     '*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff;max-width:800px;margin:0 auto;padding:8mm}'+
     '.doc{border:2px solid #000}'+
@@ -594,8 +594,8 @@ function printDraftOrder(orderNo){
       (odOfferVal()>0?'<div class="offer">🎁 '+esc(odOfferNote())+'</div>':'')+
       '<div class="two"><div><div class="sec-h">Account / Tenant (Bill To)</div><div class="row"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'<br>'+esc(v('od-email'))+(v('od-phone')?' · Ph: '+esc(v('od-phone')):'')+'</div></div>'+
         '<div><div class="sec-h">Order Details</div><div class="row"><b>Plan:</b> '+esc(c?c.label:cat.value)+'<br><b>Billing:</b> '+esc(period)+'<br><b>Companies:</b> '+numC+' (incl '+inclC+') &nbsp; <b>Users:</b> '+nUsers+' (incl '+inclU+')</div></div></div>'+
-      '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'—')+'</div>'+
-      (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'—')+'</td><td>'+esc(u.login||'—')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
+      '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'·')+'</div>'+
+      (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'·')+'</td><td>'+esc(u.login||'·')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
       '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+
         '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+(total?inr(total):'')+'</td></tr>'+
         '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+(total?inr(total)+'*':'')+'</td></tr></tbody></table>'+
@@ -641,7 +641,7 @@ async function submitOrder(){
   if(!users.some(u=>u.role==='admin')){ alert('At least one Admin user is required.'); return; }
   for(const u of users){
     if(!u.name){ alert('Enter a name for each user.'); return; }
-    if(!u.login){ alert('Enter an email or mobile (login) for each user — this is their username.'); return; }
+    if(!u.login){ alert('Enter an email or mobile (login) for each user, this is their username.'); return; }
   }
 
   const btn = document.querySelector('.od-submit'); const orig = btn.textContent; btn.textContent='Placing…'; btn.disabled=true;
@@ -667,11 +667,11 @@ async function submitOrder(){
     const d = await res.json().catch(()=>({}));
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b> — we’ll confirm pricing and send your invoice. <b>All premium features are included free</b>'+(odOfferVal()>0?(' (worth ₹'+odOfferVal().toLocaleString('en-IN')+')'):'')+'. '+
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b>, we’ll confirm pricing and send your invoice. <b>All premium features are included free</b>'+(odOfferVal()>0?(' (worth ₹'+odOfferVal().toLocaleString('en-IN')+')'):'')+'. '+
         '<button type="button" class="btn-outline" style="margin-top:8px;font-size:.82rem;padding:6px 14px" onclick="printDraftOrder(\''+String(d.order_no).replace(/[^A-Za-z0-9\-]/g,'')+'\')">🖨 Print your order</button><br>Track it on the <a href="portal.html">Customer Login</a> page.' + SPAM_NOTE;
       s.style.display='block'; btn.style.display='none';
     } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }
-  } catch(e){ alert('Network issue — please try again.'); btn.textContent=orig; btn.disabled=false; }
+  } catch(e){ alert('Network issue, please try again.'); btn.textContent=orig; btn.disabled=false; }
 }
 function odResetForm(){
   ['od-code','od-name','od-company','od-email','od-phone','od-gstin','od-add1','od-add2','od-city','od-pin','od-state','od-notes','od-custom','od-timeline-notes','od-billing-start'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
@@ -702,7 +702,7 @@ async function trackTicket() {
     if(!res.ok) { box.innerHTML = '<p style="color:#f87171">' + (list.error || 'Could not look that up.') + '</p>'; return; }
     if(!list.length) { box.innerHTML = '<p style="color:var(--muted)">No tickets found for ' + email.replace(/</g,'&lt;') + '. Check the spelling, or raise one above.</p>'; return; }
     box.innerHTML =
-      '<p style="color:var(--muted);font-size:.82rem;margin-bottom:10px">' + list.length + ' ticket(s) for ' + email.replace(/</g,'&lt;') + ' — click one to see replies.</p>' +
+      '<p style="color:var(--muted);font-size:.82rem;margin-bottom:10px">' + list.length + ' ticket(s) for ' + email.replace(/</g,'&lt;') + ', click one to see replies.</p>' +
       list.map(t =>
         '<div onclick="trkOpen(\'' + t.ticket_no + '\',\'' + email.replace(/'/g,'') + '\')" style="cursor:pointer;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);margin-bottom:8px">' +
           '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">' +
@@ -714,7 +714,7 @@ async function trackTicket() {
         '</div>'
       ).join('');
   } catch(e) {
-    box.innerHTML = '<p style="color:#f87171">Network issue — please try again.</p>';
+    box.innerHTML = '<p style="color:#f87171">Network issue, please try again.</p>';
   }
 }
 
@@ -723,7 +723,7 @@ async function trkOpen(no, email) {
   document.getElementById('trk-no').value = no;
   const box = document.getElementById('trk-result');
   box.innerHTML = '<p style="color:var(--muted)">Loading…</p>';
-  try { await trkRenderOne(no, email, box); } catch(e) { box.innerHTML = '<p style="color:#f87171">Network issue — please try again.</p>'; }
+  try { await trkRenderOne(no, email, box); } catch(e) { box.innerHTML = '<p style="color:#f87171">Network issue, please try again.</p>'; }
 }
 
 async function trkRenderOne(no, email, box) {
@@ -757,21 +757,21 @@ async function trkRenderOne(no, email, box) {
     {k:['demo','trial','try','test','see it','show me','free demo'],
      a:"You can get a free demo of RRFinEApp! 🎓 We'll walk you through it the same day.<br><br>👉 <a href='enquire.html'>Book a free demo</a> or open the app at <a href='https://fin.rrsindia.co.in' target='_blank'>fin.rrsindia.co.in</a>"},
     {k:['what is','about rrfin','about the app','rrfineapp','tell me about','what does','rrfine'],
-     a:"RRFinEApp is a cloud-based accounting app for Indian businesses — like Tally but in the cloud, like D365 but simple. 📊 Full accounting, GST invoicing, final accounts, stock & multi-company.<br><br>Want to <a href='finapp.html'>see all features</a>?"},
+     a:"RRFinEApp is a cloud-based accounting app for Indian businesses, like Tally but in the cloud, like D365 but simple. 📊 Full accounting, GST invoicing, final accounts, stock & multi-company.<br><br>Want to <a href='finapp.html'>see all features</a>?"},
     {k:['gst','tax','gstr','invoice','invoicing','cgst','sgst','igst','return'],
-     a:"Yes! RRFinEApp is fully GST-compliant 🧾 — GST Sales & Purchase invoices with auto CGST/SGST/IGST, plus GSTR-1 & GSTR-3B ready reports you can export straight to the portal."},
+     a:"Yes! RRFinEApp is fully GST-compliant 🧾, GST Sales & Purchase invoices with auto CGST/SGST/IGST, plus GSTR-1 & GSTR-3B ready reports you can export straight to the portal."},
     {k:['tally','migrate','switch from','shift'],
-     a:"RRFinEApp feels right at home for Tally users! ⌨️ Keyboard-first (F2 New, F5 Refresh, Esc Back) and Dr/Cr entry — just like Tally, but cloud-based so you can work from anywhere."},
+     a:"RRFinEApp feels right at home for Tally users! ⌨️ Keyboard-first (F2 New, F5 Refresh, Esc Back) and Dr/Cr entry, just like Tally, but cloud-based so you can work from anywhere."},
     {k:['cloud','install','download','setup','anywhere','device','browser'],
-     a:"RRFinEApp is 100% cloud-based ☁️ — no installation. Log in from any browser on any device, and your data backs up to Google Drive daily."},
+     a:"RRFinEApp is 100% cloud-based ☁️, no installation. Log in from any browser on any device, and your data backs up to Google Drive daily."},
     {k:['safe','secure','security','backup','data','audit','trust'],
-     a:"Your data is very safe 🔐 — daily automated Google Drive backups, immutable posted entries (no silent edits), full audit trails, and role-based access control."},
+     a:"Your data is very safe 🔐, daily automated Google Drive backups, immutable posted entries (no silent edits), full audit trails, and role-based access control."},
     {k:['feature','what can','module','report','ledger','balance sheet','profit','loss','stock','inventory','trial balance','day book'],
      a:"RRFinEApp includes 📒 full accounting (Ledger, Trial Balance, Day Book), 🧾 GST invoicing, 📊 Final Accounts (P&L, Balance Sheet, Ageing), 📦 Stock & Inventory and 🏢 multi-company support.<br><br>Full list on the <a href='finapp.html'>RRFinEApp page</a>."},
     {k:['issue','problem','bug','error','not working','complaint','broken','crash','stuck','hang','wrong','fix','trouble','help me','support','report'],
      a:"Sorry you're facing trouble! 🛠️ You can report the issue directly to our support team and we'll look into it fast.<br><br>👉 <a href='support.html'>Report an Issue</a>"},
     {k:['coaching','tuition','class','study','student','maths','math','school','child','kid','board'],
-     a:"R.R. Coaching Classes offers expert tuition from Nursery to Class 10 — all boards & subjects 📚 — including our signature 'Maths Made Easy' program!<br><br>👉 <a href='coaching.html'>Learn about coaching</a>"},
+     a:"R.R. Coaching Classes offers expert tuition from Nursery to Class 10, all boards & subjects 📚, including our signature 'Maths Made Easy' program!<br><br>👉 <a href='coaching.html'>Learn about coaching</a>"},
     {k:['service','software','development','website','ai solution','what do you do','consulting','erp','data analytics'],
      a:"We offer custom software development, AI-powered solutions, cloud & DevOps, data analytics, IT training and ERP integrations 💻<br><br>👉 <a href='services.html'>Explore our services</a>"},
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
@@ -781,11 +781,11 @@ async function trkRenderOne(no, email, box) {
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
      a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
-     a:"I'm the AI Assistant — here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
+     a:"I'm the AI Assistant, here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere INDIA is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
-  const FALLBACK = "I'm not totally sure about that one 🤔 — but our team would love to help!<br><br>👉 <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
+  const FALLBACK = "I'm not totally sure about that one 🤔, but our team would love to help!<br><br>👉 <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
   const QUICK = ["💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
 
   function findAnswer(text){
@@ -856,7 +856,7 @@ async function trkRenderOne(no, email, box) {
   }
 
   function buildAI(){
-    // ONE floating, draggable AI button — auto-positions next to "R.R. Sphere INDIA"
+    // ONE floating, draggable AI button, auto-positions next to "R.R. Sphere INDIA"
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
@@ -950,7 +950,7 @@ async function trkRenderOne(no, email, box) {
 // ════════════ Render every whole-word "India" as larger "INDIA" ════════════
 (function(){
   var SKIP = {SCRIPT:1, STYLE:1, NOSCRIPT:1, TEXTAREA:1, INPUT:1};
-  var RE = /India(?![A-Za-z])/gi;   // whole word, any case — never matches "Indian"
+  var RE = /India(?![A-Za-z])/gi;   // whole word, any case, never matches "Indian"
 
   function process(root){
     if(!root) return;
@@ -1025,7 +1025,7 @@ async function trkRenderOne(no, email, box) {
         lbl.style.display = 'block';
         if(f.size > 5*1024*1024){
           lbl.style.color = '#ef4444';
-          lbl.textContent += ' — too large (max 5MB)';
+          lbl.textContent += ', too large (max 5MB)';
         } else {
           lbl.style.color = 'var(--g4)';
         }
@@ -1051,7 +1051,7 @@ async function trkRenderOne(no, email, box) {
     bar.style.cssText = 'position:relative;z-index:50;padding:10px 42px 10px 18px;text-align:center;font-size:.9rem;font-weight:600;line-height:1.5;'+
       'background:'+(a.bg_color||'linear-gradient(90deg,#f59e0b,#16a34a)')+';color:'+(a.text_color||'#ffffff')+';box-shadow:0 2px 8px rgba(0,0,0,.2)';
     bar.innerHTML = (a.emoji?a.emoji+' ':'')+(a.tag?'<b style="text-transform:uppercase;letter-spacing:.5px">'+esc(a.tag)+'</b> · ':'')+
-      '<b>'+esc(a.title||'')+'</b>'+(a.body?' — '+esc(a.body):'');
+      '<b>'+esc(a.title||'')+'</b>'+(a.body?', '+esc(a.body):'');
     var x = document.createElement('button');
     x.innerHTML = '&times;'; x.setAttribute('aria-label','Dismiss');
     x.style.cssText = 'position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:inherit;font-size:1.35rem;cursor:pointer;line-height:1;opacity:.85';
@@ -1072,7 +1072,7 @@ async function trkRenderOne(no, email, box) {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', load); else load();
 })();
 
-// ── finapp.html — live pricing plans from the SuperAdmin price list ──────────
+// ── finapp.html, live pricing plans from the SuperAdmin price list ──────────
 // Renders the plan cards from /public/plans-features (no hardcoded prices). If the
 // list is empty or the request fails, the static "Coming Soon" fallback stays.
 (function initFinappPricing(){
@@ -1093,7 +1093,7 @@ async function trkRenderOne(no, email, box) {
             : '';
           var comps = p.incl_companies || 1, users = p.incl_users || 1;
           var free = p.free_value
-            ? '<div style="margin-top:10px;font-size:.78rem;color:var(--g4);font-weight:600">★ Premium features free — worth ' + inr(p.free_value) + '</div>'
+            ? '<div style="margin-top:10px;font-size:.78rem;color:var(--g4);font-weight:600">★ Premium features free, worth ' + inr(p.free_value) + '</div>'
             : '';
           return '<div class="reveal" style="background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:18px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center">'
             + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:1.25rem;color:var(--white);font-weight:700;letter-spacing:.3px">' + (p.label||'') + '</div>'
@@ -1111,7 +1111,7 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
-// ── resources.html — Web Resources online viewer (PPT/DOC/XLS/PDF) ────────────
+// ── resources.html, Web Resources online viewer (PPT/DOC/XLS/PDF) ────────────
 // Reads the admin-managed, public resources from /public/web-resources and opens
 // each in an online viewer (Microsoft Office Online for office files, direct for
 // PDF). Present in a meeting by screen-sharing the viewer. ?r=<token> deep-links a
@@ -1170,7 +1170,7 @@ async function trkRenderOne(no, email, box) {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 
-// ── Footer "Follow Us" links — driven by SuperAdmin → Social Media Links ──────
+// ── Footer "Follow Us" links, driven by SuperAdmin → Social Media Links ──────
 // Single source of truth = system_config social_* (same as the app Login/Sidebar),
 // exposed via /public/login-page. Blank value = hide that platform. On any error
 // the static footer markup is left untouched (graceful).
@@ -1219,7 +1219,7 @@ async function trkRenderOne(no, email, box) {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 
-// ── New-device first-open counter — records the first time the website is opened
+// ── New-device first-open counter, records the first time the website is opened
 // on a device (and bumps repeats). Same source as the app; shown in SuperAdmin.
 (function(){
   try {
@@ -1232,7 +1232,7 @@ async function trkRenderOne(no, email, box) {
   } catch(e){ /* ignore */ }
 })();
 
-// ── Our Vision page — founder bio from SuperAdmin → Founder / Vision Bio ───────
+// ── Our Vision page, founder bio from SuperAdmin → Founder / Vision Bio ───────
 // Same source as the app Vision page (system_config founder_*, via /public/login-page).
 // Only overwrites a field when it is configured (non-blank); otherwise the static
 // HTML text is kept. Runs only on the vision page (where #v-name exists).
@@ -1260,6 +1260,32 @@ async function trkRenderOne(no, email, box) {
         }
       })
       .catch(function(){ /* keep static bio */ });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+
+// -- Founder personal social links on the Vision page (#v-social) --
+// One-time fetch (no observer/watcher) of the founder's FB/Insta/X/LinkedIn from
+// SuperAdmin (founder_* via /public/login-page); shows only the ones filled in.
+(function(){
+  function run(){
+    var sw = document.getElementById('v-social');
+    if(!sw) return;
+    try{
+      fetch('https://fin.rrsindia.co.in/api/v1/public/login-page', { headers:{ 'Accept':'application/json' } })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(d){
+          var f = d && d.founder; if(!f) return;
+          var items = [['facebook','Facebook','👍'],['instagram','Instagram','📸'],['x','X','✖'],['linkedin','LinkedIn','💼']];
+          var html = '';
+          items.forEach(function(it){
+            var u = f[it[0]] && String(f[it[0]]).trim();
+            if(u) html += '<a href="'+u+'" target="_blank" rel="noopener" title="'+it[1]+'" style="display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--g4);text-decoration:none;padding:5px 12px;background:rgba(34,197,94,0.10);border:1px solid var(--border);border-radius:20px">'+it[2]+' '+it[1]+'</a>';
+          });
+          sw.innerHTML = html;
+        })
+        .catch(function(){});
+    }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
