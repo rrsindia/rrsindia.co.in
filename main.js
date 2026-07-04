@@ -422,7 +422,11 @@ function odOfferNote(){
 
 // Premium features that apply to the selected plan (min_plan all/null or == plan).
 function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
-  return OD.feats.filter(f=>{ const m=(f.min_plan||'all'); return (m==='all'||m===plan); }); }
+  const nonGst = plan==='full_finance_nongst';
+  const base = nonGst ? 'full_finance' : plan;
+  return OD.feats.filter(f=>{ const m=(f.min_plan||'all');
+    if(nonGst && f.gst_only) return false;
+    return (m==='all'||m===base); }); }
 
 // Render the "included free" premium list + a separate display-only upcoming window.
 function odRenderPremium(){
