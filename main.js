@@ -421,6 +421,8 @@ function odOfferNote(){
 }
 
 // Premium features that apply to the selected plan (min_plan all/null or == plan).
+// "Full Finance (Non-GST)" is Full Finance under the hood: it matches full_finance
+// features but EXCLUDES GST-only ones (GST Returns, e-Way/e-Invoice, GSTR-2A/2B Recon).
 function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
   const nonGst = plan==='full_finance_nongst';
   const base = nonGst ? 'full_finance' : plan;
@@ -1046,6 +1048,27 @@ async function trkRenderOne(no, email, box) {
 // Pulls the SAME SuperAdmin announcements the app uses (login_announcements via
 // /public/login-page) and shows a highlighted strip at the top of every website
 // page. One announcement (SuperAdmin → Announcements) → app login + dashboard +
+// ── Homepage brand title + description from SuperAdmin (live, NO code deploy) ──
+// company_title / company_desc are set in SuperAdmin → System Settings → Brand Titles.
+// Applied at load to the HOMEPAGE ONLY (other pages keep their own titles so per-page SEO
+// stays intact). Falls back to the static HTML title if the API is unreachable.
+(function(){
+  var p = location.pathname.replace(/\/+$/,'');
+  var isHome = p === '' || /\/index\.html$/i.test(p);
+  if (!isHome) return;
+  try {
+    fetch(RRFINEAPP_API + '/public/config', { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.json(); })
+      .then(function(c){
+        if (c && c.company_title) document.title = c.company_title;
+        if (c && c.company_desc) {
+          var m = document.querySelector('meta[name="description"]');
+          if (m) m.setAttribute('content', c.company_desc);
+        }
+      }).catch(function(){});
+  } catch(e){}
+})();
+
 // the whole website. Dismissible per session.
 (function(){
   function esc(s){ return String(s==null?'':s).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
