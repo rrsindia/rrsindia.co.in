@@ -866,7 +866,7 @@ async function trkRenderOne(no, email, box) {
     if(!document.querySelector('.ai-fab')){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
-      fab.title = 'Rova (Real One Virtual Assistant)  ·  Alt + A';
+      fab.title = 'Rova (Real One Virtual Assistant)  ·  Alt + R';
       fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><defs><linearGradient id="boltg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI</span>';
       document.body.appendChild(fab);
 
@@ -884,7 +884,7 @@ async function trkRenderOne(no, email, box) {
       chat.innerHTML =
         '<div class="ai-chat-header">'+
           '<div class="ai-ava" title="Rova"><span class="ai-bolt" style="font-size:1.15rem">⚡</span></div>'+
-          '<div><h4>Rova</h4><p>Online now · Alt+A</p></div>'+
+          '<div><h4>Rova</h4><p>Online now · Alt+R</p></div>'+
           '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
         '</div>'+
         '<div class="ai-chat-body" id="aiBody"></div>'+
@@ -943,7 +943,7 @@ async function trkRenderOne(no, email, box) {
 
   // Keyboard shortcut: Alt + A  →  open / close the AI assistant
   document.addEventListener('keydown', function(e){
-    if(e.altKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyA' || (e.key && e.key.toLowerCase() === 'a'))){
+    if(e.altKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyR' || (e.key && e.key.toLowerCase() === 'r'))){
       e.preventDefault();
       toggleChat();
     }
