@@ -1316,3 +1316,60 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
+;/* ROVA_AVATAR_BLOCK — Rova avatar (SuperAdmin-configured, shared with the app).
+   Swaps the chat header mark for her photo ONLY when SuperAdmin has enabled it
+   and the image actually loads; otherwise the ⚡AI mark stays exactly as-is.
+   Self-contained: no other code depends on it, and it can never break the page. */
+(function(){
+  var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', cfg=null, done=false, mo=null;
+  function apply(){
+    if(done||!cfg||!cfg.enabled||!cfg.avatar) return;
+    var el=document.querySelector('.ai-ava'); if(!el) return;
+    var a=cfg.avatar, src=a.image_md||a.image_sm||a.image_lg; if(!src) return;
+    if(src.indexOf('http')!==0) src=HOST+src;
+    var img=new Image();
+    img.onload=function(){
+      if(done) return;
+      el.innerHTML=''; img.style.cssText='width:100%;height:100%;border-radius:50%;object-fit:cover;display:block';
+      el.appendChild(img); done=true; if(mo) mo.disconnect();
+    };
+    img.alt='Rova'; img.src=src;
+  }
+  try{
+    fetch(API+'/public/rova-avatar',{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        cfg=d||{enabled:false};
+        if(!cfg.enabled||!cfg.avatar) return;
+        apply();
+        if(!done && window.MutationObserver){ mo=new MutationObserver(apply); mo.observe(document.body,{childList:true,subtree:true}); }
+      }).catch(function(){});
+  }catch(e){}
+})();
+
+;/* RRS_WHATSAPP_BUTTON — floating WhatsApp chat button (business line 7719728045).
+   Self-contained: injects one fixed button on every page, sits above the promo
+   bar, opens wa.me with a friendly pre-filled message. Cannot break the page. */
+(function(){
+  var NUM='917719728045', TXT='Hi R.R. Sphere INDIA, I would like to know more';
+  function place(a){ a.style.bottom = (document.querySelector('.promo-bar') ? 74 : 22) + 'px'; }
+  function mount(){
+    try{
+      if(document.getElementById('waFab')) return;
+      var a=document.createElement('a');
+      a.id='waFab';
+      a.href='https://wa.me/'+NUM+'?text='+encodeURIComponent(TXT);
+      a.target='_blank'; a.rel='noopener';
+      a.title='Chat with us on WhatsApp';
+      a.setAttribute('aria-label','Chat with us on WhatsApp');
+      a.innerHTML='<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path fill="#fff" d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.4L3 29l6.8-1.8C11.6 28.4 13.8 29 16 29c7.2 0 13-5.8 13-13S23.2 3 16 3zm0 23.6c-2 0-3.9-.5-5.6-1.5l-.4-.2-4 1.1 1.1-3.9-.3-.4C5.7 20 5.2 18 5.2 16 5.2 10 10 5.2 16 5.2S26.8 10 26.8 16 22 26.6 16 26.6zm6-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-2-1.8-2.3s0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.5s0-.4 0-.6-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.1 1.4 3.3c.2.2 2.4 3.7 5.8 5.1.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 2-.8 2.3-1.6.3-.8.3-1.5.2-1.6-.1-.2-.3-.3-.6-.4z"/></svg>';
+      a.style.cssText='position:fixed;right:20px;z-index:995;width:54px;height:54px;border-radius:50%;background:#25D366;box-shadow:0 6px 20px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .18s';
+      place(a);
+      a.onmouseenter=function(){ a.style.transform='scale(1.08)'; };
+      a.onmouseleave=function(){ a.style.transform='scale(1)'; };
+      document.body.appendChild(a);
+      setTimeout(function(){ place(a); }, 900);   // promo bar mounts a moment later
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
