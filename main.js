@@ -1316,33 +1316,49 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
-;/* ROVA_AVATAR_BLOCK — Rova avatar (SuperAdmin-configured, shared with the app).
-   Swaps the chat header mark for her photo ONLY when SuperAdmin has enabled it
-   and the image actually loads; otherwise the ⚡AI mark stays exactly as-is.
-   Self-contained: no other code depends on it, and it can never break the page. */
+;/* ROVA_AVATAR_BLOCK — Rova avatar (SuperAdmin-configured, shared with the APP).
+   Same config-driven avatar as the app's ⚡AI button. Paints her photo over the ⚡
+   mark on: the chat header (.ai-ava), the promo AI logo pill (.ai-logo), and the
+   floating button (.ai-fab) — ONLY when SuperAdmin has enabled it AND the image
+   loads; otherwise the ⚡AI mark stays exactly as-is. Self-contained; can't break the page. */
 (function(){
-  var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', cfg=null, done=false, mo=null;
-  function apply(){
-    if(done||!cfg||!cfg.enabled||!cfg.avatar) return;
-    var el=document.querySelector('.ai-ava'); if(!el) return;
-    var a=cfg.avatar, src=a.image_md||a.image_sm||a.image_lg; if(!src) return;
-    if(src.indexOf('http')!==0) src=HOST+src;
+  var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', src='', mo=null;
+  // Replace the ⚡ mark inside `el` with a round avatar image, once (idempotent via data-rova).
+  function paint(el, px){
+    if(!el || el.getAttribute('data-rova')==='1' || !src) return;
     var img=new Image();
     img.onload=function(){
-      if(done) return;
-      el.innerHTML=''; img.style.cssText='width:100%;height:100%;border-radius:50%;object-fit:cover;display:block';
-      el.appendChild(img); done=true; if(mo) mo.disconnect();
+      if(el.getAttribute('data-rova')==='1') return;
+      img.style.cssText='border-radius:50%;object-fit:cover;vertical-align:middle;'+
+        (px ? ('width:'+px+'px;height:'+px+'px;display:inline-block') : 'width:100%;height:100%;display:block');
+      img.alt='Rova'; el.innerHTML=''; el.appendChild(img); el.setAttribute('data-rova','1');
     };
     img.alt='Rova'; img.src=src;
+  }
+  function apply(){
+    if(!src) return;
+    paint(document.querySelector('.ai-ava'));                // chat-panel avatar (fills its circle)
+    paint(document.querySelector('.ai-logo .ai-bolt'), 14);  // promo "⚡AI" pill → [avatar]AI
+    // floating button: swap the ⚡ svg for a small avatar, keep the "AI" label
+    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark');
+    if(spark && fab.getAttribute('data-rova')!=='1'){
+      var f=new Image();
+      f.onload=function(){ if(fab.getAttribute('data-rova')==='1')return;
+        f.style.cssText='width:16px;height:16px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle';
+        f.alt='Rova'; spark.replaceWith(f); fab.setAttribute('data-rova','1'); };
+      f.alt='Rova'; f.src=src;
+    }
   }
   try{
     fetch(API+'/public/rova-avatar',{headers:{'Accept':'application/json'}})
       .then(function(r){return r.json();})
       .then(function(d){
-        cfg=d||{enabled:false};
-        if(!cfg.enabled||!cfg.avatar) return;
+        if(!d||!d.enabled||!d.avatar) return;
+        var a=d.avatar; src=a.image_sm||a.image_md||a.image_lg; if(!src) return;
+        if(src.indexOf('http')!==0) src=HOST+src;
         apply();
-        if(!done && window.MutationObserver){ mo=new MutationObserver(apply); mo.observe(document.body,{childList:true,subtree:true}); }
+        // the pill/button are injected after load, so re-apply as the DOM changes (then stop)
+        if(window.MutationObserver){ mo=new MutationObserver(apply); mo.observe(document.body,{childList:true,subtree:true}); setTimeout(function(){ if(mo) mo.disconnect(); }, 12000); }
       }).catch(function(){});
   }catch(e){}
 })();
