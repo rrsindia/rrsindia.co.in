@@ -1322,7 +1322,7 @@ async function trkRenderOne(no, email, box) {
    floating button (.ai-fab) — ONLY when SuperAdmin has enabled it AND the image
    loads; otherwise the ⚡AI mark stays exactly as-is. Self-contained; can't break the page. */
 (function(){
-  var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', src='', mo=null;
+  var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', src='', SCALE=1, mo=null;
   // Replace the ⚡ mark inside `el` with a round avatar image, once (idempotent via data-rova).
   function paint(el, px){
     if(!el || el.getAttribute('data-rova')==='1' || !src) return;
@@ -1337,14 +1337,14 @@ async function trkRenderOne(no, email, box) {
   }
   function apply(){
     if(!src) return;
-    paint(document.querySelector('.ai-ava'));                // chat-panel avatar (fills its circle)
-    paint(document.querySelector('.ai-logo .ai-bolt'), 14);  // promo "⚡AI" pill → [avatar]AI
+    paint(document.querySelector('.ai-ava'));                                  // chat-panel avatar (fills its circle)
+    paint(document.querySelector('.ai-logo .ai-bolt'), Math.round(14*SCALE));  // promo "⚡AI" pill → [avatar]AI
     // floating button: swap the ⚡ svg for a small avatar, keep the "AI" label
-    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark');
+    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark'), fpx=Math.round(16*SCALE);
     if(spark && fab.getAttribute('data-rova')!=='1'){
       var f=new Image();
       f.onload=function(){ if(fab.getAttribute('data-rova')==='1')return;
-        f.style.cssText='width:16px;height:16px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle';
+        f.style.cssText='width:'+fpx+'px;height:'+fpx+'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle';
         f.alt='Rova'; spark.replaceWith(f); fab.setAttribute('data-rova','1'); };
       f.alt='Rova'; f.src=src;
     }
@@ -1356,6 +1356,7 @@ async function trkRenderOne(no, email, box) {
         if(!d||!d.enabled||!d.avatar) return;
         var a=d.avatar; src=a.image_sm||a.image_md||a.image_lg; if(!src) return;
         if(src.indexOf('http')!==0) src=HOST+src;
+        SCALE=(typeof d.scale==='number'&&d.scale>0)?d.scale:1;
         apply();
         // the pill/button are injected after load, so re-apply as the DOM changes (then stop)
         if(window.MutationObserver){ mo=new MutationObserver(apply); mo.observe(document.body,{childList:true,subtree:true}); setTimeout(function(){ if(mo) mo.disconnect(); }, 12000); }
