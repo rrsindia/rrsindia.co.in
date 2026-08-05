@@ -56,8 +56,6 @@ document.addEventListener('click', function(e) {
     bar.className = 'promo-bar'; bar.id = 'promoBar';
     bar.innerHTML =
       '<button class="promo-x" id="promoX" type="button" aria-label="Dismiss">&times;</button>' +
-      '<div class="promo-ai"><span class="ai-logo" title="Rova"><span class="ai-bolt">⚡</span>AI</span></div>' +
-      '<span class="promo-ai-sep">·</span>' +
       '<a class="promo-cta" href="enquire.html?demo=1">' +
         '<span class="promo-gift">🎁</span>' +
         '<span class="promo-msg">Try <b>RRFinEApp</b> FREE for 30 days</span>' +
@@ -923,7 +921,21 @@ async function trkRenderOne(no, email, box) {
     if(on){ const d=document.createElement('div'); d.className='ai-typing'; d.id='aiTyping'; d.innerHTML='<span></span><span></span><span></span>'; b.appendChild(d); scrollBody(); }
     else { const t=document.getElementById('aiTyping'); if(t) t.remove(); }
   }
-  function respond(text){ typing(true); setTimeout(function(){ typing(false); botSay(findAnswer(text)); }, 650); }
+  // Escape plain-text (Rova replies in plain text) for safe innerHTML + keep line breaks.
+  function rovaFmt(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+  // Live Rova — ask the grounded brain on the server; fall back to the offline FAQ if she's off/unreachable.
+  function respond(text){
+    typing(true);
+    fetch('https://fin.rrsindia.co.in/api/v1/public/rova-ask', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Accept':'application/json', 'x-api-key':'2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0' },
+      body: JSON.stringify({ question: text })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      typing(false);
+      if(d && d.answer){ botSay(rovaFmt(d.answer)); }
+      else { botSay(findAnswer(text)); }
+    }).catch(function(){ typing(false); botSay(findAnswer(text)); });
+  }
   function renderQuick(){
     const q=document.getElementById('aiQuick'); q.innerHTML='';
     QUICK.forEach(function(label){
