@@ -1352,11 +1352,11 @@ async function trkRenderOne(no, email, box) {
     paint(document.querySelector('.ai-ava'));                                  // chat-panel avatar (fills its circle)
     paint(document.querySelector('.ai-logo .ai-bolt'), Math.round(14*SCALE));  // promo "⚡AI" pill → [avatar]AI
     // floating button: swap the ⚡ svg for a small avatar, keep the "AI" label
-    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark'), fpx=Math.round(16*SCALE);
+    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark'), fpx=Math.round(17*SCALE);
     if(spark && fab.getAttribute('data-rova')!=='1'){
       var f=new Image();
       f.onload=function(){ if(fab.getAttribute('data-rova')==='1')return;
-        f.style.cssText='width:'+fpx+'px;height:'+fpx+'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle';
+        f.style.cssText='width:'+fpx+'px;height:'+fpx+'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle;transform-origin:center;animation:aiBolt 1.15s ease-in-out infinite';
         f.alt='Rova'; spark.replaceWith(f); fab.setAttribute('data-rova','1'); };
       f.alt='Rova'; f.src=src;
     }
