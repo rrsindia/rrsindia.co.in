@@ -781,11 +781,11 @@ async function trkRenderOne(no, email, box) {
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
      a:"Reach us anytime! 📞<br>📧 <a href='mailto:rrsphere@rrsindia.co.in'>rrsphere@rrsindia.co.in</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
-     a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
+     a:"Hello! 👋 I'm Rova. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
      a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
-     a:"I'm the AI Assistant, here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
+     a:"I'm Rova, here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere INDIA is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
@@ -904,7 +904,7 @@ async function trkRenderOne(no, email, box) {
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
-      botSay("Hi there! 👋 I'm the AI Assistant. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
+      botSay("Hi there! 👋 I'm Rova. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
       renderQuick();
     }
     setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
