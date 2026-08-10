@@ -1152,7 +1152,7 @@ async function trkRenderOne(no, email, box) {
   // demand from the tour (it builds the tour's panel; no vanilla FAB).
   try{
     var _rw = document.createElement('script');
-    _rw.src = '/rova-widget.js?v=1'; _rw.async = true;
+    _rw.src = '/rova-widget.js?v=2'; _rw.async = true;
     _rw.onload = function(){ try{ if(window.Rova) window.Rova.init({ mode:'website' }); }catch(e){} };
     document.head.appendChild(_rw);
   }catch(e){}
@@ -1527,6 +1527,9 @@ async function trkRenderOne(no, email, box) {
    floating button (.ai-fab) — ONLY when SuperAdmin has enabled it AND the image
    loads; otherwise the ⚡AI mark stays exactly as-is. Self-contained; can't break the page. */
 (function(){
+  return;  // DISABLED: the shared cloud Rova widget is the single Rova presence now — no
+           // more painting her face onto the promo/nav pills (removed the redundant bottom icon).
+  // eslint-disable-next-line no-unreachable
   var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', src='', SCALE=1, mo=null;
   // Replace the ⚡ mark inside `el` with a round avatar image, once (idempotent via data-rova).
   function paint(el, px){
