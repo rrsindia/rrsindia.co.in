@@ -400,6 +400,10 @@ footer{background:rgba(3,15,7,0.95);border-top:1px solid var(--border);padding:4
 .ai-chat .ai-ava.state-thinking{box-shadow:0 0 0 3px rgba(245,158,11,.6)}
 .ai-chat .ai-ava.state-speaking{box-shadow:0 0 0 3px rgba(74,222,128,.6);animation:ai-pulse 1s infinite}
 @keyframes ai-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+/* painted Rova avatar breathes like the app (was static once the image replaced the animated bolt) */
+@keyframes rova-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.rova-live{animation:rova-breathe 2.6s ease-in-out infinite;transform-origin:center;will-change:transform}
+.ai-fab .rova-live{animation-duration:1.9s}
 /* mic in the input row */
 .ai-chat-input .ai-mic{background:rgba(34,197,94,0.12);border:1px solid var(--border);color:var(--g5);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;padding:0}
 .ai-chat-input .ai-mic:hover{background:rgba(34,197,94,0.24)}

@@ -1444,7 +1444,7 @@ async function trkRenderOne(no, email, box) {
       if(el.getAttribute('data-rova')==='1') return;
       img.style.cssText='border-radius:50%;object-fit:cover;vertical-align:middle;'+
         (px ? ('width:'+px+'px;height:'+px+'px;display:inline-block') : 'width:100%;height:100%;display:block');
-      img.alt='Rova'; el.innerHTML=''; el.appendChild(img); el.setAttribute('data-rova','1');
+      img.alt='Rova'; img.className='rova-live'; el.innerHTML=''; el.appendChild(img); el.setAttribute('data-rova','1');  // breathe like the app
     };
     img.alt='Rova'; img.src=src;
   }
@@ -1458,7 +1458,7 @@ async function trkRenderOne(no, email, box) {
       var f=new Image();
       f.onload=function(){ if(fab.getAttribute('data-rova')==='1')return;
         f.style.cssText='width:'+fpx+'px;height:'+fpx+'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle';
-        f.alt='Rova'; spark.replaceWith(f); fab.setAttribute('data-rova','1'); };
+        f.alt='Rova'; f.className='rova-live'; spark.replaceWith(f); fab.setAttribute('data-rova','1'); };
       f.alt='Rova'; f.src=src;
     }
   }
