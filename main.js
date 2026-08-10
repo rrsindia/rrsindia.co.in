@@ -792,7 +792,7 @@ async function trkRenderOne(no, email, box) {
      a:"R.R. Sphere INDIA is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
   const FALLBACK = "I'm not totally sure about that one 🤔, but our team would love to help!<br><br>👉 <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
-  const QUICK = ["💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
+  const QUICK = ["▶ Product tour","💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
 
   function findAnswer(text){
     const t = ' ' + text.toLowerCase() + ' ';
@@ -948,7 +948,10 @@ async function trkRenderOne(no, email, box) {
       return { html: findAnswer(text), speak: null };         // skipped/error → canned fallback
     }).catch(function(){ return { html: findAnswer(text), speak: null }; });  // offline → canned fallback
   }
+  function tourIntent(t){ return /\b(product tour|presentation|present the (deck|product|ppt|pdf)|walk ?through|show me around|give me a tour|take a tour|start (the )?tour|tour)\b/i.test(String(t||'')); }
   function respond(text){
+    if(!_tour.on && tourIntent(text)){ startTour(); return; }                       // "present / tour" → Rova presents
+    if(_tour.on && _tour.playing){ _tour.playing=false; updatePlayBtn(); stopSpeaking(); }  // a question pauses the tour
     typing(true); setState('thinking');
     askRova(text).then(function(res){
       typing(false); botSay(res.html);
@@ -972,9 +975,9 @@ async function trkRenderOne(no, email, box) {
   // Sulafat) so the website sounds exactly like the app; falls back to the device voice if
   // the cloud voice is unavailable or capped. Toggle in the header. Bomb-proof.
   var speakerOn = false, _audio = null;
-  function speakRova(txt){
+  function speakRova(txt, onDone){
     var t = String(txt || '').slice(0, 800);
-    if(!t){ setState('idle'); return; }
+    if(!t){ setState('idle'); if(onDone) onDone(); return; }
     setState('speaking');
     try{
       fetch(RRFINEAPP_API + '/public/rova-speak', {
@@ -987,23 +990,23 @@ async function trkRenderOne(no, email, box) {
           stopSpeaking();
           var url = URL.createObjectURL(b);
           _audio = new Audio(url);
-          _audio.onended = function(){ setState('idle'); try{ URL.revokeObjectURL(url); }catch(e){} };
-          _audio.onerror = function(){ deviceSpeak(t); };
-          _audio.play().catch(function(){ deviceSpeak(t); });
+          _audio.onended = function(){ setState('idle'); try{ URL.revokeObjectURL(url); }catch(e){} if(onDone) onDone(); };
+          _audio.onerror = function(){ deviceSpeak(t, onDone); };
+          _audio.play().catch(function(){ deviceSpeak(t, onDone); });
         })
-        .catch(function(){ deviceSpeak(t); });   // capped / unavailable → device voice
-    }catch(e){ deviceSpeak(t); }
+        .catch(function(){ deviceSpeak(t, onDone); });   // capped / unavailable → device voice
+    }catch(e){ deviceSpeak(t, onDone); }
   }
-  function deviceSpeak(txt){
+  function deviceSpeak(txt, onDone){
     try{
-      if(!('speechSynthesis' in window)){ setState('idle'); return; }
+      if(!('speechSynthesis' in window)){ setState('idle'); if(onDone) onDone(); return; }
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(String(txt).slice(0, 600));
       u.lang = 'en-IN'; u.rate = 1; u.pitch = 1;
-      u.onend = function(){ setState('idle'); };
-      u.onerror = function(){ setState('idle'); };
+      u.onend = function(){ setState('idle'); if(onDone) onDone(); };
+      u.onerror = function(){ setState('idle'); if(onDone) onDone(); };
       window.speechSynthesis.speak(u);
-    }catch(e){ setState('idle'); }
+    }catch(e){ setState('idle'); if(onDone) onDone(); }
   }
   function stopSpeaking(){
     try{ if(_audio){ _audio.pause(); _audio = null; } }catch(e){}
@@ -1037,6 +1040,92 @@ async function trkRenderOne(no, email, box) {
 
   // ── Full-screen "stage" — bring Rova forward for demos (mirrors the cloud ⛶)
   function toggleFull(){ var c=document.querySelector('.ai-chat'); if(c) c.classList.toggle('fullscreen'); }
+
+  // ── Rova PRESENTS the product deck — a full-screen, voice-narrated slide tour. She
+  // walks each slide, auto-advances when she finishes speaking, and the visitor can ask
+  // a question anytime (it pauses the tour and she answers from her knowledge). The slide
+  // text mirrors the product deck; grounded Q&A comes from the same brain as the app.
+  var ROVA_TOUR = [
+    { t:'RRFinEApp — a quick tour', b:['Cloud accounting, GST, final accounts & stock','Like Tally or Busy, but in the cloud','Like D365 or SAP, but simple'],
+      say:'Namaste, I am Rova. Let me give you a quick tour of RRFinEApp, R.R. Sphere’s cloud finance app. In about two minutes you will see what it does. You can ask me a question anytime.' },
+    { t:'The cloud advantage', b:['No servers, no hardware, nothing to install','Run it from any phone or PC with a browser','Always the latest version, automatic daily backups'],
+      say:'It runs entirely in the cloud, so there is no server, no hardware and nothing to install. Open it on any phone or PC. We host, secure, update and back it up for you every day.' },
+    { t:'Dashboards & insights', b:['Live sales, purchase, GST & year progress','Premium sales and purchase dashboards','R.R. Sphere AI insights'],
+      say:'Your dashboard is live: sales, purchases, GST and your financial-year progress at a glance, with premium dashboards and R.R. Sphere AI insights.' },
+    { t:'Invoicing & GST', b:['Sales & purchase invoices','GST tax invoice with UPI scan-to-pay QR','GSTR-1, GSTR-3B, e-Way Bill & e-Invoice'],
+      say:'Raise sales and purchase invoices, including GST tax invoices with a UPI scan-to-pay QR, and file GSTR-1 and 3B, with e-Way Bill and e-Invoice support.' },
+    { t:'Final accounts', b:['Trial Balance, tallied','Trading and Profit & Loss','Balance Sheet & Cash Flow'],
+      say:'Your final accounts are ready automatically: a tallied trial balance, trading and profit and loss, balance sheet and cash flow.' },
+    { t:'Stock', b:['Valuation: FIFO, weighted average or last','Stock ageing','Item-wise registers'],
+      say:'Track stock with valuation by FIFO, weighted average or last cost, plus stock ageing and item registers.' },
+    { t:'Professionals Suite', b:['For CAs, accountants & tax professionals','All client books in one place','Access granted and approved securely'],
+      say:'For professionals, the Professionals Suite puts all your client books in one place, with access that clients grant and approve, so it stays secure.' },
+    { t:'Built to work your way', b:['Bomb-proof: no wrong entry can corrupt your books','One change updates every report, you never reconcile','Keyboard-first, blink-speed, easy for anyone'],
+      say:'It is built to be bomb-proof: a wrong entry can never corrupt your books. One change flows to every report automatically, so you never reconcile. It is keyboard-first, fast, and easy even for a non-accountant.' },
+    { t:'On your phone', b:['Android app live on Google Play','Your books in your pocket, fully in sync','Secure device login, ask Rova by voice'],
+      say:'The Android app is live on Google Play. Your books are in your pocket, fully in sync, with secure device login, and you can ask me by voice right from your phone.' },
+    { t:'Meet Rova, your assistant', b:['Open any screen or report by asking','Pull a ledger or item stock by name','Voice, guided tutorials, and answers from your books'],
+      say:'And I am here to help. Ask me to open any screen or report, pull a ledger or an item’s stock by name, and I answer in my own voice, in your language.' },
+    { t:'Get started', b:['Free 30-day demo, extendable on request','First 50 clients: all premium features free','Book a demo or start your free trial'],
+      say:'Ready to try? Start a free thirty-day demo, and as one of the first fifty clients you get all premium features free. Ask me anything, or book a demo.' },
+  ];
+  var _tour = { on:false, i:0, playing:true };
+  function startTour(){
+    if(!document.querySelector('.ai-chat')) buildAI();
+    openChat();
+    var c=document.querySelector('.ai-chat'); if(c){ c.classList.add('fullscreen'); c.classList.add('touring'); }
+    speakerOn = true; var spk=c&&c.querySelector('.ai-speaker'); if(spk){ spk.textContent='🔊'; spk.classList.add('on'); }
+    _tour.on=true; _tour.i=0; _tour.playing=true;
+    buildTourUI(); showTourSlide(0);
+  }
+  function buildTourUI(){
+    var c=document.querySelector('.ai-chat'); if(!c || c.querySelector('#rovaTour')) return;
+    var d=document.createElement('div'); d.id='rovaTour'; d.className='rova-tour';
+    d.innerHTML =
+      '<div class="rt-slide" id="rtSlide"></div>'+
+      '<div class="rt-ctrl">'+
+        '<button class="rt-btn" id="rtPrev" type="button">‹ Prev</button>'+
+        '<button class="rt-btn rt-play" id="rtPlay" type="button">⏸ Pause</button>'+
+        '<button class="rt-btn" id="rtNext" type="button">Next ›</button>'+
+        '<span class="rt-prog" id="rtProg"></span>'+
+        '<button class="rt-btn rt-exit" id="rtExit" type="button">✕ Exit tour</button>'+
+      '</div>';
+    c.insertBefore(d, c.querySelector('.ai-chat-body'));
+    d.querySelector('#rtPrev').addEventListener('click', function(){ tourGo(_tour.i-1); });
+    d.querySelector('#rtNext').addEventListener('click', function(){ tourGo(_tour.i+1); });
+    d.querySelector('#rtPlay').addEventListener('click', tourToggle);
+    d.querySelector('#rtExit').addEventListener('click', endTour);
+  }
+  function showTourSlide(i){
+    _tour.i = Math.max(0, Math.min(ROVA_TOUR.length-1, i));
+    _tour.gen = (_tour.gen||0)+1;                       // invalidates any in-flight narration callback
+    var s=ROVA_TOUR[_tour.i], el=document.getElementById('rtSlide'); if(!el) return;
+    el.innerHTML = '<h2>'+aiEscape(s.t)+'</h2><ul>'+ s.b.map(function(x){ return '<li>'+aiEscape(x)+'</li>'; }).join('') +'</ul>';
+    var p=document.getElementById('rtProg'); if(p) p.textContent=(_tour.i+1)+' / '+ROVA_TOUR.length;
+    if(_tour.playing) narrateTour(_tour.gen);
+  }
+  function narrateTour(gen){
+    var s=ROVA_TOUR[_tour.i], shownAt=Date.now();
+    speakRova(s.say, function(){
+      if(!_tour.on || !_tour.playing || gen!==_tour.gen) return;
+      var wait=Math.max(0, 3500-(Date.now()-shownAt));   // min dwell so it never blasts through if voice is off
+      setTimeout(function(){
+        if(!_tour.on || !_tour.playing || gen!==_tour.gen) return;
+        if(_tour.i < ROVA_TOUR.length-1) tourGo(_tour.i+1);
+        else { _tour.playing=false; updatePlayBtn(); setState('idle'); }
+      }, wait);
+    });
+  }
+  function tourGo(i){ stopSpeaking(); showTourSlide(i); }
+  function tourToggle(){ _tour.playing=!_tour.playing; updatePlayBtn(); if(_tour.playing){ _tour.gen=(_tour.gen||0)+1; narrateTour(_tour.gen); } else stopSpeaking(); }
+  function updatePlayBtn(){ var b=document.getElementById('rtPlay'); if(b) b.textContent=_tour.playing?'⏸ Pause':'▶ Play'; }
+  function endTour(){
+    _tour.on=false; stopSpeaking();
+    var d=document.getElementById('rovaTour'); if(d) d.remove();
+    var c=document.querySelector('.ai-chat'); if(c){ c.classList.remove('touring'); c.classList.remove('fullscreen'); }
+    setState('idle');
+    botSay("That's the tour! Ask me anything, or start a free 30-day demo, first 50 clients get all premium features free.");
+  }
   function renderQuick(){
     const q=document.getElementById('aiQuick'); q.innerHTML='';
     QUICK.forEach(function(label){
