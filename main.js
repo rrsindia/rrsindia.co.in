@@ -862,8 +862,8 @@ async function trkRenderOne(no, email, box) {
   }
 
   function buildAI(){
-    // ONE floating, draggable AI button, auto-positions next to "R.R. Sphere INDIA"
-    if(!document.querySelector('.ai-fab')){
+    // Vanilla FAB removed for the hybrid — the SHARED cloud Rova widget is the button now.
+    if(false){
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Rova (Real One Virtual Assistant)  ·  Alt + R';
@@ -1145,16 +1145,17 @@ async function trkRenderOne(no, email, box) {
   // Let any on-page button start Rova's product tour (e.g. the hero "Take a tour with Rova").
   window.rovaStartTour = function(){ try{ if(!document.querySelector('.ai-chat')) buildAI(); startTour(); }catch(e){} };
 
-  // Keyboard shortcut: Alt + A  →  open / close the AI assistant
-  document.addEventListener('keydown', function(e){
-    if(e.altKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyR' || (e.key && e.key.toLowerCase() === 'r'))){
-      e.preventDefault();
-      toggleChat();
-    }
-  });
+  // Alt+R is handled by the shared cloud Rova widget now (vanilla shortcut removed for the hybrid).
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', buildAI);
-  else buildAI();
+  // Load the SHARED cloud Rova widget (base = cloud) as the primary chat / voice / panel.
+  // The Product Tour + avatar-in-nav stay website-side (hybrid); buildAI now runs only on
+  // demand from the tour (it builds the tour's panel; no vanilla FAB).
+  try{
+    var _rw = document.createElement('script');
+    _rw.src = '/rova-widget.js?v=1'; _rw.async = true;
+    _rw.onload = function(){ try{ if(window.Rova) window.Rova.init({ mode:'website' }); }catch(e){} };
+    document.head.appendChild(_rw);
+  }catch(e){}
 })();
 
 // ════════════ Render every whole-word "India" as larger "INDIA" ════════════
