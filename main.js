@@ -56,6 +56,8 @@ document.addEventListener('click', function(e) {
     bar.className = 'promo-bar'; bar.id = 'promoBar';
     bar.innerHTML =
       '<button class="promo-x" id="promoX" type="button" aria-label="Dismiss">&times;</button>' +
+      '<div class="promo-ai"><span class="ai-logo" title="Rova"><span class="ai-bolt">⚡</span>AI</span></div>' +
+      '<span class="promo-ai-sep">·</span>' +
       '<a class="promo-cta" href="enquire.html?demo=1">' +
         '<span class="promo-gift">🎁</span>' +
         '<span class="promo-msg">Try <b>RRFinEApp</b> FREE for 30 days</span>' +
@@ -781,11 +783,11 @@ async function trkRenderOne(no, email, box) {
     {k:['contact','call','phone','email','reach','talk','number','whatsapp','address','location','where'],
      a:"Reach us anytime! 📞<br>📧 <a href='mailto:rrsphere@rrsindia.co.in'>rrsphere@rrsindia.co.in</a><br>📍 Amritsar, Punjab, <span class='in-hl'>India</span>"},
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
-     a:"Hello! 👋 I'm Rova. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
+     a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
      a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
-     a:"I'm Rova, here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
+     a:"I'm the AI Assistant, here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere INDIA is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
@@ -865,7 +867,7 @@ async function trkRenderOne(no, email, box) {
       const fab = document.createElement('button');
       fab.className = 'ai-fab'; fab.type = 'button';
       fab.title = 'Rova (Real One Virtual Assistant)  ·  Alt + R';
-      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><defs><linearGradient id="boltg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+      fab.innerHTML = '<svg class="spark" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><defs><linearGradient id="boltg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c860"/><stop offset="0.55" stop-color="#d6a830"/><stop offset="1" stop-color="#b8870f"/></linearGradient></defs><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10H12l1-8z" fill="url(#boltg)" stroke="#1c3508" stroke-width="1.8" stroke-linejoin="round"/></svg><span>AI</span>';
       document.body.appendChild(fab);
 
       // Always start next to "R.R. Sphere INDIA" on every page load (no memory)
@@ -882,19 +884,26 @@ async function trkRenderOne(no, email, box) {
       chat.innerHTML =
         '<div class="ai-chat-header">'+
           '<div class="ai-ava" title="Rova"><span class="ai-bolt" style="font-size:1.15rem">⚡</span></div>'+
-          '<div><h4>Rova</h4><p>Online now · Alt+R</p></div>'+
+          '<div class="ai-hd-txt"><h4>Rova</h4><p id="aiState">Online now</p></div>'+
+          '<button class="ai-ico ai-speaker" type="button" title="Voice on / off" aria-label="Voice">🔇</button>'+
+          '<button class="ai-ico ai-full" type="button" title="Full screen" aria-label="Full screen">⛶</button>'+
           '<button class="ai-close" type="button" aria-label="Close">&times;</button>'+
         '</div>'+
         '<div class="ai-chat-body" id="aiBody"></div>'+
         '<div class="ai-quick" id="aiQuick"></div>'+
         '<div class="ai-chat-input">'+
-          '<input type="text" id="aiInput" placeholder="Type your question...">'+
+          '<input type="text" id="aiInput" placeholder="Ask Rova…">'+
+          '<button class="ai-mic" type="button" title="Speak your question" aria-label="Speak">🎤</button>'+
           '<button class="ai-send" type="button" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>'+
         '</div>';
       document.body.appendChild(chat);
       chat.querySelector('.ai-close').addEventListener('click', closeChat);
       chat.querySelector('.ai-send').addEventListener('click', sendMsg);
       chat.querySelector('#aiInput').addEventListener('keydown', function(e){ if(e.key==='Enter') sendMsg(); });
+      var _spk = chat.querySelector('.ai-speaker'); if(_spk) _spk.addEventListener('click', function(){ toggleSpeaker(_spk); });
+      var _full = chat.querySelector('.ai-full'); if(_full) _full.addEventListener('click', toggleFull);
+      var _mic = chat.querySelector('.ai-mic');
+      if(_mic){ if(micSupported()){ _mic.addEventListener('click', function(){ toggleMic(_mic); }); } else { _mic.style.display='none'; } }
     }
   }
 
@@ -904,13 +913,15 @@ async function trkRenderOne(no, email, box) {
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
-      botSay("Hi there! 👋 I'm Rova. Ask me about RRFinEApp, pricing, a free demo, GST features or our coaching classes!");
+      botSay("Hi, I'm <b>Rova</b>, your R.R. Sphere assistant. 🌿 Ask me anything about RRFinEApp, pricing, a free demo, GST, the mobile app, or our coaching, and I'll help.");
       renderQuick();
     }
     setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
   }
   function closeChat(){
-    document.querySelector('.ai-chat').classList.remove('open');
+    const c = document.querySelector('.ai-chat');
+    c.classList.remove('open'); c.classList.remove('fullscreen');
+    try{ stopSpeaking(); }catch(e){} try{ if(_rec) _rec.stop(); }catch(e){} setState('idle');
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.remove('hidden');
   }
   function scrollBody(){ const b=document.getElementById('aiBody'); if(b) b.scrollTop=b.scrollHeight; }
@@ -921,21 +932,85 @@ async function trkRenderOne(no, email, box) {
     if(on){ const d=document.createElement('div'); d.className='ai-typing'; d.id='aiTyping'; d.innerHTML='<span></span><span></span><span></span>'; b.appendChild(d); scrollBody(); }
     else { const t=document.getElementById('aiTyping'); if(t) t.remove(); }
   }
-  // Escape plain-text (Rova replies in plain text) for safe innerHTML + keep line breaks.
-  function rovaFmt(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
-  // Live Rova — ask the grounded brain on the server; fall back to the offline FAQ if she's off/unreachable.
-  function respond(text){
-    typing(true);
-    fetch('https://fin.rrsindia.co.in/api/v1/public/rova-ask', {
+  // Rova answers with the SAME brain as the cloud/app (public endpoint /public/rova-ask,
+  // grounded in the app + product knowledge + persona). Graceful offline/limit fallback to
+  // the local canned answers so the widget never goes silent. Bomb-proof.
+  function aiEscape(s){ var d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
+  function askRova(text){
+    return fetch(RRFINEAPP_API + '/public/rova-ask', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Accept':'application/json', 'x-api-key':'2a524909821fa4cdd07b96a173a02603479a7deca1aa0ef0' },
+      headers:{ 'Content-Type':'application/json', 'Accept':'application/json', 'x-api-key':RRFINEAPP_PUBLIC_KEY },
       body: JSON.stringify({ question: text })
     }).then(function(r){ return r.json(); }).then(function(d){
-      typing(false);
-      if(d && d.answer){ botSay(rovaFmt(d.answer)); }
-      else { botSay(findAnswer(text)); }
-    }).catch(function(){ typing(false); botSay(findAnswer(text)); });
+      if(d && typeof d.answer === 'string' && d.answer.trim()){
+        return { html: aiEscape(d.answer).replace(/\n/g, '<br>'), speak: d.answer };   // real Rova (limit msg too)
+      }
+      return { html: findAnswer(text), speak: null };         // skipped/error → canned fallback
+    }).catch(function(){ return { html: findAnswer(text), speak: null }; });  // offline → canned fallback
   }
+  function respond(text){
+    typing(true); setState('thinking');
+    askRova(text).then(function(res){
+      typing(false); botSay(res.html);
+      if(speakerOn && res.speak){ speakRova(res.speak); } else { setState('idle'); }
+    }).catch(function(){ typing(false); setState('idle'); botSay(findAnswer(text)); });
+  }
+
+  // ── Rova state cue in the header (idle / listening / thinking / speaking) — mirrors cloud
+  function setState(kind){
+    var p = document.getElementById('aiState'); if(!p) return;
+    var map = { idle:['Online now',''], listening:['listening…','state-listening'],
+                thinking:['thinking…','state-thinking'], speaking:['speaking…','state-speaking'] };
+    var m = map[kind] || map.idle;
+    p.textContent = m[0];
+    p.className = m[1];
+    var ava = document.querySelector('.ai-chat .ai-ava');
+    if(ava){ ava.className = 'ai-ava' + (m[1] ? ' ' + m[1] : ''); }
+  }
+
+  // ── Voice OUT — she speaks her answer (device voice; toggle in the header). Bomb-proof.
+  var speakerOn = false;
+  function speakRova(txt){
+    try{
+      if(!('speechSynthesis' in window)){ setState('idle'); return; }
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(String(txt).slice(0, 600));
+      u.lang = 'en-IN'; u.rate = 1; u.pitch = 1;
+      u.onend = function(){ setState('idle'); };
+      u.onerror = function(){ setState('idle'); };
+      setState('speaking');
+      window.speechSynthesis.speak(u);
+    }catch(e){ setState('idle'); }
+  }
+  function stopSpeaking(){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  function toggleSpeaker(btn){
+    speakerOn = !speakerOn;
+    if(btn){ btn.textContent = speakerOn ? '🔊' : '🔇'; btn.classList.toggle('on', speakerOn); }
+    if(!speakerOn){ stopSpeaking(); setState('idle'); }
+  }
+
+  // ── Voice IN — tap the mic and just speak (browser recognizer). Transcribes → sends.
+  var _rec = null, micOn = false;
+  function micSupported(){ return typeof window!=='undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+  function toggleMic(btn){
+    if(micOn){ try{ if(_rec) _rec.stop(); }catch(e){} return; }
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition; if(!SR) return;
+    stopSpeaking();
+    var rec; try{ rec = new SR(); }catch(e){ return; }
+    rec.lang='en-IN'; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+    var finalText='';
+    rec.onstart=function(){ micOn=true; if(btn) btn.classList.add('on'); setState('listening'); };
+    rec.onresult=function(e){ var t=''; for(var i=e.resultIndex;i<e.results.length;i++) t+=e.results[i][0].transcript;
+      finalText=t; var inp=document.getElementById('aiInput'); if(inp) inp.value=t; };
+    rec.onerror=function(){};
+    rec.onend=function(){ micOn=false; _rec=null; if(btn) btn.classList.remove('on'); setState('idle');
+      var q=(finalText||'').trim(); var inp=document.getElementById('aiInput');
+      if(q){ if(inp) inp.value=''; if(!speakerOn) speakerOn=true; userSay(q); respond(q); } };
+    _rec=rec; try{ rec.start(); }catch(e){ micOn=false; if(btn) btn.classList.remove('on'); }
+  }
+
+  // ── Full-screen "stage" — bring Rova forward for demos (mirrors the cloud ⛶)
+  function toggleFull(){ var c=document.querySelector('.ai-chat'); if(c) c.classList.toggle('fullscreen'); }
   function renderQuick(){
     const q=document.getElementById('aiQuick'); q.innerHTML='';
     QUICK.forEach(function(label){
@@ -1352,11 +1427,11 @@ async function trkRenderOne(no, email, box) {
     paint(document.querySelector('.ai-ava'));                                  // chat-panel avatar (fills its circle)
     paint(document.querySelector('.ai-logo .ai-bolt'), Math.round(14*SCALE));  // promo "⚡AI" pill → [avatar]AI
     // floating button: swap the ⚡ svg for a small avatar, keep the "AI" label
-    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark'), fpx=Math.round(17*SCALE);
+    var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark'), fpx=Math.round(16*SCALE);
     if(spark && fab.getAttribute('data-rova')!=='1'){
       var f=new Image();
       f.onload=function(){ if(fab.getAttribute('data-rova')==='1')return;
-        f.style.cssText='width:'+fpx+'px;height:'+fpx+'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle;transform-origin:center;animation:aiBolt 1.15s ease-in-out infinite';
+        f.style.cssText='width:'+fpx+'px;height:'+fpx+'px;border-radius:50%;object-fit:cover;display:inline-block;vertical-align:middle';
         f.alt='Rova'; spark.replaceWith(f); fab.setAttribute('data-rova','1'); };
       f.alt='Rova'; f.src=src;
     }
