@@ -1142,6 +1142,8 @@ async function trkRenderOne(no, email, box) {
 
   function chatIsOpen(){ const c=document.querySelector('.ai-chat'); return !!(c && c.classList.contains('open')); }
   function toggleChat(){ if(!document.querySelector('.ai-chat')) buildAI(); if(chatIsOpen()) closeChat(); else openChat(); }
+  // Let any on-page button start Rova's product tour (e.g. the hero "Take a tour with Rova").
+  window.rovaStartTour = function(){ try{ if(!document.querySelector('.ai-chat')) buildAI(); startTour(); }catch(e){} };
 
   // Keyboard shortcut: Alt + A  →  open / close the AI assistant
   document.addEventListener('keydown', function(e){
