@@ -968,9 +968,33 @@ async function trkRenderOne(no, email, box) {
     if(ava){ ava.className = 'ai-ava' + (m[1] ? ' ' + m[1] : ''); }
   }
 
-  // ── Voice OUT — she speaks her answer (device voice; toggle in the header). Bomb-proof.
-  var speakerOn = false;
+  // ── Voice OUT — she speaks her answer in the REAL Rova cloud voice (public TTS endpoint,
+  // Sulafat) so the website sounds exactly like the app; falls back to the device voice if
+  // the cloud voice is unavailable or capped. Toggle in the header. Bomb-proof.
+  var speakerOn = false, _audio = null;
   function speakRova(txt){
+    var t = String(txt || '').slice(0, 800);
+    if(!t){ setState('idle'); return; }
+    setState('speaking');
+    try{
+      fetch(RRFINEAPP_API + '/public/rova-speak', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Accept':'audio/wav', 'x-api-key':RRFINEAPP_PUBLIC_KEY },
+        body: JSON.stringify({ text: t })
+      }).then(function(r){ if(!r.ok) throw 0; return r.blob(); })
+        .then(function(b){
+          if(!b || !b.size) throw 0;
+          stopSpeaking();
+          var url = URL.createObjectURL(b);
+          _audio = new Audio(url);
+          _audio.onended = function(){ setState('idle'); try{ URL.revokeObjectURL(url); }catch(e){} };
+          _audio.onerror = function(){ deviceSpeak(t); };
+          _audio.play().catch(function(){ deviceSpeak(t); });
+        })
+        .catch(function(){ deviceSpeak(t); });   // capped / unavailable → device voice
+    }catch(e){ deviceSpeak(t); }
+  }
+  function deviceSpeak(txt){
     try{
       if(!('speechSynthesis' in window)){ setState('idle'); return; }
       window.speechSynthesis.cancel();
@@ -978,11 +1002,13 @@ async function trkRenderOne(no, email, box) {
       u.lang = 'en-IN'; u.rate = 1; u.pitch = 1;
       u.onend = function(){ setState('idle'); };
       u.onerror = function(){ setState('idle'); };
-      setState('speaking');
       window.speechSynthesis.speak(u);
     }catch(e){ setState('idle'); }
   }
-  function stopSpeaking(){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  function stopSpeaking(){
+    try{ if(_audio){ _audio.pause(); _audio = null; } }catch(e){}
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+  }
   function toggleSpeaker(btn){
     speakerOn = !speakerOn;
     if(btn){ btn.textContent = speakerOn ? '🔊' : '🔇'; btn.classList.toggle('on', speakerOn); }
