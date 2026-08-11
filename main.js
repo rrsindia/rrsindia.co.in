@@ -1154,7 +1154,7 @@ async function trkRenderOne(no, email, box) {
   // demand from the tour (it builds the tour's panel; no vanilla FAB).
   try{
     var _rw = document.createElement('script');
-    _rw.src = '/rova-widget.js?v=2'; _rw.async = true;
+    _rw.src = '/rova-widget.js?v=3'; _rw.async = true;
     _rw.onload = function(){ try{ if(window.Rova) window.Rova.init({ mode:'website' }); }catch(e){} };
     document.head.appendChild(_rw);
   }catch(e){}
