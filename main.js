@@ -1049,27 +1049,27 @@ async function trkRenderOne(no, email, box) {
   // text mirrors the product deck; grounded Q&A comes from the same brain as the app.
   var ROVA_TOUR = [
     { t:'RRFinEApp — a quick tour', b:['Cloud accounting, GST, final accounts & stock','Like Tally or Busy, but in the cloud','Like D365 or SAP, but simple'],
-      say:'Namaste, I am Rova. Let me give you a quick tour of RRFinEApp, R.R. Sphere’s cloud finance app. In about two minutes you will see what it does. You can ask me a question anytime.' },
+      say:'Namaste, main Rova hoon. Aaiye main aapko RRFinEApp ka ek chhota sa tour karati hoon, R.R. Sphere ka cloud finance app. Do minute mein aap dekh lenge ye kya karta hai. Kabhi bhi sawaal pooch sakte hain.' },
     { t:'The cloud advantage', b:['No servers, no hardware, nothing to install','Run it from any phone or PC with a browser','Always the latest version, automatic daily backups'],
-      say:'It runs entirely in the cloud, so there is no server, no hardware and nothing to install. Open it on any phone or PC. We host, secure, update and back it up for you every day.' },
+      say:'Ye poora cloud par chalta hai, na koi server, na hardware, na kuch install karna. Kisi bhi phone ya PC par kholiye. Hum aapke liye host, secure, update aur roz backup karte hain.' },
     { t:'Dashboards & insights', b:['Live sales, purchase, GST & year progress','Premium sales and purchase dashboards','R.R. Sphere AI insights'],
-      say:'Your dashboard is live: sales, purchases, GST and your financial-year progress at a glance, with premium dashboards and R.R. Sphere AI insights.' },
+      say:'Aapka dashboard live hai, sales, purchase, GST aur financial year ka progress ek nazar mein, premium dashboards aur R.R. Sphere AI insights ke saath.' },
     { t:'Invoicing & GST', b:['Sales & purchase invoices','GST tax invoice with UPI scan-to-pay QR','GSTR-1, GSTR-3B, e-Way Bill & e-Invoice'],
-      say:'Raise sales and purchase invoices, including GST tax invoices with a UPI scan-to-pay QR, and file GSTR-1 and 3B, with e-Way Bill and e-Invoice support.' },
+      say:'Sales aur purchase invoice banaiye, GST tax invoice UPI scan-to-pay QR ke saath, aur GSTR-1 aur 3B file kijiye, e-Way Bill aur e-Invoice ke saath.' },
     { t:'Final accounts', b:['Trial Balance, tallied','Trading and Profit & Loss','Balance Sheet & Cash Flow'],
-      say:'Your final accounts are ready automatically: a tallied trial balance, trading and profit and loss, balance sheet and cash flow.' },
+      say:'Aapke final accounts apne aap ready, tallied trial balance, trading aur profit and loss, balance sheet aur cash flow.' },
     { t:'Stock', b:['Valuation: FIFO, weighted average or last','Stock ageing','Item-wise registers'],
-      say:'Track stock with valuation by FIFO, weighted average or last cost, plus stock ageing and item registers.' },
+      say:'Stock track kijiye, FIFO, weighted average ya last cost se valuation, stock ageing aur item registers ke saath.' },
     { t:'Professionals Suite', b:['For CAs, accountants & tax professionals','All client books in one place','Access granted and approved securely'],
-      say:'For professionals, the Professionals Suite puts all your client books in one place, with access that clients grant and approve, so it stays secure.' },
+      say:'Professionals ke liye, Professionals Suite aapke saare client books ek jagah rakhta hai, aisa access jo client grant aur approve karte hain, isliye ye secure rehta hai.' },
     { t:'Built to work your way', b:['Bomb-proof: no wrong entry can corrupt your books','One change updates every report, you never reconcile','Keyboard-first, blink-speed, easy for anyone'],
-      say:'It is built to be bomb-proof: a wrong entry can never corrupt your books. One change flows to every report automatically, so you never reconcile. It is keyboard-first, fast, and easy even for a non-accountant.' },
+      say:'Ye bomb-proof bana hai, galat entry aapki books kabhi kharab nahi kar sakti. Ek change har report mein apne aap chala jaata hai, isliye aapko reconcile nahi karna padta. Keyboard-first hai, fast hai, aur non-accountant ke liye bhi aasan.' },
     { t:'On your phone', b:['Android app live on Google Play','Your books in your pocket, fully in sync','Secure device login, ask Rova by voice'],
-      say:'The Android app is live on Google Play. Your books are in your pocket, fully in sync, with secure device login, and you can ask me by voice right from your phone.' },
+      say:'Android app Google Play par live hai. Aapki books aapki jeb mein, poori tarah sync, secure device login ke saath, aur aap mujhse voice se bhi pooch sakte hain apne phone se.' },
     { t:'Meet Rova, your assistant', b:['Open any screen or report by asking','Pull a ledger or item stock by name','Voice, guided tutorials, and answers from your books'],
-      say:'And I am here to help. Ask me to open any screen or report, pull a ledger or an item’s stock by name, and I answer in my own voice, in your language.' },
+      say:'Aur main aapki madad ke liye yahan hoon. Mujhse kaho koi bhi screen ya report kholo, kisi party ka ledger ya item ka stock naam se nikalo, aur main apni aawaz mein jawaab deti hoon, aapki bhaasha mein.' },
     { t:'Get started', b:['Free 30-day demo, extendable on request','First 50 clients: all premium features free','Book a demo or start your free trial'],
-      say:'Ready to try? Start a free thirty-day demo, and as one of the first fifty clients you get all premium features free. Ask me anything, or book a demo.' },
+      say:'Try karne ke liye taiyaar? Ek free tees din ka demo shuru kijiye, aur pehle pachaas clients mein hone par saare premium features free milte hain. Kuch bhi poochiye, ya demo book kijiye.' },
   ];
   var _tour = { on:false, i:0, playing:true };
   function startTour(){
@@ -1154,7 +1154,7 @@ async function trkRenderOne(no, email, box) {
   // demand from the tour (it builds the tour's panel; no vanilla FAB).
   try{
     var _rw = document.createElement('script');
-    _rw.src = '/rova-widget.js?v=3'; _rw.async = true;
+    _rw.src = '/rova-widget.js?v=5'; _rw.async = true;
     _rw.onload = function(){ try{ if(window.Rova) window.Rova.init({ mode:'website' }); }catch(e){} };
     document.head.appendChild(_rw);
   }catch(e){}
@@ -1529,9 +1529,8 @@ async function trkRenderOne(no, email, box) {
    floating button (.ai-fab) — ONLY when SuperAdmin has enabled it AND the image
    loads; otherwise the ⚡AI mark stays exactly as-is. Self-contained; can't break the page. */
 (function(){
-  return;  // DISABLED: the shared cloud Rova widget is the single Rova presence now — no
-           // more painting her face onto the promo/nav pills (removed the redundant bottom icon).
-  // eslint-disable-next-line no-unreachable
+  // Paints her avatar over the ⚡ in the TOUR panel header (.ai-ava). The promo pill was
+  // removed and the vanilla FAB is off, so this only affects the tour now (no bottom icon).
   var API='https://fin.rrsindia.co.in/api/v1', HOST='https://fin.rrsindia.co.in', src='', SCALE=1, mo=null;
   // Replace the ⚡ mark inside `el` with a round avatar image, once (idempotent via data-rova).
   function paint(el, px){
