@@ -1126,7 +1126,11 @@ async function trkRenderOne(no, email, box) {
     var d=document.getElementById('rovaTour'); if(d) d.remove();
     var c=document.querySelector('.ai-chat'); if(c){ c.classList.remove('touring'); c.classList.remove('fullscreen'); }
     setState('idle');
-    botSay("That's the tour! Ask me anything, or start a free 30-day demo, first 50 clients get all premium features free.");
+    // Reset the tour panel and CLOSE it — back to the page. (Don't leave the vanilla chat
+    // showing with a greeting/quick-buttons; the cloud Rova button handles chat.)
+    var body=document.getElementById('aiBody'); if(body) body.innerHTML='';
+    greeted=false;
+    closeChat();
   }
   function renderQuick(){
     const q=document.getElementById('aiQuick'); q.innerHTML='';
