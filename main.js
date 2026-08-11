@@ -56,8 +56,6 @@ document.addEventListener('click', function(e) {
     bar.className = 'promo-bar'; bar.id = 'promoBar';
     bar.innerHTML =
       '<button class="promo-x" id="promoX" type="button" aria-label="Dismiss">&times;</button>' +
-      '<div class="promo-ai"><span class="ai-logo" title="Rova"><span class="ai-bolt">⚡</span>AI</span></div>' +
-      '<span class="promo-ai-sep">·</span>' +
       '<a class="promo-cta" href="enquire.html?demo=1">' +
         '<span class="promo-gift">🎁</span>' +
         '<span class="promo-msg">Try <b>RRFinEApp</b> FREE for 30 days</span>' +
@@ -974,10 +972,11 @@ async function trkRenderOne(no, email, box) {
   // ── Voice OUT — she speaks her answer in the REAL Rova cloud voice (public TTS endpoint,
   // Sulafat) so the website sounds exactly like the app; falls back to the device voice if
   // the cloud voice is unavailable or capped. Toggle in the header. Bomb-proof.
-  var speakerOn = false, _audio = null;
+  var speakerOn = false, _audio = null, _speakToken = 0;
   function speakRova(txt, onDone){
     var t = String(txt || '').slice(0, 800);
     if(!t){ setState('idle'); if(onDone) onDone(); return; }
+    var my = ++_speakToken;                 // this narration's token; a pause/stop bumps it
     setState('speaking');
     try{
       fetch(RRFINEAPP_API + '/public/rova-speak', {
@@ -986,29 +985,32 @@ async function trkRenderOne(no, email, box) {
         body: JSON.stringify({ text: t })
       }).then(function(r){ if(!r.ok) throw 0; return r.blob(); })
         .then(function(b){
+          if(my !== _speakToken){ if(onDone) onDone(); return; }   // paused / superseded → do NOT play
           if(!b || !b.size) throw 0;
-          stopSpeaking();
+          try{ if(_audio){ _audio.pause(); } }catch(e){}
           var url = URL.createObjectURL(b);
           _audio = new Audio(url);
-          _audio.onended = function(){ setState('idle'); try{ URL.revokeObjectURL(url); }catch(e){} if(onDone) onDone(); };
-          _audio.onerror = function(){ deviceSpeak(t, onDone); };
-          _audio.play().catch(function(){ deviceSpeak(t, onDone); });
+          _audio.onended = function(){ if(my===_speakToken) setState('idle'); try{ URL.revokeObjectURL(url); }catch(e){} if(onDone) onDone(); };
+          _audio.onerror = function(){ if(my===_speakToken) deviceSpeak(t, onDone); };
+          _audio.play().catch(function(){ if(my===_speakToken) deviceSpeak(t, onDone); });
         })
-        .catch(function(){ deviceSpeak(t, onDone); });   // capped / unavailable → device voice
+        .catch(function(){ if(my===_speakToken) deviceSpeak(t, onDone); });   // capped / unavailable → device voice
     }catch(e){ deviceSpeak(t, onDone); }
   }
   function deviceSpeak(txt, onDone){
     try{
       if(!('speechSynthesis' in window)){ setState('idle'); if(onDone) onDone(); return; }
+      var my = _speakToken;
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(String(txt).slice(0, 600));
       u.lang = 'en-IN'; u.rate = 1; u.pitch = 1;
-      u.onend = function(){ setState('idle'); if(onDone) onDone(); };
-      u.onerror = function(){ setState('idle'); if(onDone) onDone(); };
+      u.onend = function(){ if(my===_speakToken) setState('idle'); if(onDone) onDone(); };
+      u.onerror = function(){ if(my===_speakToken) setState('idle'); if(onDone) onDone(); };
       window.speechSynthesis.speak(u);
     }catch(e){ setState('idle'); if(onDone) onDone(); }
   }
   function stopSpeaking(){
+    _speakToken++;                          // invalidate any in-flight narration (fetch mid-air)
     try{ if(_audio){ _audio.pause(); _audio = null; } }catch(e){}
     try{ window.speechSynthesis.cancel(); }catch(e){}
   }
@@ -1117,7 +1119,7 @@ async function trkRenderOne(no, email, box) {
     });
   }
   function tourGo(i){ stopSpeaking(); showTourSlide(i); }
-  function tourToggle(){ _tour.playing=!_tour.playing; updatePlayBtn(); if(_tour.playing){ _tour.gen=(_tour.gen||0)+1; narrateTour(_tour.gen); } else stopSpeaking(); }
+  function tourToggle(){ _tour.playing=!_tour.playing; updatePlayBtn(); if(_tour.playing){ _tour.gen=(_tour.gen||0)+1; narrateTour(_tour.gen); } else { stopSpeaking(); setState('idle'); } }
   function updatePlayBtn(){ var b=document.getElementById('rtPlay'); if(b) b.textContent=_tour.playing?'⏸ Pause':'▶ Play'; }
   function endTour(){
     _tour.on=false; stopSpeaking();
