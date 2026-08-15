@@ -1603,3 +1603,35 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
+
+// Footer version + last-updated date + "hover for what's new" — pulled from
+// SuperAdmin Version Control (/public/config) on every page, so it auto-updates
+// each release with no manual edit.
+(function(){
+  function fmt(d){ try{ var s=String(d).slice(0,10), m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); return m?m[3]+"."+m[2]+"."+m[1]:s; }catch(e){ return ""; } }
+  try {
+    fetch("https://fin.rrsindia.co.in/api/v1/public/config", { headers:{ Accept:"application/json" } })
+      .then(function(r){ return r.json(); })
+      .then(function(c){
+        if(!c) return;
+        var parts=[];
+        if(c.latest_version) parts.push("v"+c.latest_version);
+        if(c.version_date)   parts.push("Updated "+fmt(c.version_date));
+        if(!parts.length) return;
+        var ps=document.querySelectorAll(".footer-bottom p"), i;
+        for(i=0;i<ps.length;i++){
+          if(/All rights reserved/i.test(ps[i].textContent)){
+            var s=document.createElement("span");
+            s.className="ft-ver";
+            s.style.cssText="display:block;margin-top:4px;font-size:.8rem;opacity:.7";
+            s.textContent=parts.join(" · ");
+            if(Array.isArray(c.version_notes) && c.version_notes.length){
+              s.title="What's new in v"+c.latest_version+":\n- "+c.version_notes.join("\n- ");
+              s.style.cursor="help"; s.style.textDecoration="underline dotted";
+            }
+            ps[i].appendChild(s); break;
+          }
+        }
+      }).catch(function(){});
+  } catch(e){}
+})();
