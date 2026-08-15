@@ -997,13 +997,36 @@ async function trkRenderOne(no, email, box) {
         .catch(function(){ if(my===_speakToken) deviceSpeak(t, onDone); });   // capped / unavailable → device voice
     }catch(e){ deviceSpeak(t, onDone); }
   }
+  // Pick a FEMALE voice for the device fallback so Rova never sounds like a man when the
+  // cloud (Sulafat) voice is briefly unavailable. Prefer an Indian-English female.
+  var _femaleVoice = null;
+  function pickFemaleVoice(){
+    try{
+      var vs = (window.speechSynthesis && window.speechSynthesis.getVoices && window.speechSynthesis.getVoices()) || [];
+      if(!vs.length) return null;
+      var score = function(v){
+        var n=(v.name||'').toLowerCase(), l=(v.lang||'').toLowerCase(), s=0;
+        if(/female|woman|heera|kalpana|swara|neerja|aditi|raveena|priya|zira|susan|samantha|jenny|aria|sonia|google uk english female|google हिन्दी/.test(n)) s+=6;
+        if(/male|david|mark|ravi|hemant|prabhat|\bguy\b|rishi/.test(n)) s-=8;
+        if(/^en-in|^hi-in/.test(l)) s+=3; else if(/^en/.test(l)) s+=1;
+        return s;
+      };
+      var best=null, bestS=-99;
+      vs.forEach(function(v){ var s=score(v); if(s>bestS){ bestS=s; best=v; } });
+      _femaleVoice = best;
+    }catch(e){}
+    return _femaleVoice;
+  }
+  try{ if(window.speechSynthesis){ pickFemaleVoice(); window.speechSynthesis.onvoiceschanged = pickFemaleVoice; } }catch(e){}
   function deviceSpeak(txt, onDone){
     try{
       if(!('speechSynthesis' in window)){ setState('idle'); if(onDone) onDone(); return; }
       var my = _speakToken;
       window.speechSynthesis.cancel();
+      if(!_femaleVoice) pickFemaleVoice();
       var u = new SpeechSynthesisUtterance(String(txt).slice(0, 600));
-      u.lang = 'en-IN'; u.rate = 1; u.pitch = 1;
+      u.lang = 'en-IN'; u.rate = 1; u.pitch = 1.05;
+      if(_femaleVoice){ u.voice = _femaleVoice; }
       u.onend = function(){ if(my===_speakToken) setState('idle'); if(onDone) onDone(); };
       u.onerror = function(){ if(my===_speakToken) setState('idle'); if(onDone) onDone(); };
       window.speechSynthesis.speak(u);
@@ -1275,6 +1298,38 @@ async function trkRenderOne(no, email, box) {
         if (c && c.company_desc) {
           var m = document.querySelector('meta[name="description"]');
           if (m) m.setAttribute('content', c.company_desc);
+        }
+      }).catch(function(){});
+  } catch(e){}
+})();
+
+// Footer version + last-updated date — pulled from SuperAdmin Version Control
+// (/public/config) on EVERY page, so it auto-updates each release with no manual edit.
+(function(){
+  function fmt(d){ try{ var s=String(d).slice(0,10), m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); return m?m[3]+'.'+m[2]+'.'+m[1]:s; }catch(e){ return ''; } }
+  try {
+    fetch(RRFINEAPP_API + '/public/config', { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.json(); })
+      .then(function(c){
+        if(!c) return;
+        var parts = [];
+        if(c.latest_version) parts.push('v'+c.latest_version);
+        if(c.version_date)   parts.push('Updated '+fmt(c.version_date));
+        if(!parts.length) return;
+        var ps = document.querySelectorAll('.footer-bottom p'), i;
+        for(i=0;i<ps.length;i++){
+          if(/All rights reserved/i.test(ps[i].textContent)){
+            var s = document.createElement('span');
+            s.className = 'ft-ver';
+            s.style.cssText = 'display:block;margin-top:4px;font-size:.8rem;opacity:.7';
+            s.textContent = parts.join(' · ');
+            if (Array.isArray(c.version_notes) && c.version_notes.length) {
+              s.title = "What's new in v" + c.latest_version + ":\n- " + c.version_notes.join("\n- ");
+              s.style.cursor = 'help'; s.style.textDecoration = 'underline dotted';
+            }
+            ps[i].appendChild(s);
+            break;
+          }
         }
       }).catch(function(){});
   } catch(e){}
@@ -1602,36 +1657,4 @@ async function trkRenderOne(no, email, box) {
     }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
-})();
-
-// Footer version + last-updated date + "hover for what's new" — pulled from
-// SuperAdmin Version Control (/public/config) on every page, so it auto-updates
-// each release with no manual edit.
-(function(){
-  function fmt(d){ try{ var s=String(d).slice(0,10), m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); return m?m[3]+"."+m[2]+"."+m[1]:s; }catch(e){ return ""; } }
-  try {
-    fetch("https://fin.rrsindia.co.in/api/v1/public/config", { headers:{ Accept:"application/json" } })
-      .then(function(r){ return r.json(); })
-      .then(function(c){
-        if(!c) return;
-        var parts=[];
-        if(c.latest_version) parts.push("v"+c.latest_version);
-        if(c.version_date)   parts.push("Updated "+fmt(c.version_date));
-        if(!parts.length) return;
-        var ps=document.querySelectorAll(".footer-bottom p"), i;
-        for(i=0;i<ps.length;i++){
-          if(/All rights reserved/i.test(ps[i].textContent)){
-            var s=document.createElement("span");
-            s.className="ft-ver";
-            s.style.cssText="display:block;margin-top:4px;font-size:.8rem;opacity:.7";
-            s.textContent=parts.join(" · ");
-            if(Array.isArray(c.version_notes) && c.version_notes.length){
-              s.title="What's new in v"+c.latest_version+":\n- "+c.version_notes.join("\n- ");
-              s.style.cursor="help"; s.style.textDecoration="underline dotted";
-            }
-            ps[i].appendChild(s); break;
-          }
-        }
-      }).catch(function(){});
-  } catch(e){}
 })();
