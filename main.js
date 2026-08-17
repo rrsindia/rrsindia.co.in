@@ -513,7 +513,7 @@ async function loadPlansFeatures(){
     OD.offer = d.offer||{eligible:true,value:10000}; OD.terms = d.terms||''; OD.note = d.activation_note||''; OD.company = d.company||null; OD.footer = d.footer||'';
     const cy = document.getElementById('od-country');
     if(cy && Array.isArray(d.countries) && d.countries.length){ cy.innerHTML = d.countries.map(c=>'<option value="'+c.code+'">'+odEsc(c.label)+'</option>').join(''); }
-    // Partner list (from R.R. Sphere brokers), blank default, names only from the DB (none hardcoded).
+    // Partner list (from R.R. Sphere INDIA brokers), blank default, names only from the DB (none hardcoded).
     const pr = document.getElementById('od-partner');
     if(pr){ pr.innerHTML = '<option value="">No Partner</option>' + (Array.isArray(d.brokers)? d.brokers.map(b=>'<option value="'+odEsc(b.name)+'">'+odEsc(b.name)+'</option>').join(''):''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
@@ -911,7 +911,7 @@ async function trkRenderOne(no, email, box) {
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
-      botSay("Hi, I'm <b>Rova</b>, your R.R. Sphere assistant. 🌿 Ask me anything about RRFinEApp, pricing, a free demo, GST, the mobile app, or our coaching, and I'll help.");
+      botSay("Hi, I'm <b>Rova</b>, your R.R. Sphere INDIA assistant. 🌿 Ask me anything about RRFinEApp, pricing, a free demo, GST, the mobile app, or our coaching, and I'll help.");
       renderQuick();
     }
     setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
@@ -1072,11 +1072,11 @@ async function trkRenderOne(no, email, box) {
   // text mirrors the product deck; grounded Q&A comes from the same brain as the app.
   var ROVA_TOUR = [
     { t:'RRFinEApp — a quick tour', b:['Cloud accounting, GST, final accounts & stock','Like Tally or Busy, but in the cloud','Like D365 or SAP, but simple'],
-      say:'Namaste, main Rova hoon. Aaiye main aapko RRFinEApp ka ek chhota sa tour karati hoon, R.R. Sphere ka cloud finance app. Do minute mein aap dekh lenge ye kya karta hai. Kabhi bhi sawaal pooch sakte hain.' },
+      say:'Namaste, main Rova hoon. Aaiye main aapko RRFinEApp ka ek chhota sa tour karati hoon, R.R. Sphere INDIA ka cloud finance app. Do minute mein aap dekh lenge ye kya karta hai. Kabhi bhi sawaal pooch sakte hain.' },
     { t:'The cloud advantage', b:['No servers, no hardware, nothing to install','Run it from any phone or PC with a browser','Always the latest version, automatic daily backups'],
       say:'Ye poora cloud par chalta hai, na koi server, na hardware, na kuch install karna. Kisi bhi phone ya PC par kholiye. Hum aapke liye host, secure, update aur roz backup karte hain.' },
-    { t:'Dashboards & insights', b:['Live sales, purchase, GST & year progress','Premium sales and purchase dashboards','R.R. Sphere AI insights'],
-      say:'Aapka dashboard live hai, sales, purchase, GST aur financial year ka progress ek nazar mein, premium dashboards aur R.R. Sphere AI insights ke saath.' },
+    { t:'Dashboards & insights', b:['Live sales, purchase, GST & year progress','Premium sales and purchase dashboards','R.R. Sphere INDIA AI insights'],
+      say:'Aapka dashboard live hai, sales, purchase, GST aur financial year ka progress ek nazar mein, premium dashboards aur R.R. Sphere INDIA AI insights ke saath.' },
     { t:'Invoicing & GST', b:['Sales & purchase invoices','GST tax invoice with UPI scan-to-pay QR','GSTR-1, GSTR-3B, e-Way Bill & e-Invoice'],
       say:'Sales aur purchase invoice banaiye, GST tax invoice UPI scan-to-pay QR ke saath, aur GSTR-1 aur 3B file kijiye, e-Way Bill aur e-Invoice ke saath.' },
     { t:'Final accounts', b:['Trial Balance, tallied','Trading and Profit & Loss','Balance Sheet & Cash Flow'],
