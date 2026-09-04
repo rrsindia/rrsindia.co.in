@@ -137,4 +137,27 @@
 
 <footer><div class="footer-grid"><div class="footer-brand"><div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g4)">R.R. Sphere INDIA</div><p>IT &amp; Learning | AI-Powered Solutions. Est. 1995 &middot; 30+ Years of IT Expertise.</p><p style="color:var(--g4);font-weight:600;margin-top:8px">🌿 Built with love for nature and people</p></div><div class="footer-col"><h5>Company</h5><a href="index.html">Home</a><a href="about.html">About Us</a><a href="vision.html">Our Vision</a><a href="services.html">Services</a><a href="contact.html">Contact</a><a href="feedback.html">Feedback</a></div><div class="footer-col"><h5>Products</h5><a href="finapp.html">RRFinEApp</a><a href="https://fin.rrsindia.co.in" target="_blank" rel="noopener">App Login ↗</a><a href="coaching.html">Coaching Classes</a><a href="finapp.html">What “RRFinEApp” Means</a><a href="support.html">Report an Issue</a></div><div class="footer-col"><h5>Follow Us</h5><a href="https://facebook.com/rrsindia122/" target="_blank" rel="noopener">📘 Facebook</a><a href="https://www.instagram.com/rrsindia122" target="_blank" rel="noopener">📸 Instagram</a><a href="https://linkedin.com/company/rrsindia122" target="_blank" rel="noopener">💼 LinkedIn</a><a href="https://wa.me/917719728045" target="_blank" rel="noopener">💬 WhatsApp</a></div></div><div class="footer-bottom"><p style="flex-basis:100%;text-align:center;margin-bottom:6px"><a href="trust.html">Trust &amp; Security</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="support.html">Support</a> &middot; <a href="sitemap.html">Sitemap</a></p><p>© 2026 <span>R.R. Sphere INDIA</span>. All rights reserved.</p><p>Built with ❤️ in <span><span class="in-hl">India</span></span></p></div></footer>
 <script src="main-96.min.js"></script>
+<script id="ca-demo-preselect">
+/* Preselect the demo fields from the URL, e.g. enquire.html?demo=1&product=ca_firm
+   (the bundle handles demo=1; this adds product/user). Runs after the bundle's own
+   DOMContentLoaded handler because this block is parsed after it. */
+(function () {
+  function preselect() {
+    var q = new URLSearchParams(location.search || '');
+    var prod = q.get('product'), user = q.get('user');
+    if (!prod && !user) return;
+    var p = document.getElementById('enq-demo-product');
+    var u = document.getElementById('enq-demo-user');
+    if (prod && p) p.value = prod;
+    if (user && u) u.value = user;
+    var box = document.getElementById('enq-demo-fields');
+    // Only scroll once the bundle has actually revealed the block.
+    if (box && box.style.display === 'block') {
+      try { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', preselect);
+  else preselect();
+})();
+</script>
 </body></html>
