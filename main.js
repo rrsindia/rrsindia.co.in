@@ -1658,3 +1658,42 @@ async function trkRenderOne(no, email, box) {
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
+
+// ── EDITABLE CONTENT FROM SUPERADMIN ──────────────────────────────────────────
+// Lets the founder change text on this static site without a git push. Mark a spot
+// with  data-rrs="block_key"  and fill that block in SuperAdmin > Website Content.
+//
+// 🔴 A MISSING OR EMPTY BLOCK CHANGES NOTHING. The element keeps whatever is
+//    written in the HTML. That is the whole safety property: an unfilled block can
+//    never blank a section of the live site, and clearing a box in the admin is a
+//    safe undo rather than a deletion.
+//
+// 🔴 It NEVER breaks the page. Any failure (API down, CORS, bad JSON, no network)
+//    leaves every hard-coded default exactly where it is. A marketing site is not
+//    allowed to go blank because a content lookup did.
+(function () {
+  try {
+    var slots = document.querySelectorAll('[data-rrs]');
+    if (!slots.length) return;                     // nothing on this page asks for content
+
+    fetch('https://fin.rrsindia.co.in/api/v1/public/web-content', { cache: 'default' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.blocks) return;
+        Array.prototype.forEach.call(slots, function (el) {
+          var b = d.blocks[el.getAttribute('data-rrs')];
+          if (!b || !b.body || !String(b.body).trim()) {
+            // Optional: a spot that should disappear entirely when unfilled, such as
+            // an announcement strip or a testimonial.
+            if (el.hasAttribute('data-rrs-hide-if-empty')) el.style.display = 'none';
+            return;                                // otherwise leave the built-in text
+          }
+          if (b.html) el.innerHTML = b.body;
+          else        el.textContent = b.body;
+          el.removeAttribute('data-rrs-hide-if-empty');
+          el.style.removeProperty('display');
+        });
+      })
+      .catch(function () { /* silence is correct here: keep the page as authored */ });
+  } catch (e) { /* same */ }
+})();
