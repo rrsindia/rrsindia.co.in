@@ -128,8 +128,16 @@
           <div style="font-size:1.8rem;margin-bottom:8px">&#128274;</div>
           <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.35rem;color:var(--white);margin:0 0 8px" id="pp-setpw-title">Choose a password</h2>
           <p style="color:var(--muted);font-size:.85rem;margin:0 0 16px">At least 9 characters, with one capital letter, one number and one special character.</p>
-          <input id="pp-newpw" type="password" autocomplete="new-password" placeholder="New password" onkeydown="if(event.key==='Enter')ppSavePw()"
-                 style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.95);color:#111;font-size:.95rem">
+          <div style="position:relative">
+            <input id="pp-newpw" type="password" autocomplete="new-password"
+                   placeholder="Min 9 chars &middot; 1 capital &middot; 1 number &middot; 1 special"
+                   oninput="ppPwCheck()" onkeydown="if(event.key==='Enter')ppSavePw()"
+                   style="width:100%;box-sizing:border-box;padding:12px 44px 12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.95);color:#111;font-size:.95rem">
+            <button type="button" id="pp-newpw-eye" onclick="ppToggleNewPw()" title="Show / hide password"
+                    aria-label="Show or hide password"
+                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;font-size:1.05rem;padding:6px">&#128065;</button>
+          </div>
+          <div id="pp-pwrules" style="margin-top:10px;font-size:.76rem;line-height:1.9;color:var(--muted)"></div>
           <button type="button" id="pp-savepw" onclick="ppSavePw()" class="cta"
                   style="width:100%;margin-top:12px;background:var(--g4);color:#04130a;border:0;padding:12px 18px;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer">Save password</button>
           <div id="pp-pwmsg" style="display:none;margin-top:14px;font-size:.85rem;line-height:1.6;border-radius:10px;padding:12px 14px"></div>
@@ -270,13 +278,55 @@ function ppRequestLink() {
 /* choose or change the password */
 function ppChangePw() {
   document.getElementById('pp-setpw-title').textContent = 'Change your password';
-  document.getElementById('pp-newpw').value = '';
+  document.getElementById('pp-newpw').value = ''; ppPwCheck();
   ppShow('pp-setpw');
 }
 function ppSkipPw() { if (PP_LAST) { ppShowDash(PP_LAST); } else { ppShow('pp-dash'); } }
 
+/* The app's rule, character for character: backend/utils/passwordPolicy.js and
+   web/src/utils/passwordPolicy.js. Repeated here because a static page cannot
+   import them, so it is written to be obviously the same four tests rather than
+   a looser approximation. The server remains the authority and re-checks. */
+var PP_RULES = [
+  { label: 'At least 9 characters', test: function (p) { return p.length >= 9; } },
+  { label: 'One capital letter',    test: function (p) { return /[A-Z]/.test(p); } },
+  { label: 'One number',            test: function (p) { return /[0-9]/.test(p); } },
+  { label: 'One special character', test: function (p) { return /[^A-Za-z0-9]/.test(p); } }
+];
+function ppPwOk(p) { return PP_RULES.every(function (r) { return r.test(p || ''); }); }
+
+function ppPwCheck() {
+  var p = document.getElementById('pp-newpw').value || '';
+  var box = document.getElementById('pp-pwrules');
+  if (!box) return;
+  if (!p) { box.innerHTML = ''; return; }
+  box.innerHTML = PP_RULES.map(function (r) {
+    var ok = r.test(p);
+    return '<div style="color:' + (ok ? 'var(--g4)' : 'var(--muted)') + '">' +
+             (ok ? '&#10003;' : '&#8226;') + ' ' + r.label +
+           '</div>';
+  }).join('');
+}
+
+function ppToggleNewPw() {
+  var i = document.getElementById('pp-newpw');
+  var b = document.getElementById('pp-newpw-eye');
+  if (!i) return;
+  var show = i.type === 'password';
+  i.type = show ? 'text' : 'password';
+  if (b) b.innerHTML = show ? '&#128584;' : '&#128065;';   // the app's eye / see-no-evil
+}
+
 function ppSavePw() {
   var pw = document.getElementById('pp-newpw').value || '';
+  /* Fail fast on the client for the user's sake; the server validates again
+     regardless, because a check that only runs in a browser is not a check. */
+  if (!ppPwOk(pw)) {
+    ppNote('pp-pwmsg', 'Password must be at least 9 characters and include one uppercase letter, one number, and one special character.', 'err');
+    ppPwCheck();
+    document.getElementById('pp-newpw').focus();
+    return;
+  }
   var btn = document.getElementById('pp-savepw'), label = btn.textContent;
   btn.textContent = 'Saving...'; btn.disabled = true;
   fetch(PP_API + '/public/partner/set-password', {
