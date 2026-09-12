@@ -94,16 +94,46 @@
       <aside class="reveal" id="pp-panel" style="background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,197,94,.04));border:1px solid var(--g3);border-radius:16px;padding:28px">
 
         <div id="pp-signin">
-          <div style="font-size:1.8rem;margin-bottom:8px">🔑</div>
+          <div style="font-size:1.8rem;margin-bottom:8px">&#128273;</div>
           <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.35rem;color:var(--white);margin:0 0 8px">Partner sign in</h2>
-          <p style="color:var(--muted);font-size:.88rem;margin:0 0 18px">No password needed. Enter the email address registered with us and we will send you a sign-in link.</p>
-          <label for="pp-email" style="display:block;color:var(--white);font-size:.82rem;font-weight:600;margin-bottom:6px">Your email</label>
-          <input id="pp-email" type="email" autocomplete="email" placeholder="you@example.com"
+          <p style="color:var(--muted);font-size:.88rem;margin:0 0 18px">Sign in with the email address registered with us.</p>
+
+          <label for="pp-email" style="display:block;color:var(--white);font-size:.82rem;font-weight:600;margin-bottom:6px">Email</label>
+          <input id="pp-email" type="email" autocomplete="username" placeholder="you@example.com"
                  style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.95);color:#111;font-size:.95rem">
-          <button type="button" id="pp-send" onclick="ppRequestLink()" class="cta"
-                  style="width:100%;margin-top:12px;background:var(--g4);color:#04130a;border:0;padding:12px 18px;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer">Email me a sign-in link →</button>
+
+          <label for="pp-pw" style="display:block;color:var(--white);font-size:.82rem;font-weight:600;margin:14px 0 6px">Password</label>
+          <div style="position:relative">
+            <input id="pp-pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')ppLogin()"
+                   style="width:100%;box-sizing:border-box;padding:12px 44px 12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.95);color:#111;font-size:.95rem">
+            <button type="button" onclick="ppTogglePw()" title="Show / hide password" aria-label="Show or hide password"
+                    style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;font-size:1.05rem;padding:6px">&#128065;</button>
+          </div>
+
+          <button type="button" id="pp-go" onclick="ppLogin()" class="cta"
+                  style="width:100%;margin-top:14px;background:var(--g4);color:#04130a;border:0;padding:12px 18px;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer">Sign in &#8594;</button>
+
           <div id="pp-msg" style="display:none;margin-top:14px;font-size:.85rem;line-height:1.6;border-radius:10px;padding:12px 14px"></div>
-          <p style="color:var(--muted);font-size:.8rem;margin:18px 0 0;padding-top:14px;border-top:1px solid var(--border)">Not a partner yet? <a href="enquire.html" style="color:var(--g4);font-weight:600">Register your interest</a> and we will set you up.</p>
+
+          <p style="color:var(--muted);font-size:.82rem;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border);line-height:1.7">
+            First time here, or forgotten your password?
+            <a href="#" onclick="ppRequestLink();return false" style="color:var(--g4);font-weight:600">Email me a sign-in link</a>
+          </p>
+          <p style="color:var(--muted);font-size:.8rem;margin:10px 0 0">Not a partner yet? <a href="enquire.html" style="color:var(--g4);font-weight:600">Register your interest</a> and we will set you up.</p>
+        </div>
+
+        <!-- Shown after the emailed link signs them in with no password yet, and
+             reachable afterwards to change it. -->
+        <div id="pp-setpw" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:8px">&#128274;</div>
+          <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.35rem;color:var(--white);margin:0 0 8px" id="pp-setpw-title">Choose a password</h2>
+          <p style="color:var(--muted);font-size:.85rem;margin:0 0 16px">At least 9 characters, with one capital letter, one number and one special character.</p>
+          <input id="pp-newpw" type="password" autocomplete="new-password" placeholder="New password" onkeydown="if(event.key==='Enter')ppSavePw()"
+                 style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.95);color:#111;font-size:.95rem">
+          <button type="button" id="pp-savepw" onclick="ppSavePw()" class="cta"
+                  style="width:100%;margin-top:12px;background:var(--g4);color:#04130a;border:0;padding:12px 18px;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer">Save password</button>
+          <div id="pp-pwmsg" style="display:none;margin-top:14px;font-size:.85rem;line-height:1.6;border-radius:10px;padding:12px 14px"></div>
+          <button type="button" onclick="ppSkipPw()" style="margin-top:12px;background:none;border:0;color:var(--muted);font-size:.82rem;cursor:pointer;text-decoration:underline">Not now, take me to my referrals</button>
         </div>
 
         <div id="pp-dash" style="display:none">
@@ -114,7 +144,7 @@
             Counts only. We do not show your introductions' business details to anyone, including you, and we do not show yours to them.
             Questions about a specific introduction? <a href="contact.html" style="color:var(--g4);font-weight:600">Contact us</a>.
           </p>
-          <button type="button" onclick="ppSignOut()" style="margin-top:14px;background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.8rem;cursor:pointer">Sign out</button>
+          <button type="button" onclick="ppChangePw()" style="margin-top:14px;margin-right:8px;background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.8rem;cursor:pointer">Change password</button><button type="button" onclick="ppSignOut()" style="margin-top:14px;background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.8rem;cursor:pointer">Sign out</button>
         </div>
 
       </aside>
@@ -140,57 +170,137 @@
 <script src="main-97.min.js"></script>
 <script src="update-check.js" defer></script>
 <script>
-/* ── Partner portal ───────────────────────────────────────────────────────────
+/* Partner portal.
    Loaded AFTER main-97.min.js so RRFINEAPP_API and RRFINEAPP_PUBLIC_KEY exist.
-   The key is read from the bundle rather than repeated here: one place to change
-   it, and no second copy to forget when it rotates. */
+   The key is read from the bundle rather than copied here: one place to change
+   when it rotates, and no second copy to forget.
+
+   Email + password, the same as the Customer and Team portals. The emailed
+   one-time link is the first-time setup and the forgotten-password path, not a
+   separate way of working. */
 var PP_API = (typeof RRFINEAPP_API !== 'undefined') ? RRFINEAPP_API : 'https://fin.rrsindia.co.in/api/v1';
 var PP_KEY = (typeof RRFINEAPP_PUBLIC_KEY !== 'undefined') ? RRFINEAPP_PUBLIC_KEY : '';
 var PP_LS  = 'rrs_partner_session';
+var PP_LAST = null;   // last summary, so "Not now" can return to it
 
-function ppMsg(text, kind) {
-  var el = document.getElementById('pp-msg');
+function ppHead(auth) {
+  var h = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': PP_KEY };
+  if (auth) h['Authorization'] = 'Bearer ' + auth;
+  return h;
+}
+function ppTok() { try { return localStorage.getItem(PP_LS); } catch (e) { return null; } }
+function ppSetTok(t) { try { t ? localStorage.setItem(PP_LS, t) : localStorage.removeItem(PP_LS); } catch (e) {} }
+
+function ppNote(id, text, kind) {
+  var el = document.getElementById(id);
   if (!el) return;
   var ok = kind === 'ok';
-  el.style.display    = 'block';
+  el.style.display = 'block';
   el.style.background = ok ? 'rgba(34,197,94,.14)' : 'rgba(239,68,68,.12)';
-  el.style.border     = '1px solid ' + (ok ? 'var(--g3)' : 'rgba(239,68,68,.45)');
-  el.style.color      = ok ? 'var(--white)' : '#fca5a5';
-  el.textContent      = text;
+  el.style.border = '1px solid ' + (ok ? 'var(--g3)' : 'rgba(239,68,68,.45)');
+  el.style.color = ok ? 'var(--white)' : '#fca5a5';
+  el.textContent = text;
+}
+function ppMsg(t, k) { ppNote('pp-msg', t, k); }
+
+function ppShow(which) {
+  ['pp-signin', 'pp-setpw', 'pp-dash'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = (id === which) ? 'block' : 'none';
+  });
 }
 
-function ppRequestLink() {
-  var input = document.getElementById('pp-email');
-  var btn   = document.getElementById('pp-send');
-  var email = (input.value || '').trim();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { ppMsg('Please enter a valid email address.', 'err'); input.focus(); return; }
+function ppTogglePw() {
+  var i = document.getElementById('pp-pw');
+  if (i) i.type = (i.type === 'password') ? 'text' : 'password';
+}
 
-  var label = btn.textContent;
-  btn.textContent = 'Sending…'; btn.disabled = true;
-  fetch(PP_API + '/public/partner/request-link', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': PP_KEY },
-    body: JSON.stringify({ email: email })
+function ppEsc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+
+/* sign in with a password */
+function ppLogin() {
+  var email = (document.getElementById('pp-email').value || '').trim();
+  var pw = document.getElementById('pp-pw').value || '';
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { ppMsg('Please enter a valid email address.', 'err'); return; }
+  if (!pw) { ppMsg('Please enter your password.', 'err'); return; }
+
+  var btn = document.getElementById('pp-go'), label = btn.textContent;
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  fetch(PP_API + '/public/partner/login', {
+    method: 'POST', headers: ppHead(), body: JSON.stringify({ email: email, password: pw })
   })
   .then(function (r) { return r.json().catch(function () { return {}; }); })
   .then(function (d) {
     btn.textContent = label; btn.disabled = false;
+    if (d && d.ok && d.token) {
+      ppSetTok(d.token);
+      document.getElementById('pp-pw').value = '';
+      ppLoad(d.token, false);
+    } else ppMsg((d && d.error) || 'Could not sign you in.', 'err');
+  })
+  .catch(function () { btn.textContent = label; btn.disabled = false; ppMsg('Network issue, please try again.', 'err'); });
+}
+
+/* first time, or forgotten */
+function ppRequestLink() {
+  var email = (document.getElementById('pp-email').value || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    ppMsg('Enter your email address above first, then ask for the link.', 'err');
+    document.getElementById('pp-email').focus();
+    return;
+  }
+  ppMsg('Sending...', 'ok');
+  fetch(PP_API + '/public/partner/request-link', {
+    method: 'POST', headers: ppHead(), body: JSON.stringify({ email: email })
+  })
+  .then(function (r) { return r.json().catch(function () { return {}; }); })
+  .then(function (d) {
     if (d && d.error) { ppMsg(d.error, 'err'); return; }
-    /* The same answer whether or not the address is a partner. That is
-       deliberate: a different reply would turn this box into a way to find out
-       who our partners are, one address at a time. */
-    ppMsg(d.message || 'If that email belongs to a partner account, a sign-in link is on its way.', 'ok');
+    /* The same answer whether or not the address is a partner, on purpose: a
+       different reply would let anyone discover who our partners are. */
+    ppMsg((d && d.message) || 'If that email belongs to a partner account, a sign-in link is on its way.', 'ok');
+  })
+  .catch(function () { ppMsg('Network issue, please try again.', 'err'); });
+}
+
+/* choose or change the password */
+function ppChangePw() {
+  document.getElementById('pp-setpw-title').textContent = 'Change your password';
+  document.getElementById('pp-newpw').value = '';
+  ppShow('pp-setpw');
+}
+function ppSkipPw() { if (PP_LAST) { ppShowDash(PP_LAST); } else { ppShow('pp-dash'); } }
+
+function ppSavePw() {
+  var pw = document.getElementById('pp-newpw').value || '';
+  var btn = document.getElementById('pp-savepw'), label = btn.textContent;
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  fetch(PP_API + '/public/partner/set-password', {
+    method: 'POST', headers: ppHead(ppTok()), body: JSON.stringify({ password: pw })
+  })
+  .then(function (r) { return r.json().catch(function () { return {}; }); })
+  .then(function (d) {
+    btn.textContent = label; btn.disabled = false;
+    if (d && d.ok) {
+      ppNote('pp-pwmsg', d.message || 'Password saved.', 'ok');
+      setTimeout(function () { ppLoad(ppTok(), true); }, 900);
+    } else ppNote('pp-pwmsg', (d && d.error) || 'Could not save your password.', 'err');
   })
   .catch(function () {
     btn.textContent = label; btn.disabled = false;
-    ppMsg('Network issue, please check your connection and try again.', 'err');
+    ppNote('pp-pwmsg', 'Network issue, please try again.', 'err');
   });
 }
 
+/* the dashboard */
 function ppShowDash(d) {
-  document.getElementById('pp-signin').style.display = 'none';
-  document.getElementById('pp-dash').style.display   = 'block';
-  document.getElementById('pp-name').textContent     = d.name ? (d.name + "'s referrals") : 'My referrals';
+  PP_LAST = d;
+  ppShow('pp-dash');
+  document.getElementById('pp-name').textContent = d.name ? (d.name + ' referrals') : 'My referrals';
 
   /* One block per broker row this email owns. Usually exactly one. The founder's
      address owns both reserved buckets, and they are shown SEPARATELY on
@@ -205,7 +315,6 @@ function ppShowDash(d) {
     var box = document.createElement('div');
     box.style.cssText = 'padding:' + (i ? '16px' : '0') + ' 0 0;' +
       (i ? 'margin-top:16px;border-top:1px solid var(--border);' : '');
-
     var head = document.createElement('p');
     head.style.cssText = 'color:var(--muted);font-size:.85rem;margin:0 0 12px';
     head.innerHTML = many
@@ -228,32 +337,31 @@ function ppShowDash(d) {
   });
 }
 
-/* The name and code come from our own database, but they are still rendered into
-   HTML, so they are escaped rather than trusted. */
-function ppEsc(v) {
-  return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-  });
-}
-
 function ppSignOut() {
-  try { localStorage.removeItem(PP_LS); } catch (e) {}
-  document.getElementById('pp-dash').style.display   = 'none';
-  document.getElementById('pp-signin').style.display = 'block';
+  ppSetTok(null); PP_LAST = null;
+  ppShow('pp-signin');
   ppMsg('You are signed out.', 'ok');
 }
 
 function ppLoad(token, quiet) {
-  fetch(PP_API + '/public/partner/summary', {
-    headers: { 'Accept': 'application/json', 'x-api-key': PP_KEY, 'Authorization': 'Bearer ' + token }
-  })
-  .then(function (r) { return r.json().catch(function () { return {}; }); })
-  .then(function (d) {
-    if (d && d.ok) { ppShowDash(d); return; }
-    try { localStorage.removeItem(PP_LS); } catch (e) {}
-    if (!quiet) ppMsg(d && d.error ? d.error : 'Please sign in again.', 'err');
-  })
-  .catch(function () { if (!quiet) ppMsg('Could not load your referrals. Please try again.', 'err'); });
+  fetch(PP_API + '/public/partner/summary', { headers: ppHead(token) })
+    .then(function (r) { return r.json().catch(function () { return {}; }); })
+    .then(function (d) {
+      if (d && d.ok) {
+        /* Arrived by link with no password yet: ask for one, rather than
+           leaving them with an account they can only ever reach by email. */
+        if (d.has_password === false) {
+          PP_LAST = d;
+          document.getElementById('pp-setpw-title').textContent = 'Choose a password';
+          ppShow('pp-setpw');
+        } else ppShowDash(d);
+        return;
+      }
+      ppSetTok(null);
+      ppShow('pp-signin');
+      if (!quiet) ppMsg((d && d.error) || 'Please sign in again.', 'err');
+    })
+    .catch(function () { if (!quiet) ppMsg('Could not load your referrals. Please try again.', 'err'); });
 }
 
 (function ppInit() {
@@ -261,31 +369,23 @@ function ppLoad(token, quiet) {
   try { t = new URLSearchParams(window.location.search).get('t'); } catch (e) {}
 
   if (t) {
-    /* Strip the token from the address bar straight away, before anything else,
-       so it does not sit in history, get screenshotted, or leak through the
-       Referer header on the next click. */
+    /* Strip the token from the address bar immediately, so it does not sit in
+       history, get screenshotted, or leak through the Referer header. */
     try { history.replaceState({}, '', window.location.pathname); } catch (e) {}
     fetch(PP_API + '/public/partner/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': PP_KEY },
-      body: JSON.stringify({ t: t })
+      method: 'POST', headers: ppHead(), body: JSON.stringify({ t: t })
     })
     .then(function (r) { return r.json().catch(function () { return {}; }); })
     .then(function (d) {
-      if (d && d.ok && d.token) {
-        try { localStorage.setItem(PP_LS, d.token); } catch (e) {}
-        ppLoad(d.token, false);
-      } else {
-        ppMsg(d && d.error ? d.error : 'That sign-in link is no longer valid. Please request a new one.', 'err');
-      }
+      if (d && d.ok && d.token) { ppSetTok(d.token); ppLoad(d.token, false); }
+      else ppMsg((d && d.error) || 'That sign-in link is no longer valid. Please request a new one.', 'err');
     })
     .catch(function () { ppMsg('Network issue, please try the link again.', 'err'); });
     return;
   }
 
-  var saved = null;
-  try { saved = localStorage.getItem(PP_LS); } catch (e) {}
-  if (saved) ppLoad(saved, true);   // quiet: an expired session just shows the sign-in box
+  var saved = ppTok();
+  if (saved) ppLoad(saved, true);   // quiet: an expired session just shows the form
 })();
 </script>
 </body></html>
