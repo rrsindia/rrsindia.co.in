@@ -1636,7 +1636,7 @@ async function trkRenderOne(no, email, box) {
    Self-contained: injects one fixed button on every page, sits above the promo
    bar, opens wa.me with a friendly pre-filled message. Cannot break the page. */
 (function(){
-  var NUM='917719728045', TXT='Hi R.R. Sphere INDIA, I would like to know more';
+  var NUM='917719728045', TXT='Hi R.R. Sphere INDIA, I would like to book a free 30-day demo of RRFinEApp.';
   function place(a){ a.style.bottom = (document.querySelector('.promo-bar') ? 74 : 22) + 'px'; }
   function mount(){
     try{
