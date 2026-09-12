@@ -379,8 +379,15 @@ function ppShowDash(d) {
 
     var grid = document.createElement('div');
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center';
+    /* 🔴 SELF and INTERNAL say "Live", not "Converted". The figure is the same
+       (a tenant that is not a demo) but the word is not: R.R. Sphere INDIA is
+       the founder's own company and never converted from anything. A real
+       partner keeps "Converted", where it genuinely means a trial that became a
+       client, which is the one that earns commission. The server flags which
+       rows are reserved; this does not guess from the code. */
+    var thirdLabel = a.reserved ? 'Live' : 'Converted';
     [['Running', a.running, 'var(--g4)'], ['Expired', a.expired, 'var(--white)'],
-     ['Converted', a.converted, 'var(--g4)']].forEach(function (c) {
+     [thirdLabel, a.converted, 'var(--g4)']].forEach(function (c) {
       var cell = document.createElement('div');
       cell.innerHTML =
         '<div style="font-size:1.9rem;font-weight:700;color:' + c[2] + ';line-height:1.1;font-variant-numeric:tabular-nums">' + (c[1] || 0) + '</div>' +

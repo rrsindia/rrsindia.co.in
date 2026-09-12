@@ -1636,7 +1636,20 @@ async function trkRenderOne(no, email, box) {
    Self-contained: injects one fixed button on every page, sits above the promo
    bar, opens wa.me with a friendly pre-filled message. Cannot break the page. */
 (function(){
-  var NUM='917719728045', TXT='Hi R.R. Sphere INDIA, I would like to book a free 30-day demo of RRFinEApp.';
+  var NUM='917719728045';
+  // The prefilled WhatsApp message names what THIS page is about. Nothing in the
+  // system can see an inbound WhatsApp message (the Cloud API is not connected),
+  // so this prefill is the only signal of intent that reaches the phone.
+  var TXT = (function () {
+    var p = (location.pathname || '').toLowerCase();
+    if (/coaching/.test(p))            return 'Hi R.R. Sphere INDIA, I would like to know about your coaching classes.';
+    if (/partner/.test(p))             return 'Hi R.R. Sphere INDIA, I would like to know about the partner program.';
+    if (/^\/ca\.html|for-?ca/.test(p)) return 'Hi R.R. Sphere INDIA, I am a CA and would like to know more about RRFinEApp for my clients.';
+    if (/order/.test(p))               return 'Hi R.R. Sphere INDIA, I would like to place an order.';
+    if (/support|feedback/.test(p))    return 'Hi R.R. Sphere INDIA, I need some help.';
+    if (/services|solutions/.test(p))  return 'Hi R.R. Sphere INDIA, I would like to discuss a project.';
+    return 'Hi R.R. Sphere INDIA, I would like to book a free 30-day demo of RRFinEApp.';
+  })();
   function place(a){ a.style.bottom = (document.querySelector('.promo-bar') ? 74 : 22) + 'px'; }
   function mount(){
     try{
