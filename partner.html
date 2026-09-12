@@ -395,16 +395,13 @@ function ppTenants(code, panel) {
       var tone = { running: 'var(--g4)', expired: '#fca5a5', converted: '#facc15' };
       var html = '';
       rows.forEach(function (t) {
-        var when = t.status === 'running' && t.expires ? 'runs to ' + ppEsc(t.expires)
-                 : t.status === 'expired' && t.expires ? 'ended ' + ppEsc(t.expires)
-                 : t.started ? 'since ' + ppEsc(String(t.started).slice(0, 10)) : '';
+        /* Name, town and status. No dates: on this panel they were noise rather
+           than information, and the status already says what matters. */
         html +=
-          '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--border)">' +
+          '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--border)">' +
             '<div style="flex:1 1 auto;min-width:0">' +
               '<div style="color:var(--white);font-size:.84rem;font-weight:600;word-break:break-word">' + ppEsc(t.name) + '</div>' +
-              '<div style="color:var(--muted);font-size:.75rem;margin-top:1px">' +
-                (t.place ? ppEsc(t.place) + ' &middot; ' : '') + when +
-              '</div>' +
+              (t.place ? '<div style="color:var(--muted);font-size:.75rem;margin-top:1px">' + ppEsc(t.place) + '</div>' : '') +
             '</div>' +
             '<span style="flex:0 0 auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;' +
               'color:' + (tone[t.status] || 'var(--muted)') + '">' + ppEsc(t.status) + '</span>' +
