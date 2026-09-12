@@ -392,19 +392,15 @@ function ppTenants(code, panel) {
         panel.dataset.loaded = '1';
         return;
       }
-      var tone = { running: 'var(--g4)', expired: '#fca5a5', converted: '#facc15' };
+      /* Names only. The three figures above already say how many are running,
+         expired or converted; repeating a status on every row said it twice and
+         read as clutter. */
       var html = '';
       rows.forEach(function (t) {
-        /* Name, town and status. No dates: on this panel they were noise rather
-           than information, and the status already says what matters. */
         html +=
-          '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--border)">' +
-            '<div style="flex:1 1 auto;min-width:0">' +
-              '<div style="color:var(--white);font-size:.84rem;font-weight:600;word-break:break-word">' + ppEsc(t.name) + '</div>' +
-              (t.place ? '<div style="color:var(--muted);font-size:.75rem;margin-top:1px">' + ppEsc(t.place) + '</div>' : '') +
-            '</div>' +
-            '<span style="flex:0 0 auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;' +
-              'color:' + (tone[t.status] || 'var(--muted)') + '">' + ppEsc(t.status) + '</span>' +
+          '<div style="padding:8px 0;border-top:1px solid var(--border)">' +
+            '<div style="color:var(--white);font-size:.84rem;font-weight:600;word-break:break-word">' + ppEsc(t.name) + '</div>' +
+            (t.place ? '<div style="color:var(--muted);font-size:.75rem;margin-top:1px">' + ppEsc(t.place) + '</div>' : '') +
           '</div>';
       });
       panel.innerHTML = html;
