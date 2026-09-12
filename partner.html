@@ -220,7 +220,11 @@ function ppShow(which) {
 
 function ppTogglePw() {
   var i = document.getElementById('pp-pw');
-  if (i) i.type = (i.type === 'password') ? 'text' : 'password';
+  var b = document.getElementById('pp-pw-eye');
+  if (!i) return;
+  var show = i.type === 'password';
+  i.type = show ? 'text' : 'password';
+  if (b) b.innerHTML = show ? '&#128584;' : '&#128065;';   // same pair the app uses
 }
 
 function ppEsc(v) {
