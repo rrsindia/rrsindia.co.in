@@ -141,7 +141,7 @@
           <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.35rem;color:var(--white);margin:0 0 14px" id="pp-name">My referrals</h2>
           <div id="pp-accounts"></div>
           <p style="color:var(--muted);font-size:.78rem;line-height:1.65;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border)">
-            Counts only. We do not show your introductions' business details to anyone, including you, and we do not show yours to them.
+            Business name and town only, so you can tell your introductions apart. We never show their contact details, tax numbers or anything financial, and we never show yours to them.
             Questions about a specific introduction? <a href="contact.html" style="color:var(--g4);font-weight:600">Contact us</a>.
           </p>
           <button type="button" onclick="ppChangePw()" style="margin-top:14px;margin-right:8px;background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.8rem;cursor:pointer">Change password</button><button type="button" onclick="ppSignOut()" style="margin-top:14px;background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.8rem;cursor:pointer">Sign out</button>
@@ -315,6 +315,7 @@ function ppShowDash(d) {
     var box = document.createElement('div');
     box.style.cssText = 'padding:' + (i ? '16px' : '0') + ' 0 0;' +
       (i ? 'margin-top:16px;border-top:1px solid var(--border);' : '');
+
     var head = document.createElement('p');
     head.style.cssText = 'color:var(--muted);font-size:.85rem;margin:0 0 12px';
     head.innerHTML = many
@@ -333,8 +334,88 @@ function ppShowDash(d) {
       grid.appendChild(cell);
     });
     box.appendChild(grid);
+
+    /* Expand to the introductions behind those counts. Only offered when there
+       is something to show, so the control never lies about being clickable. */
+    if (a.total > 0) {
+      var toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.style.cssText = 'margin-top:12px;background:none;border:0;color:var(--g4);font-size:.82rem;' +
+        'font-weight:600;cursor:pointer;padding:4px 0;text-decoration:underline';
+      toggle.textContent = 'Show the ' + a.total + ' introduction' + (a.total === 1 ? '' : 's');
+
+      var panel = document.createElement('div');
+      panel.style.display = 'none';
+      panel.style.marginTop = '10px';
+
+      toggle.addEventListener('click', function () {
+        var open = panel.style.display !== 'none';
+        if (open) {
+          panel.style.display = 'none';
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.textContent = 'Show the ' + a.total + ' introduction' + (a.total === 1 ? '' : 's');
+          return;
+        }
+        panel.style.display = 'block';
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.textContent = 'Hide';
+        if (panel.dataset.loaded === '1') return;
+        panel.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:6px 0">Loading...</div>';
+        ppTenants(a.code, panel);
+      });
+
+      box.appendChild(toggle);
+      box.appendChild(panel);
+    }
+
     wrap.appendChild(box);
   });
+}
+
+/* The introductions behind one code.
+   Name, town and dates only. No phone, email, GSTIN, PAN or anything financial:
+   a referral earns the credit for the introduction, not a window into that
+   business. The server leaves those columns out; this only renders what arrives. */
+function ppTenants(code, panel) {
+  fetch(PP_API + '/public/partner/tenants?code=' + encodeURIComponent(code), { headers: ppHead(ppTok()) })
+    .then(function (r) { return r.json().catch(function () { return {}; }); })
+    .then(function (d) {
+      if (!d || !d.ok) {
+        panel.innerHTML = '<div style="color:#fca5a5;font-size:.8rem;padding:6px 0">' +
+          ppEsc((d && d.error) || 'Could not load these.') + '</div>';
+        return;
+      }
+      var rows = d.tenants || [];
+      if (!rows.length) {
+        panel.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:6px 0">Nothing to show yet.</div>';
+        panel.dataset.loaded = '1';
+        return;
+      }
+      var tone = { running: 'var(--g4)', expired: '#fca5a5', converted: '#facc15' };
+      var html = '';
+      rows.forEach(function (t) {
+        var when = t.status === 'running' && t.expires ? 'runs to ' + ppEsc(t.expires)
+                 : t.status === 'expired' && t.expires ? 'ended ' + ppEsc(t.expires)
+                 : t.started ? 'since ' + ppEsc(String(t.started).slice(0, 10)) : '';
+        html +=
+          '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--border)">' +
+            '<div style="flex:1 1 auto;min-width:0">' +
+              '<div style="color:var(--white);font-size:.84rem;font-weight:600;word-break:break-word">' + ppEsc(t.name) + '</div>' +
+              '<div style="color:var(--muted);font-size:.75rem;margin-top:1px">' +
+                (t.place ? ppEsc(t.place) + ' &middot; ' : '') + when +
+              '</div>' +
+            '</div>' +
+            '<span style="flex:0 0 auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;' +
+              'color:' + (tone[t.status] || 'var(--muted)') + '">' + ppEsc(t.status) + '</span>' +
+          '</div>';
+      });
+      panel.innerHTML = html;
+      panel.dataset.loaded = '1';
+    })
+    .catch(function () {
+      panel.innerHTML = '<div style="color:#fca5a5;font-size:.8rem;padding:6px 0">Network issue, please try again.</div>';
+    });
 }
 
 function ppSignOut() {
