@@ -435,14 +435,26 @@ function odRenderPremium(){
   // Included/selectable = active features for THIS plan only. Upcoming preview =
   // ALL coming-soon features (across every plan), display-only, not part of the order.
   const now=list.filter(f=>!f.coming_soon);
+  // first50_free is what separates the free bundle from the PAID add-ons. Without
+  // it this page stamped FREE on every premium row and gave away Full AI Rova and
+  // the Full Native App, two ₹2,000 add-ons deliberately kept out of the bundle.
+  const free=now.filter(f=>f.first50_free!==false);
+  const paid=now.filter(f=>f.first50_free===false);
   const soon=(OD.feats||[]).filter(f=>f.coming_soon);
   let html='';
-  if(now.length){
-    html += '<div class="od-incl"><div class="od-incl-h">✓ All premium features included FREE with your plan'+(odOfferVal()>0?(', worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
-      now.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
+  if(free.length){
+    html += '<div class="od-incl"><div class="od-incl-h">✓ Premium features included FREE with your plan'+(odOfferVal()>0?(', worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
+      free.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
         (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':'')).join('')+
       '<div class="od-incl-note">Auto-selected for you, activated after your first user login, within 48 hours.</div></div>';
   } else { html += '<p style="color:var(--muted)">Premium features are included with your plan.</p>'; }
+  if(paid.length){
+    html += '<div class="od-soon"><div class="od-soon-h">➕ Optional add-ons, charged separately</div>'+
+      paid.map(function(f){ var r=Number(f.rate)||0;
+        return '<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span>'+(r>0?('₹'+r.toLocaleString('en-IN')+' / year'):'on request')+'</span></div>'+
+          (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':''); }).join('')+
+      '<div class="od-incl-note">Not included in the plan and not added to this order. Tell us in the notes below if you want any of these and we will quote them.</div></div>';
+  }
   if(soon.length){
     html += '<div class="od-soon"><div class="od-soon-h">★ Upcoming, coming soon</div>'+
       soon.map(f=>'<div class="od-soon-row"><b>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</b>'+(f.description?'<span>, '+odEsc(f.description)+'</span>':'')+'</div>').join('')+
@@ -457,7 +469,7 @@ function odBreakdown(){
   const c=odSelCat();
   const inclC=c?(c.incl_companies||1):1, inclU=c?(c.incl_users||1):1;
   if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
-  const prem=odPlanPremium().filter(f=>!f.coming_soon);
+  const prem=odPlanPremium().filter(f=>!f.coming_soon && f.first50_free!==false);
   if(prem.length){ lines.push({label:'Premium features ('+prem.length+'), all included', qty:'', rate:0, amt:0, blank:true}); }
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
