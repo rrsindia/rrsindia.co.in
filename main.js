@@ -421,6 +421,16 @@ function odOfferNote(){
 // Premium features that apply to the selected plan (min_plan all/null or == plan).
 // "Full Finance (Non-GST)" is Full Finance under the hood: it matches full_finance
 // features but EXCLUDES GST-only ones (GST Returns, e-Way/e-Invoice, GSTR-2A/2B Recon).
+// Which paid add-ons are ticked. Kept on OD so a re-render (plan change) does not
+// silently drop a choice the client already made.
+function odAddonToggle(el){ OD.addons = OD.addons || {}; OD.addons[el.value] = !!el.checked; odTotal(); }
+function odSelectedAddons(){
+  var out=[]; (OD.feats||[]).forEach(function(f){
+    if(f.coming_soon || f.first50_free!==false) return;
+    if(OD.addons && OD.addons[f.code]) out.push(f);
+  });
+  return out;
+}
 function odPlanPremium(){ const c=odSelCat(); const plan=c?c.code:null;
   const nonGst = plan==='full_finance_nongst';
   const base = nonGst ? 'full_finance' : plan;
@@ -449,11 +459,17 @@ function odRenderPremium(){
       '<div class="od-incl-note">Auto-selected for you, activated after your first user login, within 48 hours.</div></div>';
   } else { html += '<p style="color:var(--muted)">Premium features are included with your plan.</p>'; }
   if(paid.length){
+    // Tick boxes, not a read-only list: these are the only premium items a client
+    // actually chooses, and the amount belongs in the order total rather than in a
+    // note somebody has to remember to read.
     html += '<div class="od-soon"><div class="od-soon-h">➕ Optional add-ons, charged separately</div>'+
-      paid.map(function(f){ var r=Number(f.rate)||0;
-        return '<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span>'+(r>0?('₹'+r.toLocaleString('en-IN')+' / year'):'on request')+'</span></div>'+
+      paid.map(function(f){ var r=Number(f.rate)||0; var on=OD.addons&&OD.addons[f.code];
+        return '<label class="od-incl-row" style="cursor:pointer;align-items:flex-start">'+
+          '<span><input type="checkbox" class="od-addon" value="'+odEsc(f.code)+'" data-rate="'+r+'" '+(on?'checked':'')+' onchange="odAddonToggle(this)" style="margin-right:8px"> '+
+          (f.icon||'⚡')+' '+odEsc(f.name)+'</span>'+
+          '<span>'+(r>0?('₹'+r.toLocaleString('en-IN')+' / year'):'on request')+'</span></label>'+
           (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':''); }).join('')+
-      '<div class="od-incl-note">Not included in the plan and not added to this order. Tell us in the notes below if you want any of these and we will quote them.</div></div>';
+      '<div class="od-incl-note">Tick any you want and they are added to the order below. Leave them unticked and you are not charged for them.</div></div>';
   }
   if(soon.length){
     html += '<div class="od-soon"><div class="od-soon-h">★ Upcoming, coming soon</div>'+
@@ -471,6 +487,8 @@ function odBreakdown(){
   if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
   const prem=odPlanPremium().filter(f=>!f.coming_soon && f.first50_free!==false);
   if(prem.length){ lines.push({label:'Premium features ('+prem.length+'), all included', qty:'', rate:0, amt:0, blank:true}); }
+  odSelectedAddons().forEach(function(f){ const r=Number(f.rate)||0;
+    lines.push({label:f.name, qty:1, rate:r, amt:r}); total+=r; });
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
   // Extra users (beyond the plan's included count) charged per ROLE/category rate.
@@ -565,7 +583,8 @@ function printDraftOrder(orderNo){
   const odUsers = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:(((r.querySelector('.od-uname')||{}).value)||'').trim(), login:(((r.querySelector('.od-ulogin')||{}).value)||'').trim() }));
   const nUsers = odUsers.length;
   const usersCard = odUsers.length ? '<div class="card"><div class="card-h">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:right">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.name||'·')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.login||'·')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table></div>' : '';
-  const premNames = odPlanPremium().filter(f=>!f.coming_soon).map(f=>f.name);
+  const premNames = odPlanPremium().filter(f=>!f.coming_soon && f.first50_free!==false).map(f=>f.name)
+    .concat(odSelectedAddons().map(f=>f.name+' (paid add-on)'));
   const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
   const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
   const pri = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
