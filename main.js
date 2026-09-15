@@ -402,7 +402,9 @@ function odPrice(code){ const p = OD.prices.find(x=>String(x.code).toUpperCase()
 function odSelCat(){ const el=document.querySelector('input[name="od-cat"]:checked'); return el?OD.cats.find(c=>c.code===el.value):null; }
 // Premium value = the SELECTED plan's "Premium worth ₹" configured in SuperAdmin →
 // Price List. NO code fallback: if it's blank, it stays blank (shows no "worth ₹X").
-function odOfferVal(){ const c=odSelCat(); return (c && c.free_value) ? Number(c.free_value) : 0; }
+function odOfferVal(){ return 0; }   // 15.09.2026: NO price on the website, in any case.
+// The banner, the draft and the confirmation all gate on this, so returning 0 keeps a
+// rupee figure off every one of them even if a value is typed into the price list.
 // Offer note is a TEMPLATE: {worth} = " (worth ₹X)" or blank, {limit} = client limit,
 // {count} = number of premium features. {value} is also supported (blank when unset).
 function odOfferNote(){
@@ -453,7 +455,7 @@ function odRenderPremium(){
   const soon=(OD.feats||[]).filter(f=>f.coming_soon);
   let html='';
   if(free.length){
-    html += '<div class="od-incl"><div class="od-incl-h">✓ Premium features included FREE with your plan'+(odOfferVal()>0?(', worth ₹'+odOfferVal().toLocaleString('en-IN')):'')+'</div>'+
+    html += '<div class="od-incl"><div class="od-incl-h">✓ Premium features included FREE with your plan'+'</div>'+
       free.map(f=>'<div class="od-incl-row"><span>'+(f.icon||'⚡')+' '+odEsc(f.name)+'</span><span class="od-free">FREE</span></div>'+
         (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':'')).join('')+
       '<div class="od-incl-note">Auto-selected for you, activated after your first user login, within 48 hours.</div></div>';
@@ -467,7 +469,7 @@ function odRenderPremium(){
         return '<label class="od-incl-row" style="cursor:pointer;align-items:flex-start">'+
           '<span><input type="checkbox" class="od-addon" value="'+odEsc(f.code)+'" data-rate="'+r+'" '+(on?'checked':'')+' onchange="odAddonToggle(this)" style="margin-right:8px"> '+
           (f.icon||'⚡')+' '+odEsc(f.name)+'</span>'+
-          '<span>'+(r>0?('₹'+r.toLocaleString('en-IN')+' / year'):'on request')+'</span></label>'+
+          '<span style="color:var(--muted);font-size:.78rem">chargeable</span></label>'+
           (f.description?'<div class="od-incl-d">'+odEsc(f.description)+'</div>':''); }).join('')+
       '<div class="od-incl-note">Tick any you want and they are added to the order below. Leave them unticked and you are not charged for them.</div></div>';
   }
@@ -507,7 +509,7 @@ function odTotal(){
   const el=document.getElementById('od-total'); if(!el) return;
   odRenderPremium();
   const { total }=odBreakdown();
-  el.innerHTML = (total ? 'Tentative total: ₹'+total.toLocaleString('en-IN')+' ' : '')+'<span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span>';
+  el.innerHTML = '<span style="color:var(--muted);font-weight:400;font-size:.85rem">(all premium free)</span>';
 }
 
 // Billing is a fixed 1 year, show the auto end date from the chosen start date.
@@ -551,7 +553,7 @@ async function loadPlansFeatures(){
     const pr = document.getElementById('od-partner');
     if(pr){ pr.innerHTML = '<option value="">No Partner</option>' + (Array.isArray(d.brokers)? d.brokers.map(b=>'<option value="'+odEsc(b.name)+'">'+odEsc(b.name)+'</option>').join(''):''); }
     cat.innerHTML = OD.cats.length ? OD.cats.map((c,i)=>
-      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+(Number(c.rate)?(' · ₹'+Number(c.rate).toLocaleString('en-IN')+'/yr'):'')+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
+      '<label><input type="radio" name="od-cat" value="'+c.code+'"'+(i===0?' checked':'')+' onchange="odPlanChanged()"><span>'+odEsc(c.label)+' <em style="color:var(--muted);font-style:normal;font-size:.8rem">· '+(c.incl_companies||1)+' co / '+(c.incl_users||1)+' users included</em></span></label>'
     ).join('') : '<p style="color:#f87171">Could not load plans.</p>';
     // Offer banner (auto-selected free premium · worth ₹10,000 · activated within 48 hrs).
     const ob = document.getElementById('od-offer');
@@ -591,16 +593,14 @@ function printDraftOrder(orderNo){
   // 🔴 A PAID add-on must never be printed under "included". It gets its own band
   //    on the draft, with its price, so the client reads one list of what they are
   //    getting free and another of what they are being charged for.
-  const addonNames = odSelectedAddons().map(function(f){ var r=Number(f.rate)||0;
-    return f.name + (r>0 ? ' — ₹'+r.toLocaleString('en-IN')+' / year' : ' — quoted separately'); });
+  const addonNames = odSelectedAddons().map(function(f){ return f.name; });
   const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
   const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
   const pri = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
   const custom = v('od-custom');
   const itemRows = lines.map(l=>
     '<tr><td>'+esc(l.label)+(l.note?'<div style="color:#555;font-size:8pt;margin-top:1px">'+esc(l.note)+'</div>':'')+'</td>'+
-    '<td style="text-align:center">'+(l.blank?'':l.qty)+'</td>'+
-    '<td style="text-align:right;white-space:nowrap;font-weight:600">'+(l.blank?'':(l.amt?inr(l.amt):''))+'</td></tr>').join('');
+    '<td style="text-align:center">'+(l.blank?'':l.qty)+'</td>'+'</td></tr>').join('');
   const termsBox = OD.terms ?
     '<div class="card"><div class="card-h">Terms &amp; Conditions</div><div class="addr" style="white-space:pre-wrap;color:#374151;font-size:12px">'+esc(OD.terms)+'</div></div>' : '';
   const customBox = custom ?
@@ -640,9 +640,8 @@ function printDraftOrder(orderNo){
       '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'·')+'</div>'+
       (addonNames.length?('<div class="band">Optional add-ons, charged separately</div><div class="pad">'+esc(addonNames.join(', '))+'</div>'):'')+
       (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'·')+'</td><td>'+esc(u.login||'·')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
-      '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+
-        '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+(total?inr(total):'')+'</td></tr>'+
-        '<tr class="tot"><td colspan="2" style="text-align:right;font-size:10pt">Order Total</td><td style="text-align:right;font-size:10pt">'+(total?inr(total)+'*':'')+'</td></tr></tbody></table>'+
+      '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th></tr></thead><tbody>'+itemRows+
+        '<tr class="tot"><td colspan="2" style="text-align:left;font-size:9pt;font-weight:400">Pricing is confirmed by R.R. Sphere INDIA and sent with your invoice. This draft carries no amounts.</td></tr></tbody></table>'+
       (OD.terms?'<div class="band">Terms &amp; Conditions</div><div class="pad" style="white-space:pre-wrap;font-size:8.5pt">'+esc(OD.terms)+'</div>':'')+
       (custom?'<div class="band">Custom / additional requirement</div><div class="pad">'+esc(custom)+'</div>':'')+
       ((OD.company&&(OD.company.bank||OD.company.upi_id))?(function(){
@@ -711,7 +710,7 @@ async function submitOrder(){
     const d = await res.json().catch(()=>({}));
     if(res.ok && d.ok){
       const s = document.getElementById('od-success');
-      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b>, we’ll confirm pricing and send your invoice. <b>All premium features are included free</b>'+(odOfferVal()>0?(' (worth ₹'+odOfferVal().toLocaleString('en-IN')+')'):'')+'. '+
+      s.innerHTML = '✅ Order received! Your reference is <strong>'+d.order_no+'</strong>. Your account will be opened and you’ll be <b>live within 48 hours</b>, we’ll confirm pricing and send your invoice. <b>All premium features are included free</b>'+'. '+
         '<button type="button" class="btn-outline" style="margin-top:8px;font-size:.82rem;padding:6px 14px" onclick="printDraftOrder(\''+String(d.order_no).replace(/[^A-Za-z0-9\-]/g,'')+'\')">🖨 Print your order</button><br>Track it on the <a href="portal.html">Customer Login</a> page.' + SPAM_NOTE;
       s.style.display='block'; btn.style.display='none';
     } else { alert('Could not place the order.'+(d.error?'\n\nReason: '+d.error:'')); btn.textContent=orig; btn.disabled=false; }
@@ -1413,7 +1412,7 @@ async function trkRenderOne(no, email, box) {
     var wrap = document.getElementById('finapp-pricing');
     if (!wrap) return;                                   // not the finapp page
     var fallback = document.getElementById('pricing-fallback');
-    var inr = function(n){ var x = Number(n)||0; return x ? '₹' + x.toLocaleString('en-IN') : ''; };  // zero/blank → blank
+    var inr = function(){ return ''; };   // 15.09.2026: the website never prints a price.  // zero/blank → blank
     fetch(RRFINEAPP_API + '/public/plans-features', { headers:{ 'x-api-key':RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } })
       .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
       .then(function(d){
@@ -1421,14 +1420,12 @@ async function trkRenderOne(no, email, box) {
         if (!plans.length) { wrap.removeAttribute('data-loading'); return; }   // keep fallback
         wrap.innerHTML = plans.map(function(p){
           var rate = Number(p.rate) || 0;
-          var price = rate > 0
-            ? inr(rate) + '<span style="font-size:.78rem;color:var(--muted);font-weight:500"> / year</span>'
-            : '';
-          var comps = p.incl_companies || 1, users = p.incl_users || 1;
-          var free = p.free_value
-            ? '<div style="margin-top:10px;font-size:.78rem;color:var(--g4);font-weight:600">★ Premium features free, worth ' + inr(p.free_value) + '</div>'
-            : '';
-          return '<div class="reveal" style="background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:18px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center">'
+          // 15.09.2026: the website never prints a price. The card shows the plan and
+    // what it includes; the amount is confirmed with the invoice.
+    var price = '';
+    var comps = p.incl_companies || 1, users = p.incl_users || 1;
+          var free = '';
+    return '<div class="reveal" style="background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:18px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center">'
             + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:1.25rem;color:var(--white);font-weight:700;letter-spacing:.3px">' + (p.label||'') + '</div>'
             + (price ? '<div style="font-size:1.9rem;color:var(--g4);font-weight:800;margin:10px 0 6px">' + price + '</div>' : '')
             + '<div style="color:var(--muted);font-size:.85rem;line-height:1.9">'
