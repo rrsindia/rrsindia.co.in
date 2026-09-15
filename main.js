@@ -487,8 +487,12 @@ function odBreakdown(){
   if(c){ const r=Number(c.rate)||0; lines.push({label:'Plan: '+c.label, qty:1, rate:r, amt:r, note:'Includes '+inclC+' company(s) & '+inclU+' user(s)'}); total+=r; }
   const prem=odPlanPremium().filter(f=>!f.coming_soon && f.first50_free!==false);
   if(prem.length){ lines.push({label:'Premium features ('+prem.length+'), all included', qty:'', rate:0, amt:0, blank:true}); }
+  // 🔴 A rate of 0 means there is no price-list row yet, NOT that it is free.
+  //    Adding a ₹0 line here would read as "included", which is the exact thing
+  //    this whole change set out to stop. Show it as quoted separately instead.
   odSelectedAddons().forEach(function(f){ const r=Number(f.rate)||0;
-    lines.push({label:f.name, qty:1, rate:r, amt:r}); total+=r; });
+    if(r>0){ lines.push({label:f.name, qty:1, rate:r, amt:r}); total+=r; }
+    else { lines.push({label:f.name+' — we will quote this separately', qty:'', rate:0, amt:0, blank:true}); } });
   const numC=parseInt((document.getElementById('od-companies')||{}).value,10)||1;
   const exC=Math.max(0,numC-inclC); if(exC>0){ const r=odPrice('ADDON_EXTRA_COMPANY'); lines.push({label:'Extra companies × '+exC, qty:exC, rate:r, amt:r*exC}); total+=r*exC; }
   // Extra users (beyond the plan's included count) charged per ROLE/category rate.
