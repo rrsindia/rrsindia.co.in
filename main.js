@@ -587,8 +587,12 @@ function printDraftOrder(orderNo){
   const odUsers = Array.from(document.querySelectorAll('#od-users .od-user')).map(r=>({ role:r.querySelector('select').value, name:(((r.querySelector('.od-uname')||{}).value)||'').trim(), login:(((r.querySelector('.od-ulogin')||{}).value)||'').trim() }));
   const nUsers = odUsers.length;
   const usersCard = odUsers.length ? '<div class="card"><div class="card-h">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:right">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.name||'·')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb">'+esc(u.login||'·')+'</td><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table></div>' : '';
-  const premNames = odPlanPremium().filter(f=>!f.coming_soon && f.first50_free!==false).map(f=>f.name)
-    .concat(odSelectedAddons().map(f=>f.name+' (paid add-on)'));
+  const premNames = odPlanPremium().filter(f=>!f.coming_soon && f.first50_free!==false).map(f=>f.name);
+  // 🔴 A PAID add-on must never be printed under "included". It gets its own band
+  //    on the draft, with its price, so the client reads one list of what they are
+  //    getting free and another of what they are being charged for.
+  const addonNames = odSelectedAddons().map(function(f){ var r=Number(f.rate)||0;
+    return f.name + (r>0 ? ' — ₹'+r.toLocaleString('en-IN')+' / year' : ' — quoted separately'); });
   const TL = {'1_week':'Within 1 week','2_weeks':'Within 2 weeks','1_month':'Within 1 month','flexible':'Flexible / no rush'};
   const tl = (document.querySelector('input[name="od-timeline"]:checked')||{}).value;
   const pri = (document.querySelector('input[name="od-priority"]:checked')||{}).value;
@@ -634,6 +638,7 @@ function printDraftOrder(orderNo){
       '<div class="two"><div><div class="sec-h">Account / Tenant (Bill To)</div><div class="row"><b>'+esc(v('od-name'))+'</b> ('+esc(v('od-code'))+')'+(v('od-company')?'<br>'+esc(v('od-company')):'')+'<br>'+esc(addr.join(', '))+'<br>'+esc(v('od-email'))+(v('od-phone')?' · Ph: '+esc(v('od-phone')):'')+'</div></div>'+
         '<div><div class="sec-h">Order Details</div><div class="row"><b>Plan:</b> '+esc(c?c.label:cat.value)+'<br><b>Billing:</b> '+esc(period)+'<br><b>Companies:</b> '+numC+' (incl '+inclC+') &nbsp; <b>Users:</b> '+nUsers+' (incl '+inclU+')</div></div></div>'+
       '<div class="band">Premium features included</div><div class="pad">'+(premNames.length?esc(premNames.join(', ')):'·')+'</div>'+
+      (addonNames.length?('<div class="band">Optional add-ons, charged separately</div><div class="pad">'+esc(addonNames.join(', '))+'</div>'):'')+
       (odUsers.length?'<div class="band">Users ('+odUsers.length+')</div><table><thead><tr><th>Name</th><th>Login (email / mobile)</th><th style="text-align:center">Role</th></tr></thead><tbody>'+odUsers.map(u=>'<tr><td>'+esc(u.name||'·')+'</td><td>'+esc(u.login||'·')+'</td><td style="text-align:center">'+esc(u.role)+'</td></tr>').join('')+'</tbody></table>':'')+
       '<div class="band">Order details</div><table><thead><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+itemRows+
         '<tr class="tot"><td colspan="2" style="text-align:right">Subtotal</td><td style="text-align:right">'+(total?inr(total):'')+'</td></tr>'+
