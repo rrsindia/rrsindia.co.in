@@ -1644,6 +1644,14 @@ async function trkRenderOne(no, email, box) {
     if(!src) return;
     paint(document.querySelector('.ai-ava'));                                  // chat-panel avatar (fills its circle)
     paint(document.querySelector('.ai-logo .ai-bolt'), Math.round(14*SCALE));  // promo "⚡AI" pill → [avatar]AI
+    // Every mark that MEANS "our AI" carries class="ai-mark". Painted at its own
+    // font size so a 1.6rem tile and a 2.2rem card each keep their visual weight.
+    // Speed/energy bolts and the written "⚡AI" mark in prose deliberately do NOT
+    // carry the class — same line the app drew on 2026-08-01.
+    Array.prototype.forEach.call(document.querySelectorAll('.ai-mark'), function(el){
+      var fs = parseFloat((window.getComputedStyle(el)||{}).fontSize) || 24;
+      paint(el, Math.round(fs * SCALE));
+    });
     // floating button: swap the ⚡ svg for a small avatar, keep the "AI" label
     var fab=document.querySelector('.ai-fab'), spark=fab&&fab.querySelector('.spark'), fpx=Math.round(16*SCALE);
     if(spark && fab.getAttribute('data-rova')!=='1'){
