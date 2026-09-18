@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What's New — RRFinEApp | R.R. Sphere INDIA</title>
+<meta name="description" content="Every RRFinEApp release and what it gave you. Regular updates are included at no extra charge; premium updates are optional add-ons.">
+<link rel="canonical" href="https://rrsindia.co.in/whats-new.html">
+
+<!--
+  ─────────────────────────────────────────────────────────────────────────────
+  WHAT'S NEW — the public release history.
+
+  🔴 NOTHING ON THIS PAGE IS WRITTEN HERE. Every release, every line and every
+     section comes from SuperAdmin -> Version Control, read live from
+     /public/whats-new. Editing this file to change wording would create a
+     second copy that drifts from the app and the cloud panel.
+
+  🔴 NO PRICES, EVER. Founder's standing rule: the website never prints a price.
+     A premium line says it is premium, and that is all.
+
+  Sections are computed by the SERVER from the feature catalogue
+  (backend/utils/releaseNotes.js), never decided in this page. A logged-out
+  visitor cannot be resolved to a plan, so every plan qualifier is stated in
+  full and a launch-offer feature reads as Premium, which is what it is to the
+  public.
+
+  Deploy: this file belongs in the WEBSITE repo (GitHub Pages), not here. See
+  reference_website_deploy — bump ?v=N on any asset, and check
+  raw.githubusercontent BEFORE probing Pages, because the CDN caches a 404 on a
+  new asset for about 180 seconds.
+  ─────────────────────────────────────────────────────────────────────────────
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-darkest:#0b3d2c; --green-dark:#14634a; --green-mid:#1f8f63;
+    --green-tint:#d9f2e4;    --green-tint2:#f2fbf6;
+    --ink:#1f2937; --muted:#6b7280; --faint:#9ca3af; --line:#e5e7eb; --bg:#ffffff;
+    --amber-bg:#fffbeb; --amber-bar:#d97706; --amber-fg:#92400e;
+    --blue-bg:#eff6ff;  --blue-bar:#2563eb;  --blue-fg:#1e40af;
+    --violet-bg:#f5f3ff;--violet-bar:#7c3aed;--violet-fg:#5b21b6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+       line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:0 16px}
+
+  header.top{background:linear-gradient(135deg,var(--green-darkest),var(--green-dark));color:#fff;
+             padding:34px 0 30px}
+  header.top h1{margin:0 0 6px;font-size:clamp(22px,4.4vw,31px);font-weight:700;letter-spacing:-.3px;
+                text-wrap:balance}
+  header.top p{margin:0;font-size:14px;color:var(--green-tint);max-width:62ch}
+  .home{display:inline-block;margin-bottom:16px;color:var(--green-tint);text-decoration:none;
+        font-size:12.5px;font-weight:500}
+  .home:hover{text-decoration:underline}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 26px}
+  .key{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);
+       border:1px solid var(--line);border-radius:20px;padding:4px 11px}
+  .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+
+  .rel{border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:18px}
+  .rel-head{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;margin-bottom:4px}
+  .rel-v{font-size:18px;font-weight:700;color:var(--green-darkest)}
+  .rel-d{font-size:13px;color:var(--muted)}
+  .badge{background:var(--green-tint);color:var(--green-dark);font-size:9.5px;font-weight:700;
+         border-radius:4px;padding:2px 7px;letter-spacing:.4px}
+  .rel-t{font-size:14px;font-weight:600;color:var(--ink);margin:0 0 14px}
+
+  .sec{border-left:3px solid var(--green-mid);background:var(--green-tint2);
+       border-radius:6px;padding:12px 15px;margin-bottom:10px}
+  .sec.plan{border-left-color:var(--blue-bar);background:var(--blue-bg)}
+  .sec.premium{border-left-color:var(--amber-bar);background:var(--amber-bg)}
+  .sec.included{border-left-color:var(--violet-bar);background:var(--violet-bg)}
+  .sec-h{display:flex;flex-wrap:wrap;gap:9px;align-items:baseline;margin-bottom:7px}
+  .sec-l{font-size:10.5px;font-weight:700;letter-spacing:.6px;color:var(--green-dark)}
+  .sec.plan .sec-l{color:var(--blue-fg)} .sec.premium .sec-l{color:var(--amber-fg)}
+  .sec.included .sec-l{color:var(--violet-fg)}
+  .sec-b{font-size:11px;color:var(--faint)}
+  .pt{display:flex;gap:9px;align-items:baseline;font-size:13.5px;margin-bottom:5px}
+  .pt .bul{color:var(--green-mid);flex:0 0 auto}
+  .sec.plan .bul{color:var(--blue-bar)} .sec.premium .bul{color:var(--amber-bar)}
+  .sec.included .bul{color:var(--violet-bar)}
+  .qual{color:var(--faint)}
+
+  .state{padding:30px 0;color:var(--faint);font-size:13.5px;text-align:center}
+  footer{border-top:1px solid var(--line);margin-top:34px;padding:22px 0 34px;
+         font-size:12px;color:var(--muted)}
+  footer a{color:var(--green-dark)}
+  @media (max-width:560px){ .rel{padding:15px} .sec{padding:10px 12px} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="home" href="index.html">&larr; R.R. Sphere INDIA</a>
+    <h1>What's New in RRFinEApp</h1>
+    <p>Every release, and what it gave you. Regular updates are part of what you already pay for.
+       We keep growing, the way nature never stops.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="legend">
+    <span class="key"><span class="dot" style="background:var(--green-mid)"></span>Regular update, no extra charge</span>
+    <span class="key"><span class="dot" style="background:var(--blue-bar)"></span>Included from a plan level up</span>
+    <span class="key"><span class="dot" style="background:var(--amber-bar)"></span>Optional add-on</span>
+  </div>
+  <div id="out"><div class="state">Loading the release history…</div></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    RRFinEApp &middot; R.R. Sphere INDIA &middot;
+    <a href="https://rrsindia.co.in">rrsindia.co.in</a> &middot;
+    <a href="https://fin.rrsindia.co.in">fin.rrsindia.co.in</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var API = 'https://fin.rrsindia.co.in/api/v1/public/whats-new';
+  var out = document.getElementById('out');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  var MON = ['January','February','March','April','May','June','July',
+             'August','September','October','November','December'];
+  function when(d) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || ''));
+    return m ? (parseInt(m[3],10) + ' ' + MON[parseInt(m[2],10)-1] + ' ' + m[1]) : '';
+  }
+
+  function render(data) {
+    var vs = (data && data.versions) || [];
+    if (!vs.length) { out.innerHTML = '<div class="state">No releases published yet.</div>'; return; }
+
+    out.innerHTML = vs.map(function (v) {
+      // The server has already grouped and worded every line. This page only
+      // arranges what it is handed; it never decides a section.
+      var secs = (v.sections || []).map(function (s) {
+        var pts = (s.notes || []).map(function (n) {
+          return '<div class="pt"><span class="bul">&middot;</span><span>' + esc(n.t) +
+                 (n.plan_note ? ' <span class="qual">(' + esc(n.plan_note) + ')</span>' : '') +
+                 '</span></div>';
+        }).join('');
+        return '<div class="sec ' + esc(s.key) + '">' +
+                 '<div class="sec-h"><span class="sec-l">' + esc(String(s.label).toUpperCase()) + '</span>' +
+                 (s.blurb ? '<span class="sec-b">' + esc(s.blurb) + '</span>' : '') + '</div>' +
+                 pts +
+               '</div>';
+      }).join('');
+
+      return '<section class="rel">' +
+               '<div class="rel-head">' +
+                 '<span class="rel-v">Version ' + esc(v.version) + '</span>' +
+                 '<span class="rel-d">' + esc(when(v.release_date)) + '</span>' +
+                 (v.is_current ? '<span class="badge">CURRENT</span>' : '') +
+               '</div>' +
+               (v.title ? '<p class="rel-t">' + esc(v.title) + '</p>' : '') +
+               secs +
+             '</section>';
+    }).join('');
+  }
+
+  fetch(API, { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(render)
+    .catch(function () {
+      // Never a blank page and never a technical message: a visitor gets a way
+      // forward, not a status code.
+      out.innerHTML = '<div class="state">The release history is not available just now. ' +
+                      'Please try again shortly, or write to us from the ' +
+                      '<a href="contact.html">contact page</a>.</div>';
+    });
+})();
+</script>
+</body>
+</html>
