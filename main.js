@@ -665,9 +665,23 @@ function printDraftOrder(orderNo){
   w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(), 800);
 }
 
+
+// Country picked on the order form: India needs a PIN and a state, other
+// countries a postcode and a region, both optional.
+function odCountryChanged(){
+  const cy = document.getElementById('od-country'); if(!cy) return;
+  const abroad = (cy.value||'IN') !== 'IN';
+  const pin = document.getElementById('od-pin'), st = document.getElementById('od-state');
+  if(pin){ pin.placeholder = abroad ? 'Postcode (optional)' : 'PIN code'; const r = pin.parentElement.querySelector('.req'); if(r) r.style.display = abroad ? 'none' : ''; }
+  if(st){ st.placeholder = abroad ? 'State / region (optional)' : 'State'; const r = st.parentElement.querySelector('.req'); if(r) r.style.display = abroad ? 'none' : ''; }
+}
+
 async function submitOrder(){
   const v = id => (document.getElementById(id)?document.getElementById(id).value.trim():'');
-  const req = [['od-name','Account/Tenant Name'],['od-email','Email'],['od-phone','Phone'],['od-add1','Address Line 1'],['od-city','City'],['od-pin','PIN'],['od-state','State']];
+  // Outside India the postcode and state are optional (the order is marked as
+  // "other country", state 96) and the typed state is kept in the address.
+  const abroad = (v('od-country')||'IN') !== 'IN';
+  const req = [['od-name','Account/Tenant Name'],['od-email','Email'],['od-phone','Phone'],['od-add1','Address Line 1'],['od-city','City']].concat(abroad ? [] : [['od-pin','PIN'],['od-state','State']]);
   for(const [id,lbl] of req){ if(!v(id)){ alert('Please fill: '+lbl); document.getElementById(id)?.focus(); return; } }
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('od-email'))){ alert('Please enter a valid email.'); return; }
   if((v('od-phone').replace(/\D/g,'')).length < 10){ alert('Please enter a valid phone / WhatsApp number with country code.'); return; }
@@ -698,8 +712,8 @@ async function submitOrder(){
         customer_email: v('od-email'),
         customer_phone: v('od-phone'), country: v('od-country')||'IN', gstin: v('od-gstin'),
         broker: v('od-partner')||'',
-        address1: v('od-add1'), address2: v('od-add2'), city: v('od-city'), pin_code: v('od-pin'),
-        state_code: v('od-state').slice(0,2).toUpperCase(),
+        address1: v('od-add1'), address2: [v('od-add2'), abroad ? v('od-state') : ''].filter(Boolean).join(', '), city: v('od-city'), pin_code: v('od-pin'),
+        state_code: abroad ? '96' : v('od-state').slice(0,2).toUpperCase(),
         tenant_category: catEl.value, users, notes: v('od-notes'),
         custom_requirement: v('od-custom'),
         dev_timeline: (document.querySelector('input[name="od-timeline"]:checked')||{}).value || '',
