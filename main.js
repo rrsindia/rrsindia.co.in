@@ -56,10 +56,10 @@ document.addEventListener('click', function(e) {
     bar.className = 'promo-bar'; bar.id = 'promoBar';
     bar.innerHTML =
       '<button class="promo-x" id="promoX" type="button" aria-label="Dismiss">&times;</button>' +
-      '<a class="promo-cta" href="enquire.html?demo=1">' +
+      '<a class="promo-cta" href="https://fin.rrsindia.co.in/signup" data-demo-cta="1">' +
         '<span class="promo-gift">🎁</span>' +
-        '<span class="promo-msg">Try <b>RRFinEApp</b> FREE for 30 days</span>' +
-        '<span class="promo-go">Book a Free Demo →</span>' +
+        '<span class="promo-msg">Your full-featured <b>RRFinEApp</b> demo, no booking, no card</span>' +
+        '<span class="promo-go">Start your demo →</span>' +
       '</a>';
     document.body.appendChild(bar);
     document.body.classList.add('has-promo');
@@ -566,7 +566,7 @@ async function loadPlansFeatures(){
       const cd = await cr.json().catch(()=>({})); const ce = document.getElementById('od-code');
       if(ce && cd.code) ce.value = cd.code;
     } catch(e){}
-  } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans, try again or use the <a href="enquire.html">enquiry form</a>.</p>'; }
+  } catch(e){ cat.innerHTML = '<p style="color:#f87171">Could not load plans, try again or use the <a href="contact.html">contact form</a>.</p>'; }
 }
 
 // Print a professional GREEN order summary (DRAFT, or FINAL when an order_no is given).
@@ -810,9 +810,9 @@ async function trkRenderOne(no, email, box) {
 (function(){
   const KB = [
     {k:['price','pricing','cost','fee','charge','how much','rupee','plan','rate','expensive'],
-     a:"Our RRFinEApp pricing plans are launching shortly! 🏷️ In the meantime we're happy to share current pricing and a personalised quote.<br><br>👉 <a href='enquire.html'>Request a quote</a>"},
+     a:"Our RRFinEApp pricing plans are launching shortly! 🏷️ In the meantime we're happy to share current pricing and a personalised quote.<br><br>👉 <a href='contact.html'>Request a quote</a>"},
     {k:['demo','trial','try','test','see it','show me','free demo'],
-     a:"You can get a free demo of RRFinEApp! 🎓 We'll walk you through it the same day.<br><br>👉 <a href='enquire.html'>Book a free demo</a> or open the app at <a href='https://fin.rrsindia.co.in' target='_blank'>fin.rrsindia.co.in</a>"},
+     a:"Start your full-featured RRFinEApp demo yourself, no booking, no card! 🎓<br><br>👉 <a href='https://fin.rrsindia.co.in/signup'>Start your demo</a> or open the app at <a href='https://fin.rrsindia.co.in' target='_blank'>fin.rrsindia.co.in</a>"},
     {k:['what is','about rrfin','about the app','rrfineapp','tell me about','what does','rrfine'],
      a:"RRFinEApp is a cloud-based accounting app for Indian businesses, like Tally but in the cloud, like D365 but simple. 📊 Full accounting, GST invoicing, final accounts, stock & multi-company.<br><br>Want to <a href='finapp.html'>see all features</a>?"},
     {k:['gst','tax','gstr','invoice','invoicing','cgst','sgst','igst','return'],
@@ -836,14 +836,14 @@ async function trkRenderOne(no, email, box) {
     {k:['hi','hello','hey','namaste','good morning','good evening','hii','helo','hlo'],
      a:"Hello! 👋 I'm the AI Assistant. I can help with RRFinEApp features, pricing, demos, GST, coaching classes and more. What would you like to know?"},
     {k:['thank','thanks','thx','great','nice','okay','cool','good'],
-     a:"You're welcome! 😊 Anything else I can help with? You can also <a href='enquire.html'>send an enquiry</a> anytime."},
+     a:"You're welcome! 😊 Anything else I can help with? You can also <a href='contact.html'>contact us</a> anytime."},
     {k:['who are you','your name','what are you','are you human','bot','robot'],
      a:"I'm the AI Assistant, here to help you learn about R.R. Sphere INDIA, RRFinEApp and our coaching classes. Ask me anything!"},
     {k:['company','rr sphere','who','experience','about you','about us','history'],
      a:"R.R. Sphere INDIA is an IT & Learning company with 30+ years of expertise (since 1995), based in Amritsar 🇮🇳. We build cloud software, AI solutions and run coaching classes.<br><br>👉 <a href='about.html'>About us</a>"}
   ];
-  const FALLBACK = "I'm not totally sure about that one 🤔, but our team would love to help!<br><br>👉 <a href='enquire.html'>send an enquiry</a> and we'll get right back to you.";
-  const QUICK = ["▶ Product tour","💰 Pricing","🎓 Book a demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
+  const FALLBACK = "I'm not totally sure about that one 🤔, but our team would love to help!<br><br>👉 <a href='contact.html'>contact us</a> and we'll get right back to you.";
+  const QUICK = ["▶ Product tour","💰 Pricing","🎓 Start your demo","📊 What is RRFinEApp?","🧾 GST features","📚 Coaching","📞 Contact"];
 
   function findAnswer(text){
     const t = ' ' + text.toLowerCase() + ' ';
@@ -964,7 +964,7 @@ async function trkRenderOne(no, email, box) {
     const fab = document.querySelector('.ai-fab'); if(fab) fab.classList.add('hidden');
     if(!greeted){
       greeted = true;
-      botSay("Hi, I'm <b>Rova</b>, your R.R. Sphere INDIA assistant. 🌿 Ask me anything about RRFinEApp, pricing, a free demo, GST, the mobile app, or our coaching, and I'll help.");
+      botSay("Hi, I'm <b>Rova</b>, your R.R. Sphere INDIA assistant. 🌿 Ask me anything about RRFinEApp, pricing, starting your demo, GST, the mobile app, or our coaching, and I'll help.");
       renderQuick();
     }
     setTimeout(function(){ const i=document.getElementById('aiInput'); if(i) i.focus(); }, 120);
@@ -1144,7 +1144,7 @@ async function trkRenderOne(no, email, box) {
       say:'Android app Google Play par live hai. Aapki books aapki jeb mein, poori tarah sync, secure device login ke saath, aur aap mujhse voice se bhi pooch sakte hain apne phone se.' },
     { t:'Meet Rova, your assistant', b:['Open any screen or report by asking','Pull a ledger or item stock by name','Voice, guided tutorials, and answers from your books'],
       say:'Aur main aapki madad ke liye yahan hoon. Mujhse kaho koi bhi screen ya report kholo, kisi party ka ledger ya item ka stock naam se nikalo, aur main apni aawaz mein jawaab deti hoon, aapki bhaasha mein.' },
-    { t:'Get started', b:['Free 30-day demo, extendable on request','First 50 clients: all premium features free','Book a demo or start your free trial'],
+    { t:'Get started', b:['Your full-featured RRFinEApp demo, extendable on request','First 50 clients: all premium features free','Start your demo at fin.rrsindia.co.in'],
       say:'Try karne ke liye taiyaar? Ek free tees din ka demo shuru kijiye, aur pehle pachaas clients mein hone par saare premium features free milte hain. Kuch bhi poochiye, ya demo book kijiye.' },
   ];
   var _tour = { on:false, i:0, playing:true };
@@ -1707,7 +1707,7 @@ async function trkRenderOne(no, email, box) {
     if (/order/.test(p))               return 'Hi R.R. Sphere INDIA, I would like to place an order.';
     if (/support|feedback/.test(p))    return 'Hi R.R. Sphere INDIA, I need some help.';
     if (/services|solutions/.test(p))  return 'Hi R.R. Sphere INDIA, I would like to discuss a project.';
-    return 'Hi R.R. Sphere INDIA, I would like to book a free 30-day demo of RRFinEApp.';
+    return 'Hi R.R. Sphere INDIA, I would like to know more about RRFinEApp.';
   })();
   function place(a){ a.style.bottom = (document.querySelector('.promo-bar') ? 74 : 22) + 'px'; }
   function mount(){
@@ -1768,4 +1768,20 @@ async function trkRenderOne(no, email, box) {
       })
       .catch(function () { /* silence is correct here: keep the page as authored */ });
   } catch (e) { /* same */ }
+})();
+
+
+/* Demo links follow the SuperAdmin sign-up switch (founder 19-10-2026): the demo booking
+   page is retired, so while self sign-up is OFF every demo link goes to Contact. One fetch,
+   no observer; on any error the links stay as they are. */
+(function () {
+  try {
+    fetch('https://fin.rrsindia.co.in/api/v1/signup/config').then(function (r) { return r.json(); }).then(function (c) {
+      if (c && c.enabled) return;
+      document.querySelectorAll('a[href^="https://fin.rrsindia.co.in/signup"]').forEach(function (a) {
+        a.href = 'contact.html';
+        if (a.getAttribute('data-demo-cta') === '1' || a.classList.contains('demo-cta')) a.textContent = 'Contact us';
+      });
+    }).catch(function () {});
+  } catch (e) {}
 })();

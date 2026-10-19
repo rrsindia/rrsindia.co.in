@@ -46,7 +46,7 @@
         <button type="button" class="nav-dd-btn">Business <i>&#9662;</i></button>
         <div class="nav-dd-menu">
           <a href="order.html">Order</a>
-          <a href="enquire.html">Enquiry</a>
+          <a class="demo-cta" href="https://fin.rrsindia.co.in/signup">Start your demo</a>
           <a href="partner.html">Partnership</a>
           <a href="feedback.html">Feedback</a>
         </div>
@@ -281,7 +281,7 @@ async function ptLoadMessages(){
     if(r.status===401||r.status===403){ return; }
     const d=await r.json().catch(()=>([]));
     const msgs=Array.isArray(d)?d:[];
-    if(!msgs.length){ el.innerHTML='<div class="pt-empty">No messages yet. <a href="feedback.html">Send feedback</a> or <a href="enquire.html">enquire now →</a></div>'; return; }
+    if(!msgs.length){ el.innerHTML='<div class="pt-empty">No messages yet. <a href="feedback.html">Send feedback</a> or <a href="contact.html">contact us →</a></div>'; return; }
     el.innerHTML=msgs.map(ptMsgCard).join('');
   }catch(e){ el.innerHTML='<p class="pt-empty" style="color:#f87171">Could not load messages.</p>'; }
 }
@@ -304,7 +304,7 @@ function ptMsgCard(m){
 function toggleMenu(){ const n=document.getElementById('navLinks'); if(n) n.classList.toggle('open'); }
 if(ptToken){ ptShowPortal(); }
 </script>
-<script src="main-104.min.js"></script>
+<script src="main-105.min.js"></script>
 <script src="update-check.js" defer></script>
 </body>
 </html>
