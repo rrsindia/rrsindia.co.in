@@ -111,24 +111,30 @@ function toggleFaq(el) {
 // ── CONTACT FORM → RRFinEApp enquiry API (web_submissions) ──
 async function submitForm() {
   const name = document.getElementById('cf-name').value.trim();
-  const contact = document.getElementById('cf-contact').value.trim();
+  // Email AND phone, both: the server needs both to reply by mail and on
+  // WhatsApp. Until 21-10-2026 this form had one "Phone / Email" box, so the
+  // server refused every visitor (founder 21-10).
+  const email = document.getElementById('cf-email').value.trim();
+  const phone = document.getElementById('cf-phone').value.trim();
   const topic = document.getElementById('cf-topic').value;
   const msg = document.getElementById('cf-msg').value.trim();
-  if(!name || !contact) { alert('Please fill in your name and contact details.'); return; }
-  const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact);
+  if(!name) { alert('Please enter your name.'); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
+  const phoneDigits = phone.replace(/\D/g, '');
+  if(phoneDigits.length < 10 || phoneDigits.length > 15) { alert('Please enter your phone number with country code (e.g. +91 98765 43210).'); return; }
   const btn = document.querySelector('.form-submit');
   const orig = btn.textContent; btn.textContent = 'Sending…'; btn.disabled = true;
   try {
     const res = await fetch(RRFINEAPP_API + '/public/enquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
-      body: JSON.stringify({ name, phone: isEmail ? '' : contact, email: isEmail ? contact : '',
+      body: JSON.stringify({ name, phone, email,
         business: '', plan_interest: topic || 'General Enquiry', message: msg })
     });
     const data = await res.json().catch(()=>({}));
     if(res.ok && data.ok) {
       const s = document.getElementById('form-success');
-      if(s){ s.style.display = 'block'; s.innerHTML = `✅ Thank you! Your message has been received (ref ${data.ref_no}). We'll get back to you shortly!` + SPAM_NOTE; }
+      if(s){ s.style.display = 'block'; s.innerHTML = `✅ Thank you! Your enquiry has been received (ref ${data.ref_no}). We'll get back to you shortly!` + SPAM_NOTE; }
       btn.style.display = 'none';
     } else {
       alert(data.error || 'Sorry, something went wrong. Please try again.');
