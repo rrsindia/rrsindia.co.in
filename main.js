@@ -146,73 +146,8 @@ async function submitForm() {
   }
 }
 
-// ── ENQUIRY FORM (RRFinEApp page) → our own API (web_submissions) ──
-async function submitEnquiry() {
-  const name = document.getElementById('enq-name').value.trim();
-  const contact = document.getElementById('enq-contact').value.trim();
-  const email = document.getElementById('enq-email').value.trim();
-  if(!name) { alert('Please enter your name.'); return; }
-  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
-  if((contact.replace(/\D/g,'')).length < 10) { alert('Please enter a valid phone / WhatsApp number with country code.'); return; }
-  const biz = document.getElementById('enq-biz').value.trim();
-  const plan = document.getElementById('enq-plan').value || 'Not specified';
-  const msg = document.getElementById('enq-msg').value.trim();
-  const isDemo = plan === 'Just a free demo first';
-  const demoProduct = isDemo ? ((document.getElementById('enq-demo-product')||{}).value || '') : '';
-  const demoUser    = isDemo ? ((document.getElementById('enq-demo-user')||{}).value || 'any') : '';
-  const demoCountry = isDemo ? ((document.getElementById('enq-demo-country')||{}).value || 'IN') : 'IN';
-
-  const btn = document.querySelector('.enq-submit');
-  const originalText = btn.textContent;
-  btn.textContent = 'Sending…';
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(RRFINEAPP_API + '/public/enquiry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': RRFINEAPP_PUBLIC_KEY },
-      body: JSON.stringify({ name, phone: contact, email, business: biz, plan_interest: plan, message: msg,
-        is_demo: isDemo, category: demoProduct, demo_user_type: demoUser, country: demoCountry })
-    });
-    const data = await res.json();
-    if(res.ok && data.ok) {
-      const s = document.getElementById('enq-success');
-      const okMsg = isDemo
-        ? `🎁 Your free demo is booked! Reference ${data.ref_no}. We'll set it up and email your access details, usually within 48 hours.`
-        : `✅ Thank you! Your enquiry reference is ${data.ref_no}. Our team will get back to you shortly.`;
-      if (s) { s.style.display = 'block'; s.innerHTML = okMsg + SPAM_NOTE; }
-      btn.style.display = 'none';
-    } else {
-      alert(data.error || 'Sorry, something went wrong sending your enquiry. Please try WhatsApp or call us.');
-      btn.textContent = originalText; btn.disabled = false;
-    }
-  } catch(err) {
-    alert('Network issue, please check your connection or use the WhatsApp option.');
-    btn.textContent = originalText; btn.disabled = false;
-  }
-}
-// Show the demo-booking fields (product + who it's for) only when "Just a free demo
-// first" is selected in the enquiry "I'm interested in" dropdown.
-window.enqToggleDemo = function () {
-  const plan = (document.getElementById('enq-plan') || {}).value || '';
-  const box = document.getElementById('enq-demo-fields');
-  if (box) box.style.display = (plan === 'Just a free demo first') ? 'block' : 'none';
-};
-// Honor ?demo=1 (e.g. the app login "Book a Free Demo" link) → preselect the free
-// demo option and reveal its fields on page load.
-(function () {
-  function init() {
-    const sel = document.getElementById('enq-plan');
-    if (!sel || !/[?&]demo=1\b/.test(location.search)) return;
-    for (let i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].value === 'Just a free demo first' || sel.options[i].text === 'Just a free demo first') {
-        sel.selectedIndex = i; break;
-      }
-    }
-    if (window.enqToggleDemo) window.enqToggleDemo();
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-})();
+// The old enquiry / demo booking form (enquire.html) was retired on 19-10-2026 and its code
+// removed on 23-10: enquire.html only redirects to the sign-up. Enquiries come from contact.html.
 
 const starLabels = ['','😞 Poor','😐 Fair','🙂 Good','😊 Very Good','🤩 Excellent!'];
 function setRating(val) {
