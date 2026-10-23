@@ -1531,6 +1531,7 @@ async function trkRenderOne(no, email, box) {
     facebook:  '📘 Facebook',
     instagram: '📸 Instagram',
     linkedin:  '💼 LinkedIn',
+    x:         '𝕏 X',
     youtube:   '▶️ YouTube',
     google:    '🌐 Google',
     whatsapp:  '💬 WhatsApp'
