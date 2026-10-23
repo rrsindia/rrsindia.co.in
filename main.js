@@ -1551,7 +1551,7 @@ async function trkRenderOne(no, email, box) {
 })();
 
 // -- Founder personal social links on the Vision page (#v-social) --
-// One-time fetch (no observer/watcher) of the founder's FB/Insta/X/LinkedIn from
+// One-time fetch (no observer/watcher) of the founder's FB/Insta/X/LinkedIn/YouTube from
 // SuperAdmin (founder_* via /public/login-page); shows only the ones filled in.
 (function(){
   function run(){
@@ -1562,7 +1562,7 @@ async function trkRenderOne(no, email, box) {
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(d){
           var f = d && d.founder; if(!f) return;
-          var items = [['facebook','Facebook','👍'],['instagram','Instagram','📸'],['x','X','✖'],['linkedin','LinkedIn','💼']];
+          var items = [['facebook','Facebook','👍'],['instagram','Instagram','📸'],['x','X','✖'],['linkedin','LinkedIn','💼'],['youtube','YouTube','▶️']];
           var html = '';
           items.forEach(function(it){
             var u = f[it[0]] && String(f[it[0]]).trim();
