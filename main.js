@@ -1422,8 +1422,12 @@ async function trkRenderOne(no, email, box) {
     var f=document.getElementById('res-iframe'); if(f) f.src='';
     document.body.style.overflow='';
   };
+  // the decks Rova can present, by their Resources title (founder 18-11-2026)
+  var DECKS={};
+  function deckFor(r){ return r && r.doc_type!=='pdf' && !isPdf(r) ? DECKS[String(r.title||'').replace(/_/g,' ').toLowerCase()] : null; }
   function card(r){
     var icon=ICON[r.doc_type]||'🗂️';
+    var deck=deckFor(r);
     var d=document.createElement('div');
     d.style.cssText='background:linear-gradient(135deg,rgba(10,61,31,0.7),rgba(26,138,71,0.18));border:1px solid var(--g3);border-radius:16px;padding:22px;cursor:pointer;transition:transform .2s,border-color .2s';
     d.onmouseover=function(){ d.style.transform='translateY(-3px)'; d.style.borderColor='var(--g4)'; };
@@ -1432,16 +1436,26 @@ async function trkRenderOne(no, email, box) {
       '<div style="font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:1.12rem;color:var(--white);margin-bottom:4px">'+esc(r.title)+'</div>'+
       (r.description?'<div style="color:var(--muted);font-size:.85rem;line-height:1.5;margin-bottom:10px">'+esc(r.description)+'</div>':'<div style="margin-bottom:10px"></div>')+
       (r.category?'<div style="font-size:.72rem;color:var(--g4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">'+esc(r.category)+'</div>':'')+
-      '<span class="btn-primary" style="display:inline-block;font-size:.85rem">View &#9658;</span>';
+      '<span class="btn-primary" style="display:inline-block;font-size:.85rem">View &#9658;</span>'+
+      (deck?' <span class="btn-primary rova-present-btn" style="display:inline-block;font-size:.85rem;margin-left:6px;background:#d4af37;color:#052e16">&#9654; Rova presents</span>':'');
     d.onclick=function(){ openResource(r); };
+    if(deck){
+      var b=d.querySelector('.rova-present-btn');
+      b.onclick=function(e){ e.stopPropagation(); if(window.Rova && window.Rova.present) window.Rova.present(deck.id, deck.title); else openResource(r); };
+    }
     return d;
   }
   function run(){
     var wrap=document.getElementById('resources-list'); if(!wrap) return;
     var empty=document.getElementById('resources-empty');
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeResource(); });
+    var decksReady=fetch(RRFINEAPP_API+'/public/rova-decks', { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.ok ? r.json() : {}; })
+      .then(function(d){ ((d && d.decks)||[]).forEach(function(x){ DECKS[String(x.title||'').toLowerCase()]=x; }); })
+      .catch(function(){});   // no decks: the cards simply have no "Rova presents"
     fetch(RRFINEAPP_API+'/public/web-resources', { headers:{ 'x-api-key':RRFINEAPP_PUBLIC_KEY, 'Accept':'application/json' } })
       .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(list){ return decksReady.then(function(){ return list; }); })
       .then(function(list){
         wrap.innerHTML='';
         if(!list || !list.length){ wrap.style.display='none'; if(empty) empty.style.display='block'; return; }
