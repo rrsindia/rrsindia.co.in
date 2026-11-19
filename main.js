@@ -1741,3 +1741,42 @@ async function trkRenderOne(no, email, box) {
     }).catch(function () {});
   } catch (e) {}
 })();
+
+/* ── Meet Rova (founder 19-11-2026): the same bright gold-ring button as the app, on every page ──────────
+   Her face in a glowing gold ring, gold words on dark green; opens her full intro (the packed Rova).
+   It pulses until the intro has been watched once (rova_intro_seen), then stays still.
+   On the home page it replaces the two tour buttons; on every other page it sits in the top bar. */
+(function(){
+  if (window.__meetRova) return; window.__meetRova = true;
+  var css = '@keyframes meetRovaPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.55),0 4px 14px rgba(5,46,22,.35)}50%{box-shadow:0 0 0 9px rgba(212,175,55,0),0 0 22px 4px rgba(212,175,55,.55)}}' +
+    '.meet-rova{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,#052e16,#14532d 60%,#166534);color:#d4af37;border:2px solid #d4af37;border-radius:999px;padding:3px 14px 3px 3px;font:800 .9rem/1.2 inherit;font-family:inherit;letter-spacing:.3px;cursor:pointer;white-space:nowrap;transition:transform .15s ease,filter .15s ease;box-shadow:0 4px 14px rgba(5,46,22,.35)}' +
+    '.meet-rova:hover{transform:translateY(-1px) scale(1.03);filter:brightness(1.12)}' +
+    '.meet-rova .mr-ring{display:inline-flex;border-radius:50%;padding:2px;background:#d4af37}' +
+    '.meet-rova .mr-ring img{width:28px;height:28px;border-radius:50%;object-fit:cover;display:block;background:#14532d}' +
+    '.meet-rova.mr-big{font-size:1.05rem;padding:5px 20px 5px 5px}.meet-rova.mr-big .mr-ring img{width:38px;height:38px}' +
+    '.meet-rova.mr-pulse,.meet-rova.mr-pulse .mr-ring{animation:meetRovaPulse 1.8s ease-in-out infinite}' +
+    '.nav-inner .meet-rova{margin-left:10px}' +
+    '.meet-rova.mr-float{display:none;position:fixed;left:12px;bottom:84px;z-index:9990;font-size:.82rem;padding:2px 12px 2px 2px}' +'@media(max-width:600px){.nav-inner .meet-rova{display:none}.meet-rova.mr-float{display:inline-flex}.meet-rova.mr-float .mr-ring img{width:26px;height:26px}}' +
+    '@media(prefers-reduced-motion:reduce){.meet-rova.mr-pulse,.meet-rova.mr-pulse .mr-ring{animation:none}}';
+  function seen(){ try { return localStorage.getItem('rova_intro_seen') === '1'; } catch(e) { return false; } }
+  function open(){ if (window.Rova && window.Rova.intro) window.Rova.intro(); else if (window.rovaStartTour) window.rovaStartTour(); }
+  function make(big){
+    var b = document.createElement('button');
+    b.type = 'button'; b.title = 'Meet Rova';
+    b.className = 'meet-rova' + (big ? ' mr-big' : '') + (seen() ? '' : ' mr-pulse');
+    b.innerHTML = '<span class="mr-ring"><img src="/rova/look/hx.jpg" alt=""></span><span>&#9654; Meet Rova</span>';
+    b.onclick = function(){ open(); var all = document.querySelectorAll('.meet-rova.mr-pulse'); setTimeout(function(){ if (seen()) for (var i = 0; i < all.length; i++) all[i].classList.remove('mr-pulse'); }, 1500); };
+    return b;
+  }
+  function run(){
+    var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+    var olds = document.querySelectorAll('.nav-tour-btn, .btn-tour');
+    for (var i = 0; i < olds.length; i++) olds[i].parentNode.replaceChild(make(olds[i].classList.contains('btn-tour')), olds[i]);
+    var nav = document.querySelector('.nav-inner');
+    if (nav && !nav.querySelector('.meet-rova')) { var h = nav.querySelector('.hamburger'); nav.insertBefore(make(false), h || null); }
+    // phones: the top bar has no room (her chat button sits there), so a floating one at the bottom left,
+    // on every page that has no Meet Rova of its own in the page (the home page hero has one)
+    if (!document.querySelector('.meet-rova.mr-big')) { var f = make(false); f.className += ' mr-float'; document.body.appendChild(f); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
