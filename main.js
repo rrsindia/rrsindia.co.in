@@ -1175,7 +1175,7 @@ async function trkRenderOne(no, email, box) {
   // demand from the tour (it builds the tour's panel; no vanilla FAB).
   try{
     var _rw = document.createElement('script');
-    _rw.src = '/rova-widget-10.js'; _rw.async = true;
+    _rw.src = '/rova-widget-11.js'; _rw.async = true;
     _rw.onload = function(){ try{ if(window.Rova) window.Rova.init({ mode:'website' }); }catch(e){} };
     document.head.appendChild(_rw);
   }catch(e){}
@@ -1635,7 +1635,10 @@ async function trkRenderOne(no, email, box) {
     }
   }
   try{
-    fetch(API+'/public/rova-avatar',{headers:{'Accept':'application/json'}})
+    // the visitor's own local date and time pick Rova's scheduled look (founder 20-11-2026)
+    var _n=new Date(),_p=function(x){return (x<10?'0':'')+x;};
+    var _q='?d='+_n.getFullYear()+'-'+_p(_n.getMonth()+1)+'-'+_p(_n.getDate())+'&t='+_p(_n.getHours())+':'+_p(_n.getMinutes())+'&md='+_p(_n.getMonth()+1)+'-'+_p(_n.getDate())+'&wd='+_n.getDay();
+    fetch(API+'/public/rova-avatar'+_q,{headers:{'Accept':'application/json'}})
       .then(function(r){return r.json();})
       .then(function(d){
         if(!d||!d.enabled||!d.avatar) return;
