@@ -1208,6 +1208,8 @@ async function trkRenderOne(no, email, box) {
       var last = 0, m, found = false;
       RE.lastIndex = 0;
       while((m = RE.exec(text))){
+        // part of a longer word ("rrsindia.co.in"): leave it as it is (founder 20-11-2026)
+        if(m.index > 0 && /[A-Za-z0-9]/.test(text.charAt(m.index - 1))) continue;
         found = true;
         if(m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
         var span = document.createElement('span');
