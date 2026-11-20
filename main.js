@@ -1185,6 +1185,10 @@ async function trkRenderOne(no, email, box) {
 (function(){
   var SKIP = {SCRIPT:1, STYLE:1, NOSCRIPT:1, TEXTAREA:1, INPUT:1};
   var RE = /India(?![A-Za-z])/gi;   // whole word, any case, never matches "Indian"
+  function ownedByReact(el){
+    for(var k in el){ if(k.indexOf('__reactFiber') === 0 || k.indexOf('__reactContainer') === 0) return true; }
+    return false;
+  }
 
   function process(root){
     if(!root) return;
@@ -1195,6 +1199,8 @@ async function trkRenderOne(no, email, box) {
         while(p){
           if(SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT;
           if(p.classList && p.classList.contains('india-big')) return NodeFilter.FILTER_REJECT; // already done
+          // never touch what React draws (Rova's panel and her tour): replacing its text crashes it (founder 20-11-2026)
+          if(p.id === 'rova-stage-root' || p.id === 'rova-widget-root' || ownedByReact(p)) return NodeFilter.FILTER_REJECT;
           if(p === document.body) break;
           p = p.parentNode;
         }
